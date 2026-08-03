@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/*
+  Prototype palette — a neutral corporate blue stand-in.
+  Swap these three brand values for the real Sophic tokens when available.
+*/
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+
+  --brand: #0b5fa5;
+  --brand-dark: #06375f;
+  --brand-light: #e8f2fa;
+
+  --muted: #5b6b7f;
+  --line: #e2e8f0;
+  --surface: #f6f8fb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-light: var(--brand-light);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  /* CSS's native `ease` — the right curve for hover and colour changes.
+     Tailwind only ships ease-in/out/in-out, so expose it as `ease-gentle`. */
+  --ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Keep focus rings visible for keyboard users on the inert nav buttons too. */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* --- Motion -------------------------------------------------------------
+   Entrances use ease-out: the fast start reads as responsive. Built-in CSS
+   curves are too weak, so these are the stronger custom equivalents.
+   Every rule below has a prefers-reduced-motion counterpart.
+------------------------------------------------------------------------- */
+:root {
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Smooth in-page jumps (the hero's "Explore solutions" anchor). Opt in only
+   when the user has not asked for reduced motion — a long animated scroll is
+   exactly the kind of movement that triggers motion sickness. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Scroll-triggered reveal, toggled by the Reveal component.
+
+   Transitions rather than keyframes, so the motion is symmetric: the element
+   resets to its hidden state once it leaves the viewport and plays again on
+   every re-entry, not just the first one. The reset happens off-screen, so the
+   user only ever sees the entrance. */
+.reveal,
+.reveal-settle {
+  opacity: 0;
+  transition:
+    opacity 500ms var(--ease-out-quart),
+    transform 500ms var(--ease-out-quart);
+  will-change: transform, opacity;
+}
+
+.reveal {
+  transform: translateY(12px);
+}
+
+/* Starts at 0.97, never 0 — elements should already have a visible shape. */
+.reveal-settle {
+  transform: scale(0.97);
+  transition-duration: 600ms;
+}
+
+.reveal[data-visible="true"],
+.reveal-settle[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+  /* Drop the hint once the entrance is done. Leaving `will-change: opacity`
+     in place makes the element a backdrop root, which silently breaks
+     backdrop-filter on anything inside it (the cover's frosted cards). */
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-settle {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
