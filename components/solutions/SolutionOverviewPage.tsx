@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { getSolution, getSubSolution } from "@/lib/solutions";
-import { ContentPlaceholder } from "./ContentPlaceholder";
+import { FunctionList } from "./FunctionList";
 import { PageHeader } from "./PageHeader";
 import { SolutionCover } from "./SolutionCover";
+import { SubSolutionBenefits } from "./SubSolutionBenefits";
+import { SubSolutionHero } from "./SubSolutionHero";
 import { SubSolutionList } from "./SubSolutionList";
+import { TechnicalMetrics } from "./TechnicalMetrics";
 
 /**
  * Shared shell for the four category overview pages.
@@ -29,13 +32,6 @@ export function SolutionOverviewPage({ slug }: { slug: string }) {
         />
       )}
       <SubSolutionList items={solution.subSolutions} />
-      <ContentPlaceholder
-        note={
-          hasCover
-            ? "Each solution below still needs its own detail — what it is, its benefits and its functions."
-            : undefined
-        }
-      />
     </>
   );
 }
@@ -52,17 +48,31 @@ export function SubSolutionPage({
 
   return (
     <>
-      <PageHeader
-        trail={[
-          { label: "Home", href: "/" },
-          { label: solution.title, href: solution.href },
-          { label: subSolution.title },
-        ]}
-        eyebrow={solution.title}
-        title={subSolution.title}
-        lead={subSolution.summary}
-      />
-      <ContentPlaceholder />
+      {subSolution.image ? (
+        <SubSolutionHero solution={solution} subSolution={subSolution} />
+      ) : (
+        <PageHeader
+          trail={[
+            { label: "Home", href: "/" },
+            { label: solution.title, href: solution.href },
+            { label: subSolution.title },
+          ]}
+          eyebrow={solution.title}
+          title={subSolution.title}
+          lead={subSolution.summary}
+        />
+      )}
+      {subSolution.metrics && subSolution.metrics.length > 0 && (
+        <TechnicalMetrics metrics={subSolution.metrics} />
+      )}
+      {/* Functions before benefits, on every sub-solution: what the machine
+          does has to be established before why it is worth having. */}
+      {subSolution.functions && subSolution.functions.length > 0 && (
+        <FunctionList items={subSolution.functions} />
+      )}
+      {subSolution.benefits && subSolution.benefits.length > 0 && (
+        <SubSolutionBenefits items={subSolution.benefits} />
+      )}
     </>
   );
 }

@@ -18,7 +18,16 @@ import type { BenefitIconName } from "@/lib/solutions";
  * `unoptimized` is required; Next's image optimizer would flatten the
  * animation to a single frame.
  */
+/**
+ * Icon names still waiting on their source artwork. These render a placeholder
+ * rather than an <Image>, so the layout is final and nothing 404s in the
+ * meantime. Empty today — ICT & FCT has no cover yet, so list its icon names
+ * here when its benefits go in, then remove them once the .webp pair exists.
+ */
+const PENDING_ICONS = new Set<BenefitIconName>([]);
+
 export function BenefitIcon({ name }: { name: BenefitIconName }) {
+  const pending = PENDING_ICONS.has(name);
   const animated = `/images/${name}.webp`;
   const still = `/images/${name}-still.webp`;
 
@@ -26,6 +35,8 @@ export function BenefitIcon({ name }: { name: BenefitIconName }) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    if (pending) return;
+
     const element = ref.current;
     if (!element) return;
 
@@ -51,7 +62,22 @@ export function BenefitIcon({ name }: { name: BenefitIconName }) {
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [animated]);
+  }, [animated, pending]);
+
+  // Reserves the exact icon box so swapping in the real artwork shifts nothing.
+  // Deliberately unfinished-looking — a dashed outline reads as "not yet" where
+  // a generic glyph would read as a design decision.
+  if (pending) {
+    return (
+      <span
+        aria-hidden="true"
+        title="Icon artwork pending"
+        className="flex h-12 w-12 items-center justify-center rounded-lg border border-dashed border-white/35 text-lg text-white/40"
+      >
+        +
+      </span>
+    );
+  }
 
   return (
     <span ref={ref} className="block h-12 w-12">

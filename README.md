@@ -112,7 +112,7 @@ replacing slow, error-prone manual handling.
 ## 2. Inspection & Testing
 
 - Onelier
-  Cameras and vision software that check every part for defects → faster and more consistent than the human eye.  
+  Cameras and vision software that check every part for defects → faster and more consistent than the human eye.
 
 - benefits :
 
@@ -141,6 +141,10 @@ replacing slow, error-prone manual handling.
 
 - Onelier
   Systems that store, track, and move materials around the factory → without workers carrying or pushing them.
+- Benefits
+  (i) Higher Speed : Systems process and move large volumes of inventory much faster than manual labor
+  (ii) Less Damage : Consistent machine handling protects fragile and sensitive products from drops or crash
+  (iii)Long-term saving : Reduce waste, fewer errors and optimize workflow save money over time.
 - Solutions
 
 1. **Material Management System (MMS) - /**
@@ -151,6 +155,11 @@ replacing slow, error-prone manual handling.
 
 - Outlier
   Electrical tests that prove a finished board actually works → before it ever ships to the customer.
+
+- Benefits  
+  (i) Higher efficiency (Document) : ICT removes simple error first,so FCT only test board worth testing.
+  (ii) Better coverage (User): catches both physical build defects and funtional/software defects.
+  (iii) Lower total costs (money-bag) : fewer boards reach expensive late-debugging
 - Solutions
 
 1. Automated Functional Test Equipment (Only exist on the InvestPenang Profile)

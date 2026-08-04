@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { HeroScene } from "@/components/home/HeroScene";
 import { SolutionCard } from "@/components/solutions/SolutionCard";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
@@ -7,9 +7,15 @@ import { SOLUTIONS } from "@/lib/solutions";
 export default function HomePage() {
   return (
     <>
-      <section className="border-b border-line bg-surface">
-        <Container>
-          <div className="grid items-center gap-10 py-16 lg:grid-cols-2 lg:py-24">
+      {/* Scroll runway. From lg the frame inside pins to the top while this
+          scrolls past, so the scene sits still and only the arm moves. Below lg
+          it collapses to an ordinary stacked hero. */}
+      <section className="relative lg:h-[165vh]">
+        {/* isolate + overflow-hidden keeps the full-bleed stage inside the hero;
+            the copy sits above it on z-10 where the stage is masked away. */}
+        <div className="relative isolate overflow-hidden border-b border-line bg-surface lg:sticky lg:top-16 lg:flex lg:h-[calc(100vh-4rem)] lg:items-center">
+          <Container className="relative z-10 w-full">
+            <div className="py-16 lg:max-w-[52%] lg:py-0">
             <div>
               {/* Staggered entrance — 70ms apart so the group still lands fast. */}
               <Reveal>
@@ -18,8 +24,13 @@ export default function HomePage() {
                 </p>
               </Reveal>
               <Reveal delay={70} className="mt-3">
-                <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                  Four solution categories, one automation partner.
+                {/* Break is explicit rather than left to wrapping: the column
+                    is only a few px wider than the longest line, so natural
+                    wrapping flips between two and three lines. Stays inline
+                    below lg, where the copy is full width. */}
+                <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-[2.4rem] xl:text-5xl">
+                  <span className="lg:block">Four solution categories,</span>{" "}
+                  <span className="lg:block">one automation partner.</span>
                 </h1>
               </Reveal>
               <Reveal delay={140} className="mt-5">
@@ -45,23 +56,11 @@ export default function HomePage() {
                 </a>
               </Reveal>
             </div>
-
-            <Reveal
-              variant="settle"
-              delay={120}
-              className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-background"
-            >
-              <Image
-                src="/images/assembly-automation-1.avif"
-                alt="Robotic arm placing a chip onto a circuit board"
-                fill
-                priority
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-              />
-            </Reveal>
           </div>
-        </Container>
+          </Container>
+
+          <HeroScene />
+        </div>
       </section>
 
       <Container>

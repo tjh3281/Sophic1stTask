@@ -15,6 +15,10 @@
   --muted: #5b6b7f;
   --line: #e2e8f0;
   --surface: #f6f8fb;
+
+  /* Teal, picked to match the accent already in the animated benefit icons.
+     Used as the far end of the gradient on the spec figures. */
+  --accent: #29a8b8;
 }
 
 @theme inline {
@@ -26,6 +30,7 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-surface: var(--surface);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   /* CSS's native `ease` — the right curve for hover and colour changes.
@@ -61,6 +66,124 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+}
+
+/* Both hero layers share this box so their object-cover crops match exactly and
+   the arm stays registered to the chip. The slight overscan sets the framing.
+   Only the arm animates, so only it gets the will-change hint; its resting lift
+   is kept in CSS so it is never painted docked and then jumped up on hydration. */
+.hero-layer {
+  position: absolute;
+  /* Flush with the stage. The layers were overscanned when the scene drifted
+     on scroll; now that only the arm moves, the extra height just forced
+     object-cover to zoom in ~14% further than necessary. */
+  inset: 0;
+}
+
+.hero-arm {
+  transform: translate3d(0, -18%, 0);
+  will-change: transform;
+}
+
+/* From lg the stage runs full-bleed behind the copy, so dissolve its left edge
+   into the page rather than ending on a hard vertical seam. Single mask layer
+   on purpose: mask-composite is inconsistent across browsers, and fading the
+   top would ghost the part of the arm that should read as entering the frame. */
+@media (min-width: 64rem) {
+  /* The headline's longest line ends around 15% across the stage, so hold the
+     photo clear to 16% and then bring it in quickly — a later fade just opens
+     a gap of empty page between the words and the image.
+     Standard property only; the build adds the -webkit- prefix, and hand-
+     writing both risks the two drifting out of sync. */
+  .hero-stage {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      transparent 16%,
+      #000 38%
+    );
+  }
+
+  /* Softens only the seam where the photo fades in, so the reveal is not a hard
+     vertical line. Confined to a band ending at 42% — past that the image is
+     untouched and full resolution. Sits above both layers, so it also catches
+     the arm where it strays left.
+     Blur stays modest: the arm animates underneath, so this backdrop filter is
+     recomputed every frame. */
+  .hero-soften {
+    /* Standard property only — the build adds the -webkit- prefix itself, and
+       declaring both here makes it drop whichever comes first. */
+    backdrop-filter: blur(9px);
+    mask-image: linear-gradient(to right, #000 0%, #000 30%, transparent 42%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-arm {
+    transform: none;
+    will-change: auto;
+  }
+}
+
+/* --- Technical metrics marquee ------------------------------------------
+   The track holds two identical copies of the figures, so translating it
+   exactly -50% lands the second copy where the first began and the loop has no
+   seam. That only holds if the copies are the same width, which is why the
+   spacing is padding on each item rather than a gap on the track — a gap would
+   also fall between the two copies and throw the halves out by one.
+------------------------------------------------------------------------- */
+.metric-marquee {
+  overflow: hidden;
+  /* Figures dissolve at the edges rather than being chopped, so the row reads
+     as continuing past the viewport. Standard property only; the build adds
+     the -webkit- prefix. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+.metric-track {
+  display: flex;
+  /* Top-aligned, not stretched. The items lay their contents out bottom-up, so
+     stretching them would hang every figure off the tallest label instead of
+     off the top — and one two-line label would knock the whole row out of
+     line. Anchored at the top, the figures share a line and labels grow down. */
+  align-items: flex-start;
+  width: max-content;
+  animation: metric-scroll 32s linear infinite;
+}
+
+/* Hold still while it is being read, or while tabbing through. */
+.metric-marquee:hover .metric-track,
+.metric-marquee:focus-within .metric-track {
+  animation-play-state: paused;
+}
+
+@keyframes metric-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No drift: drop the duplicate track and hand scrolling back to the user. */
+  .metric-marquee {
+    overflow-x: auto;
+    mask-image: none;
+  }
+  .metric-track {
+    animation: none;
+  }
+  .metric-track [data-marquee-clone] {
+    display: none;
   }
 }
 

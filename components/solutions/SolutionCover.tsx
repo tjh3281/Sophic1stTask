@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { cn } from "@/lib/cn";
 import type { Solution } from "@/lib/solutions";
 import { BenefitIcon } from "./BenefitIcon";
 import { Breadcrumbs } from "./Breadcrumbs";
@@ -60,7 +61,10 @@ export function SolutionCover({ solution }: { solution: Solution }) {
             </p>
           </Reveal>
           <Reveal delay={70} className="mt-2">
-            <h1 className="max-w-3xl text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            {/* Medium, not bold. Poppins is a wide geometric face and carries
+                far more weight than Geist at the same value; the restraint is
+                what makes a large headline read as considered. */}
+            <h1 className="max-w-3xl text-3xl font-medium tracking-tight text-white sm:text-4xl lg:text-5xl">
               {solution.title}
             </h1>
           </Reveal>
@@ -73,12 +77,22 @@ export function SolutionCover({ solution }: { solution: Solution }) {
           {benefits && benefits.length > 0 && (
             <>
               <Reveal delay={210} className="mt-14 sm:mt-16">
-                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                {/* One step heavier than the h1: this one sits over the busiest
+                    part of the photo and needs the extra weight to hold. */}
+                <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                   Why {solution.title}?
                 </h2>
               </Reveal>
 
-              <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Column count follows the card count so a three-benefit
+                  category fills its row instead of leaving a gap. Written as
+                  whole class strings — Tailwind only sees literals. */}
+              <ul
+                className={cn(
+                  "mt-8 grid gap-5 sm:grid-cols-2",
+                  benefits.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4",
+                )}
+              >
                 {benefits.map((benefit, index) => (
                   <li key={benefit.title}>
                     <Reveal delay={index * 60} className="h-full">

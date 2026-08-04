@@ -31,6 +31,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // Tells Next the smooth scrolling in globals.css is deliberate, so it
+      // suppresses it during route transitions rather than animating those too.
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">

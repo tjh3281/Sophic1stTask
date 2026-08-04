@@ -35,10 +35,13 @@ export function SolutionCard({ solution }: { solution: Solution }) {
             sizes="(min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
-          <div aria-hidden="true" className="absolute inset-0 bg-slate-950/70" />
+          {/* Light enough that each category's photo is recognisable — the
+              cards have to look different from one another — but weighted
+              toward the bottom, where the copy sits. */}
+          <div aria-hidden="true" className="absolute inset-0 bg-slate-950/45" />
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-slate-950/85 to-slate-950/30"
+            className="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-slate-950/15"
           />
         </>
       )}
