@@ -31,17 +31,25 @@ export function SubSolutionList({ items }: { items: SubSolution[] }) {
                   className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-background transition-[border-color,box-shadow] duration-200 ease-out hover:border-brand hover:shadow-lg hover:shadow-slate-900/5"
                 >
                   {item.image && (
-                    // The shots are machines on a white sweep, so the panel is
-                    // white too and the backdrop disappears into the card.
-                    // object-contain rather than cover: cropping a photo of a
-                    // specific machine to fit a box defeats the point of it.
+                    // Every card fills this panel edge to edge, with no
+                    // per-image special case — that is the only way a row of
+                    // them looks like one set.
+                    //
+                    // It holds because the sources are prepared to suit it. The
+                    // machine shots are already 4:3, each one centred on a white
+                    // plate at the same optical size, so cover neither crops
+                    // them nor leaves a margin; the panel is white to match
+                    // their backdrop. Scene photographs are cropped to fit.
+                    // Contain would undo this: it fits to whichever edge binds
+                    // first, so images of differing ratios settle at differing
+                    // heights and the row goes ragged.
                     <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-line bg-white">
                       <Image
                         src={item.image}
                         alt={item.title}
                         fill
                         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                        className="object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       />
                     </div>
                   )}

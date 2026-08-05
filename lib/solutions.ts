@@ -37,7 +37,14 @@ export type GlyphName =
   | "tune"
   | "gauge"
   | "tag"
-  | "cycle";
+  | "cycle"
+  | "laser"
+  | "durable"
+  | "arm"
+  | "trays"
+  | "sort"
+  | "lens"
+  | "chart";
 
 /** One thing the machine does, as listed under Function in the brief. */
 export type SolutionFunction = {
@@ -59,6 +66,28 @@ export type SubBenefit = {
   points: string[];
 };
 
+/**
+ * One variant of a machine, for the tabbed capability breakdown.
+ *
+ * Built for lists that are long and comparable — the point of the tabs is that
+ * you can flick between variants and see what each one adds.
+ */
+export type CapabilityGroup = {
+  name: string;
+  /** Prose, where the brief provides any. Most groups are just their list. */
+  summary?: string;
+  /** Heading above the list. */
+  itemsLabel: string;
+  items: string[];
+};
+
+/** One frame of a sub-solution's rotating hero. */
+export type HeroSlide = {
+  /** Named on screen, so the reader knows which machine they are looking at. */
+  title: string;
+  image: string;
+};
+
 export type SubSolution = {
   slug: string;
   title: string;
@@ -68,12 +97,24 @@ export type SubSolution = {
   /** Equipment shot for the category page's card. Without one the card falls
    *  back to a text-only tile, so categories can be filled in one at a time. */
   image?: string;
+  /** What kind of picture `image` is, which decides how the hero presents it.
+   *  A machine cut out on white is floated whole on the wash. A "photo" is a
+   *  full-frame scene with edges of its own, so it is cropped to fill and given
+   *  a frame — floated, it letterboxes inside the hero and a drop shadow on its
+   *  hard rectangle reads as an unstyled screenshot. Defaults to "cutout".
+   *  The category card ignores this and fills its panel from every source. */
+  imageFraming?: "cutout" | "photo";
+  /** Turns the hero into a full-bleed rotating stage instead of a product
+   *  shot. Takes precedence over `image`, which stays the card photo. */
+  heroSlides?: HeroSlide[];
   /** Spec-sheet figures. Omit and the metrics band is left out entirely. */
   metrics?: Metric[];
   /** Why to buy it. Omit and the section is left out entirely. */
   benefits?: SubBenefit[];
   /** What the machine does. Omit and the section is left out entirely. */
   functions?: SolutionFunction[];
+  /** Tabbed breakdown, for a machine that comes in several variants. */
+  capabilityGroups?: CapabilityGroup[];
 };
 
 /** Named after the artwork, not a meaning — the same animated icons are reused
@@ -154,7 +195,7 @@ export const SOLUTIONS: Solution[] = [
         title: "Automated Packing Equipment",
         summary: "Product transferring, sealing, and barcode labelling.",
         href: "/solutions/assembly-automation/automated-packing-equipment",
-        image: "/images/automated-packing-equipment.webp",
+        image: "/images/automated-packing-equipment-cutout.webp",
         metrics: [
           {
             label: "Speed",
@@ -249,14 +290,200 @@ export const SOLUTIONS: Solution[] = [
         title: "Laser Marking Equipment",
         summary: "1D and 2D laser tracking codes on electronics.",
         href: "/solutions/assembly-automation/laser-marking-equipment",
-        image: "/images/laser-marking-equipment.webp",
+        image: "/images/laser-marking-equipment-cutout.webp",
+        // NOTE: unlike the packing equipment, these figures are NOT from a
+        // spec sheet — the brief gives none for this machine. They are
+        // plausible values for a fibre marking laser, matched to the shape and
+        // count of the packing figures. Replace before this goes near a
+        // customer.
+        metrics: [
+          {
+            label: "Marking Speed",
+            values: [2000, 7000],
+            separator: "–",
+            suffix: "mm/s",
+          },
+          {
+            label: "Laser Power",
+            values: [20, 50],
+            separator: "–",
+            suffix: "W",
+          },
+          {
+            label: "Repeatability",
+            values: [5, 10],
+            separator: "–",
+            prefix: "±",
+            suffix: "µm",
+          },
+          {
+            label: "Minimum Line Width",
+            values: [0.02, 0.05],
+            separator: "~",
+            suffix: "mm",
+            decimals: 2,
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "Plug-and-Play\nDeployment",
+            values: [3],
+            suffix: "days",
+          },
+        ],
+        // NOTE: the brief's Function and Benefit lists for this machine say
+        // almost the same three things in the same words, headings included.
+        // Rewritten so the two sections earn their place: Functions describe
+        // the mechanism — what the machine physically does — and Benefits
+        // describe the consequence of having it. Same substance as the brief,
+        // different angle, and no word shared between the two sets of titles.
+        functions: [
+          {
+            icon: "barcode",
+            title: "Code Marking",
+            description:
+              "Writes 1D barcodes and 2D data matrix codes straight onto sensitive electronic components — no contact, no consumables.",
+          },
+          {
+            icon: "cycle",
+            title: "Line Integration",
+            description:
+              "Sits inline with product handling and quality tracking, so marking is a step in the flow rather than a station of its own.",
+          },
+          {
+            icon: "laser",
+            title: "Surface Etching",
+            description:
+              "Etches serial numbers, part numbers and logos into the surface itself instead of printing on top of it.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "tag",
+            title: "Full Traceability",
+            image: "/images/laser-benefit-1.webp",
+            points: [
+              "Any unit can be traced back to its batch, shift and date long after it has left the factory.",
+              "A recall narrows to the parts actually affected, not the whole run.",
+            ],
+          },
+          {
+            icon: "durable",
+            title: "Built to Last",
+            image: "/images/laser-benefit-2.webp",
+            points: [
+              "Marks survive reflow, cleaning and years of wear without fading or peeling off.",
+              "Nothing to reprint, relabel or reapply later.",
+            ],
+          },
+          {
+            icon: "gauge",
+            title: "Reliable Reads",
+            image: "/images/laser-benefit-3.webp",
+            points: [
+              "Every unit gets the same code in the same place, so downstream scanners read it first time.",
+              "No operator to schedule, and no misread labels to rework.",
+            ],
+          },
+        ],
       },
       {
         slug: "automated-handler-equipment",
         title: "Automated Handler Equipment",
         summary: "Robotic assembly, tray switching, and quality sorting.",
         href: "/solutions/assembly-automation/automated-handler-equipment",
-        image: "/images/automated-handler-equipment.webp",
+        image: "/images/automated-handler-equipment-cutout.webp",
+        // NOTE: invented figures, as for the laser marker — the brief gives
+        // none for this machine. Plausible for a pick-and-place test handler,
+        // matched to the shape and count used on the other two pages. Replace
+        // before this goes near a customer.
+        metrics: [
+          {
+            label: "Handling Rate",
+            values: [3000, 8000],
+            separator: "–",
+            suffix: "UPH",
+          },
+          {
+            label: "Placement Accuracy",
+            values: [20, 50],
+            separator: "–",
+            prefix: "±",
+            suffix: "µm",
+          },
+          {
+            label: "Cycle Time",
+            values: [0.4, 0.8],
+            separator: "~",
+            suffix: "s",
+            decimals: 1,
+          },
+          {
+            label: "Sorting Outputs",
+            values: [4, 8],
+            separator: "–",
+            suffix: "bins",
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "Plug-and-Play\nDeployment",
+            values: [3],
+            suffix: "days",
+          },
+        ],
+        // NOTE: the brief's Function and Benefit lists overlap here the same
+        // way they did for the laser marker — both revolve around switching
+        // trays and sorting by quality. Split the same way: Functions are the
+        // mechanism, Benefits are the consequence, and no word is shared
+        // between the two sets of titles.
+        functions: [
+          {
+            icon: "arm",
+            title: "Part Transfer",
+            description:
+              "Robotic arms pick and place components at high speed, from infeed through to placement.",
+          },
+          {
+            icon: "trays",
+            title: "Tray Switching",
+            description:
+              "Transfers product between process trays so each one reaches the test it needs.",
+          },
+          {
+            icon: "sort",
+            title: "Grade Sorting",
+            description:
+              "Reads the result carried by each part and routes it to the matching output bin.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "gauge",
+            title: "Higher Throughput",
+            image: "/images/handler-benefit-1.webp",
+            points: [
+              "Loading and unloading run at machine pace instead of waiting on a pair of hands.",
+              "The line keeps moving through breaks and shift changes.",
+            ],
+          },
+          {
+            icon: "durable",
+            title: "No Mix-Ups",
+            image: "/images/handler-benefit-2.webp",
+            points: [
+              "Every unit is judged against the same rule, so passes and failures never get confused.",
+              "Nothing ships that should have been held back.",
+            ],
+          },
+          {
+            icon: "cycle",
+            title: "Freed-Up Operators",
+            image: "/images/handler-benefit-3.webp",
+            points: [
+              "Repetitive station work no longer needs a person standing at it.",
+              "Staff move to higher-value tasks, and handling damage falls with them.",
+            ],
+          },
+        ],
       },
     ],
   },
@@ -302,6 +529,132 @@ export const SOLUTIONS: Solution[] = [
         title: "Machine Vision",
         summary: "Automated visual inspection and defect detection systems.",
         href: "/solutions/inspection-testing/machine-vision",
+        image: "/images/machine-vision-cover.webp",
+        heroSlides: [
+          { title: "PCB Inspection", image: "/images/vision-pcb.webp" },
+          { title: "LED Inspection", image: "/images/vision-led.webp" },
+          {
+            title: "Lead Frame Inspection",
+            image: "/images/vision-lead-frame.webp",
+          },
+          {
+            title: "Post-Seal Inspection",
+            image: "/images/vision-post-seal.webp",
+          },
+          { title: "Filling Inspection", image: "/images/vision-filling.webp" },
+          { title: "Wafer Inspection", image: "/images/vision-wafer.webp" },
+        ],
+        // NOTE: the brief leaves this section's Benefits blank, so the copy is
+        // drafted. Each point is an ordinary consequence of automated optical
+        // inspection, but none of it is Sophic's own wording — replace it
+        // before this goes near a customer.
+        //
+        // Deliberately kept off the ground the Functions tabs already cover:
+        // no defect names, and no "multi-camera" or "super high resolution",
+        // both of which appear verbatim in the Sophic AOI panel above.
+        benefits: [
+          {
+            icon: "lens",
+            title: "Caught Early",
+            image: "/images/vision-benefit-1.webp",
+            points: [
+              "Every unit is imaged at the station that made it, not at final test.",
+              "Faults are corrected while the part is still cheap to fix.",
+            ],
+          },
+          {
+            icon: "gauge",
+            title: "Full Line Speed",
+            image: "/images/vision-benefit-3.webp",
+            points: [
+              "Cameras work side by side, so checking never becomes a queue in front of the next station.",
+              "Volume rises without adding inspectors.",
+            ],
+          },
+          {
+            icon: "chart",
+            title: "Auditable Results",
+            image: "/images/vision-benefit-2.webp",
+            points: [
+              "Every pass and fail is backed by the image that produced it.",
+              "Defect trends surface early, so the process gets fixed rather than the parts.",
+            ],
+          },
+        ],
+        // Straight from the brief's Function list. Only the platform entry has
+        // prose there; the rest are lists of what each variant checks, so they
+        // are shown as lists rather than being padded out into paragraphs.
+        capabilityGroups: [
+          {
+            name: "Sophic AOI",
+            summary:
+              "Scans super high resolution image data to identify anomalies and defects.",
+            itemsLabel: "Platform",
+            items: [
+              "Kabowd vision software",
+              "High speed, precise inspection",
+              "Multi-camera systems in parallel",
+            ],
+          },
+          {
+            name: "IC AOI",
+            itemsLabel: "Able to detect",
+            items: [
+              "Orientation",
+              "Die absence / presence",
+              "Chipping",
+              "Crack",
+              "Contamination",
+              "BGA inspection",
+              "Marking inspection",
+              "OCR",
+              "Tape quality inspection",
+              "Post seal inspection",
+              "2D lead measurement",
+              "3D lead measurement",
+              "SWIR inspection",
+            ],
+          },
+          {
+            name: "PCB AOI",
+            itemsLabel: "Able to detect",
+            items: [
+              "Wrong component",
+              "Missing component",
+              "Component shifting",
+              "Component breakage",
+              "Missing solder",
+              "Extra / insufficient solder",
+              "Solder bridge",
+              "2D matrix",
+              "OCR",
+            ],
+          },
+          {
+            name: "LED AOI",
+            itemsLabel: "Able to detect",
+            items: [
+              "Contamination",
+              "Resin overflow / underflow",
+              "Colour inspection",
+              "Chipping",
+              "Crack",
+            ],
+          },
+          {
+            name: "Wafer AOI",
+            itemsLabel: "Able to detect",
+            items: [
+              "Die absence / presence",
+              "Chipping",
+              "Crack",
+              "BGA inspection",
+              "Marking inspection",
+              "OCR",
+              "Wafer skeleton inspection",
+            ],
+          },
+        ],
       },
     ],
   },
@@ -338,12 +691,202 @@ export const SOLUTIONS: Solution[] = [
         title: "Material Management System (MMS)",
         summary: "Storage and tracking of materials across the factory floor.",
         href: "/solutions/material-handling/material-management-system",
+        image: "/images/mms-cover.webp",
+        // A warehouse interior, not a machine on white like the assembly
+        // pages — so the hero frames it rather than floating it.
+        imageFraming: "photo",
+        // NOTE: invented figures. The brief lists this sub-solution by name
+        // only, with no spec sheet, so these follow the shape and count used on
+        // the assembly pages. Replace before this goes near a customer.
+        //
+        // Deployment deliberately breaks from the "3 days plug-and-play" the
+        // machine pages carry: an MMS is a system wired into existing racking
+        // and stock records, not a unit wheeled onto a line, and a three-day
+        // claim here would not survive a customer asking about it.
+        metrics: [
+          {
+            label: "Inventory Accuracy",
+            values: [99.5, 99.9],
+            separator: "~",
+            suffix: "%",
+            decimals: 1,
+          },
+          {
+            label: "Stock Movements",
+            values: [600, 1200],
+            separator: "–",
+            suffix: "/hour",
+          },
+          {
+            label: "Stock-Take Time",
+            values: [2, 4],
+            separator: "–",
+            suffix: "hours",
+          },
+          { label: "Data Refresh", values: [1, 3], separator: "~", suffix: "s" },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "System\nDeployment",
+            values: [2, 4],
+            separator: "–",
+            suffix: "weeks",
+          },
+        ],
+        // NOTE: the brief gives neither Functions nor Benefits for this
+        // sub-solution. Both sets are drafted from the category line — "store,
+        // track, and move materials" — and split the way the other pages split
+        // theirs: Functions are the mechanism, Benefits are the consequence,
+        // with no word shared between the two sets of titles.
+        functions: [
+          {
+            icon: "barcode",
+            title: "Item Tracking",
+            description:
+              "Every pallet, bin and carton carries a scannable ID that is read at each move.",
+          },
+          {
+            icon: "sort",
+            title: "Storage Routing",
+            description:
+              "Assigns each incoming load a location, and calls it back when the line asks for it.",
+          },
+          {
+            icon: "chart",
+            title: "Live Stock Records",
+            description:
+              "Counts update as goods move, so the figure on screen matches the figure on the floor.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "gauge",
+            title: "Faster Retrieval",
+            image: "/images/mms-benefit-1.webp",
+            points: [
+              "Drivers are sent straight to a location instead of walking the racks to find one.",
+              "Material reaches the line in minutes, so machines are not left waiting on parts.",
+            ],
+          },
+          {
+            icon: "package",
+            title: "No Surprise Shortages",
+            image: "/images/mms-benefit-2.webp",
+            points: [
+              "A shortfall shows up before it stops a line, not when a picker reaches an empty bay.",
+              "Buying is based on what is actually held, so cash is not tied up in surplus.",
+            ],
+          },
+          {
+            icon: "lens",
+            title: "Visible Across Sites",
+            image: "/images/mms-benefit-3.webp",
+            points: [
+              "Stock in every store and staging area is read from one screen, wherever you are.",
+              "Incoming and outgoing loads are planned against real numbers rather than a phone call.",
+            ],
+          },
+        ],
       },
       {
         slug: "autonomous-mobile-robot",
         title: "Autonomous Mobile Robot (AMR)",
         summary: "Self-navigating robots that move materials between stations.",
         href: "/solutions/material-handling/autonomous-mobile-robot",
+        image: "/images/amr-cover.webp",
+        // A shop-floor photograph rather than a machine cut out on white.
+        imageFraming: "photo",
+        // NOTE: invented figures — the brief supplies Functions and Benefits
+        // for this machine but no spec sheet. Sized for a mid-payload indoor
+        // AMR and matched to the shape and count the other pages use. Replace
+        // before this goes near a customer.
+        metrics: [
+          {
+            label: "Payload",
+            values: [100, 500],
+            separator: "–",
+            suffix: "kg",
+          },
+          {
+            label: "Travel Speed",
+            values: [1.5, 2.0],
+            separator: "~",
+            suffix: "m/s",
+            decimals: 1,
+          },
+          {
+            label: "Battery Runtime",
+            values: [8, 12],
+            separator: "–",
+            suffix: "hours",
+          },
+          {
+            label: "Docking Accuracy",
+            values: [10],
+            prefix: "±",
+            suffix: "mm",
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "Fleet\nDeployment",
+            values: [1, 2],
+            separator: "–",
+            suffix: "weeks",
+          },
+        ],
+        // Functions are the brief's own three, kept in its order and wording.
+        functions: [
+          {
+            icon: "tune",
+            title: "Easy Setup & Configuration",
+            description:
+              "Layouts, stopping points and task templates are mapped once on the Fleet Management System, and left alone after that.",
+          },
+          {
+            icon: "sort",
+            title: "Comprehensive Fleet Management System",
+            description:
+              "Path settings are controlled across multiple AMRs at once, preventing collisions and misrouting.",
+          },
+          {
+            icon: "chart",
+            title: "Task Planning & Execution",
+            description:
+              "Machines raise tasks to the dispatcher, which distributes them according to the assignment policy you set.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "tag",
+            // The brief's first two benefits, titles kept verbatim.
+            title: "Reduced Long Term Operating Cost",
+            image: "/images/amr-benefit-1.webp",
+            points: [
+              "A one-time investment that returns over the long term, rather than a wage paid every month.",
+              "No overtime, insurance, injury leave or the other hidden costs of hiring for floor transport.",
+            ],
+          },
+          {
+            icon: "durable",
+            title: "Reduce Work Injury",
+            image: "/images/amr-benefit-2.webp",
+            points: [
+              "A Ministry of Health Malaysia study (2002–2006) recorded 249,904 non-fatal occupational injuries, 53% of them attributed to transporting and lifting equipment.",
+              "Taking repetitive heavy lifting off people lowers that risk and lifts productivity at the same time.",
+            ],
+          },
+          {
+            // NOTE: third benefit written here — the brief gives two. Chosen as
+            // the one thing an AMR does that an AGV cannot, so it adds to the
+            // pair above instead of restating them.
+            icon: "cycle",
+            title: "No Rails to Lay",
+            image: "/images/amr-benefit-3.webp",
+            points: [
+              "Routes are held as a map, so there is no wire or tape to cut into the floor before the first run.",
+              "Move a station and the route is redrawn the same day — the building itself is never touched.",
+            ],
+          },
+        ],
       },
     ],
   },
@@ -380,6 +923,114 @@ export const SOLUTIONS: Solution[] = [
         title: "Automated Functional Test Equipment",
         summary: "Verifies every finished unit against your exact specifications.",
         href: "/solutions/ict-fct/automated-functional-test-equipment",
+        image: "/images/automated-functional-test-equipment.webp",
+        imageFraming: "photo",
+        // Unlike the other pages, these are not invented. They are the figures
+        // published for functional test rigs generally, and each one measures
+        // a function listed below rather than sitting on its own:
+        //
+        //   Test Cycle           30-120s per board          FixturFab
+        //   Boards per Press     4-8 up, panelised fixture  APTPCB
+        //   Fixture Life         50k-100k cycles before
+        //                        pogo pin maintenance       FixturFab
+        //   Record Retention     2-5 years, standard        APTPCB
+        //   Program Development  2-4 weeks, moderate board  FixturFab
+        //
+        //   https://www.fixturfab.com/articles/functional-test-system-overview
+        //   https://aptpcb.com/en/blog/pcba-functional-test-fct-planning-guide
+        //
+        // They describe the class of equipment, not a Sophic model. Warranty is
+        // the one commercial term here and carries over from the other pages.
+        // Swap the lot for the real spec sheet when there is one.
+        metrics: [
+          {
+            label: "Test Cycle",
+            values: [30, 120],
+            separator: "–",
+            suffix: "s",
+          },
+          {
+            label: "Boards per Press",
+            values: [4, 8],
+            separator: "–",
+            suffix: "boards",
+          },
+          {
+            label: "Fixture Life",
+            values: [50, 100],
+            separator: "–",
+            suffix: "k cycles",
+          },
+          {
+            label: "Record Retention",
+            values: [2, 5],
+            separator: "–",
+            suffix: "years",
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "Program\nDevelopment",
+            values: [2, 4],
+            separator: "–",
+            suffix: "weeks",
+          },
+        ],
+        // The three subsystems every functional tester is built from — fixture,
+        // instrumentation, test software — named for what each one does to the
+        // board rather than for its own hardware.
+        functions: [
+          {
+            icon: "barcode",
+            title: "Bed-of-Nails Contact",
+            description:
+              "Spring-loaded pogo pins meet every test point at once, so a single press wires the whole board to the instruments.",
+          },
+          {
+            icon: "gauge",
+            title: "Powered Test Sequence",
+            description:
+              "Programmable supplies bring the board up, then meters, scopes and bus interfaces read it back against set limits — and flash memory is written in the same run.",
+          },
+          {
+            icon: "chart",
+            title: "Logged Pass and Fail",
+            description:
+              "Every reading is kept against the unit's serial number, timestamp and station, as a record the line can go back to.",
+          },
+        ],
+        // The brief's three benefits. Images are matched to what each one
+        // shows, which is not their upload order: the probe head belongs to
+        // the first, the scope trace to the second, the logged results table
+        // to the third.
+        benefits: [
+          {
+            icon: "package",
+            title: "Ship Only Good Units",
+            image: "/images/afte-1.webp",
+            points: [
+              "Every finished product is verified against your exact specifications before it leaves the line.",
+              "Defects are caught in-house, never by your customer.",
+            ],
+          },
+          {
+            icon: "durable",
+            title: "Real-World Confidence",
+            image: "/images/afte-3.webp",
+            points: [
+              "The rig can simulate the product's actual operating environment, not just a bench check.",
+              "Each unit is proven to perform under real conditions rather than on paper.",
+            ],
+          },
+          {
+            icon: "tag",
+            title: "Consistent and Traceable",
+            image: "/images/afte-2.webp",
+            points: [
+              "The same checks are applied to every unit, in the same order, to the same limits.",
+              "Results are logged as you go, leaving reliable pass/fail records and a clear quality trail.",
+            ],
+          },
+        ],
       },
     ],
   },

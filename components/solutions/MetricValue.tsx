@@ -10,7 +10,7 @@ const DURATION = 1400;
 const SHOW_RATIO = 0.4;
 
 /**
- * A spec figure that counts up from zero whenever it scrolls into view.
+ * A spec figure that counts up from zero the first time it reaches the screen.
  *
  * Renders its final values on the server, so the numbers are correct before
  * hydration, without JavaScript, and for anyone who prefers reduced motion —
@@ -20,9 +20,12 @@ const SHOW_RATIO = 0.4;
  * Frames are written straight to the text nodes. Counting through React state
  * would re-render the whole band sixty times a second to change a few digits.
  *
- * Like the rest of the site's motion this replays on every entry, not just the
- * first, using the same show-at-40% / reset-once-fully-gone hysteresis as
- * Reveal so it cannot flicker when parked on the trigger line.
+ * Unlike Reveal, this runs once per visit and is then done: the observer is
+ * disconnected on the first pass and the figures are left standing at their
+ * real values. A number that rewinds to zero every time you scroll back to it
+ * stops reading as an arrival and starts reading as a spec sheet that cannot
+ * make up its mind. Coming back to the page mounts the component afresh, so a
+ * genuine return does count again.
  *
  * The trigger is the enclosing [data-metric-scope], not the figure itself. In
  * the marquee the figures are constantly sliding in and out of the clip, so
@@ -62,7 +65,6 @@ export function MetricValue({
 
     let frame = 0;
     let startedAt = 0;
-    let running = false;
 
     const step = (now: number) => {
       if (!startedAt) startedAt = now;
@@ -78,22 +80,16 @@ export function MetricValue({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.intersectionRatio >= SHOW_RATIO) {
-            if (running) continue;
-            running = true;
-            startedAt = 0;
-            frame = requestAnimationFrame(step);
-          } else if (!entry.isIntersecting) {
-            // Fully out of view — stop, rewind, and arm the next entrance.
-            if (frame) cancelAnimationFrame(frame);
-            frame = 0;
-            running = false;
-            write(0);
-          }
+        if (!entries.some((entry) => entry.intersectionRatio >= SHOW_RATIO)) {
+          return;
         }
+        // Done for this visit. Disconnecting here rather than tracking a
+        // "has run" flag means nothing is left listening once the figures have
+        // landed, so scrolling back past the band cannot restart them.
+        observer.disconnect();
+        frame = requestAnimationFrame(step);
       },
-      { threshold: [0, SHOW_RATIO] },
+      { threshold: SHOW_RATIO },
     );
 
     observer.observe(element.closest("[data-metric-scope]") ?? element);

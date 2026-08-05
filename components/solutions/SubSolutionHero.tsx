@@ -24,6 +24,7 @@ export function SubSolutionHero({
   subSolution: SubSolution;
 }) {
   const { image, title, summary } = subSolution;
+  const isPhoto = subSolution.imageFraming === "photo";
 
   return (
     <section className="relative isolate overflow-hidden border-b border-line bg-surface">
@@ -48,7 +49,10 @@ export function SubSolutionHero({
       />
 
       <Container className="relative">
-        <div className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1fr_minmax(0,30rem)]">
+        {/* The picture column widens again at xl, where there is room to spend
+            — at lg the copy still needs most of the width for a 48px heading,
+            and taking it there pushes the title to three lines. */}
+        <div className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1fr_minmax(0,30rem)] xl:grid-cols-[1fr_minmax(0,34rem)]">
           <div>
             <Breadcrumbs
               trail={[
@@ -76,14 +80,35 @@ export function SubSolutionHero({
 
           {image && (
             <Reveal variant="settle" delay={140}>
-              <div className="relative aspect-[4/3] w-full">
+              {/* A cut-out machine floats on the wash, so it fills the box and
+                  keeps its whole silhouette. A scene photograph is cropped to
+                  the frame instead — letterboxing one inside a 4:3 box leaves
+                  bands of backdrop that read as a mistake. */}
+              <div
+                className={
+                  isPhoto
+                    ? "relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-line shadow-xl shadow-slate-900/10"
+                    : "relative aspect-[4/3] w-full"
+                }
+              >
                 <Image
                   src={image}
                   alt={title}
                   fill
                   priority
-                  sizes="(min-width: 1024px) 30rem, 100vw"
-                  className="object-contain drop-shadow-2xl"
+                  sizes="(min-width: 1280px) 34rem, (min-width: 1024px) 30rem, 100vw"
+                  // The cut-out plates are 4:3 with the machine sized to about
+                  // 72% of their height — the margin a card panel wants, and
+                  // more than a hero does. A light scale takes some of it back,
+                  // to roughly 79% of the box. Any surplus that spills past the
+                  // edges is transparent, so nothing clips.
+                  // A photograph is already cropped to fill, and its frame
+                  // clips, so scaling that would only zoom the crop.
+                  className={
+                    isPhoto
+                      ? "object-cover"
+                      : "scale-110 object-contain drop-shadow-2xl"
+                  }
                 />
               </div>
             </Reveal>

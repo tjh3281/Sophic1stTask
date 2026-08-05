@@ -7,12 +7,35 @@ import { useEffect, useRef } from "react";
 const LIFT = 18;
 
 /**
+ * How far the arm closes toward its target each 60Hz frame.
+ *
+ * Most of the smoothing now comes from the page itself — SmoothScroll eases the
+ * scroll offset, so scrollY already arrives as a glide rather than in wheel-sized
+ * steps. This is only the last little bit of trailing weight on top, tuned tight
+ * (~80ms) because stacking two lerps of equal strength is what makes an arm feel
+ * like it is dragging behind the scroll rather than responding to it.
+ *
+ * It also stands alone: if momentum scrolling is off, this still keeps the arm
+ * from stepping.
+ */
+const SMOOTHING = 0.45;
+
+/** Closer than this, in % of layer height, the glide is over — stop the loop. */
+const EPSILON = 0.02;
+
+/**
  * The hero's right-hand stage: the assembly cell with the arm removed, and the
  * arm keyed onto transparency above it. The cell stays put; only the arm moves,
  * swinging down onto the chip in step with the reader's scroll.
  *
  * Both layers share identical geometry (.hero-layer) so the arm stays
  * registered to the chip however the stage crops.
+ *
+ * The motion is damped rather than bound rigidly to the scroll offset: scroll
+ * sets a target and the arm eases toward it every frame, so a wheel notch reads
+ * as a glide instead of a step. Page scrolling itself is left native — no wheel
+ * hijacking, so the scrollbar, keyboard, find-in-page and anchor jumps all
+ * behave normally.
  *
  * The transform is written straight to the node inside rAF rather than held in
  * state: a scroll-linked animation re-rendering React every frame drops frames.
@@ -29,14 +52,13 @@ export function HeroScene() {
     if (!frame || !arm) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    let queued = 0;
-    let lastArm = Number.NaN;
+    // Measured once here and again only on resize. These are layout reads, and
+    // doing them inside the scroll handler put three of them on the critical
+    // path of every frame; the runway is viewport-derived, so it cannot change
+    // without a resize anyway.
+    let range = 1;
 
-    const apply = () => {
-      queued = 0;
-      // The hero sits at the top of the document, so scrollY is exactly how far
-      // it has been pulled up.
-      //
+    const measure = () => {
       // When the frame is pinned, the runway is the section's overhang: the
       // distance scrolled while the frame stays put. Dock at 75% of it so the
       // arm lands with a beat to spare before the hero releases. Unpinned
@@ -45,29 +67,76 @@ export function HeroScene() {
       const runway = pinned?.parentElement
         ? pinned.parentElement.offsetHeight - pinned.offsetHeight
         : 0;
-      const range = runway > 40 ? runway * 0.75 : frame.offsetHeight * 0.35;
-      const progress = Math.min(1, Math.max(0, window.scrollY / range));
+      range = runway > 40 ? runway * 0.75 : frame.offsetHeight * 0.35;
+    };
+
+    // How far through the descent we are, 0 to 1. The hero sits at the top of
+    // the document, so scrollY is exactly how far it has been pulled up.
+    const progressNow = () =>
+      Math.min(1, Math.max(0, window.scrollY / range));
+
+    // Where the arm should end up for the current scroll position.
+    const targetFor = () => {
       // Ease out: quick to close the gap, slowing as it meets the chip.
+      const progress = progressNow();
       const eased = progress * (2 - progress);
-
-      const armOffset = -LIFT * (1 - eased);
-      if (Math.abs(armOffset - lastArm) < 0.05) return;
-      lastArm = armOffset;
-
-      arm.style.transform = `translate3d(0, ${armOffset.toFixed(2)}%, 0)`;
+      return -LIFT * (1 - eased);
     };
 
-    const onScroll = () => {
-      if (!queued) queued = requestAnimationFrame(apply);
+    measure();
+    let target = targetFor();
+    let current = target;
+    let frameId = 0;
+    let previous = 0;
+
+    const paint = () => {
+      arm.style.transform = `translate3d(0, ${current.toFixed(3)}%, 0)`;
     };
 
-    apply();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const tick = (now: number) => {
+      // Normalise the step to a 60Hz frame, so the glide lasts the same wall
+      // time on a 120Hz display. Capped, or a backgrounded tab resumes with one
+      // enormous delta and the arm teleports.
+      const delta = previous ? Math.min(now - previous, 64) : 16.7;
+      previous = now;
+
+      const alpha = 1 - Math.pow(1 - SMOOTHING, delta / 16.7);
+      current += (target - current) * alpha;
+
+      if (Math.abs(target - current) < EPSILON) {
+        // Settled. Land exactly on the target and stop — an idle rAF loop keeps
+        // waking the compositor for nothing.
+        current = target;
+        paint();
+        frameId = 0;
+        previous = 0;
+        return;
+      }
+
+      paint();
+      frameId = requestAnimationFrame(tick);
+    };
+
+    const wake = () => {
+      target = targetFor();
+      if (!frameId) {
+        previous = 0;
+        frameId = requestAnimationFrame(tick);
+      }
+    };
+
+    const onResize = () => {
+      measure();
+      wake();
+    };
+
+    paint();
+    window.addEventListener("scroll", wake, { passive: true });
+    window.addEventListener("resize", onResize);
     return () => {
-      if (queued) cancelAnimationFrame(queued);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      if (frameId) cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", wake);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 

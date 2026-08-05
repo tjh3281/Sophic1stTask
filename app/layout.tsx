@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,6 +48,9 @@ export default function RootLayout({
             }}
           />
         </noscript>
+        {/* Takes over the wheel for the whole document. Mounted above the
+            header so it is running before anything reads scroll position. */}
+        <SmoothScroll />
         <Header />
         {/* The header is fixed, so it no longer reserves space. Pages clear it
             with this padding; a full-bleed cover cancels it out to run

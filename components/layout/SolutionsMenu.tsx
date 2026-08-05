@@ -116,14 +116,23 @@ export function SolutionsMenu({ overlay = false }: { overlay?: boolean }) {
 
       <div
         className={cn(
-          "absolute left-1/2 top-full z-50 w-[44rem] -translate-x-1/2 pt-3",
+          // Narrower where the window is. The panel is centred on a trigger
+          // that sits near the right of the bar, so half its width has to fit
+          // between that trigger and the screen edge — and unlike the rest of
+          // the page it hangs outside every clipping context, so overrunning
+          // would put the whole document into horizontal scroll rather than
+          // just looking cramped. At 1280 and up there is room for the full
+          // width; at 1024 there is not.
+          "absolute left-1/2 top-full z-50 w-[40rem] -translate-x-1/2 pt-3 xl:w-[44rem]",
           "transition duration-150",
           open
             ? "visible translate-y-0 opacity-100"
             : "invisible -translate-y-1 opacity-0",
         )}
       >
-        <div className="grid grid-cols-[19rem_1fr] overflow-hidden rounded-xl border border-line bg-background shadow-xl shadow-slate-900/10">
+        {/* minmax so the category column yields rather than forcing the panel
+            wider than the width set above. */}
+        <div className="grid grid-cols-[minmax(0,19rem)_1fr] overflow-hidden rounded-xl border border-line bg-background shadow-xl shadow-slate-900/10">
           <ul className="border-r border-line bg-surface p-2">
             {SOLUTIONS.map((solution) => {
               const isActive = solution.slug === active.slug;

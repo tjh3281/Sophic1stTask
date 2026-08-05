@@ -62,11 +62,22 @@ body {
 
 /* Smooth in-page jumps (the hero's "Explore solutions" anchor). Opt in only
    when the user has not asked for reduced motion — a long animated scroll is
-   exactly the kind of movement that triggers motion sickness. */
+   exactly the kind of movement that triggers motion sickness.
+
+   This is now the fallback for when momentum scrolling is not running: no
+   JavaScript, or a failed init. */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
+}
+
+/* Lenis puts this class on <html> once it takes over, and handles anchor jumps
+   itself. Leaving the native smooth behaviour on would mean two animations
+   fighting over one scroll position, which reads as a stutter at the end of
+   every jump. Wins on specificity, so load order does not matter. */
+html.lenis {
+  scroll-behavior: auto;
 }
 
 /* Both hero layers share this box so their object-cover crops match exactly and
@@ -126,16 +137,20 @@ body {
   }
 }
 
-/* --- Technical metrics marquee ------------------------------------------
-   The track holds two identical copies of the figures, so translating it
+/* --- Marquee -------------------------------------------------------------
+   Shared by the technical-metrics band and the customer logo strip.
+
+   The track holds two identical copies of its contents, so translating it
    exactly -50% lands the second copy where the first began and the loop has no
    seam. That only holds if the copies are the same width, which is why the
    spacing is padding on each item rather than a gap on the track — a gap would
    also fall between the two copies and throw the halves out by one.
+
+   Pace is per-instance via --marquee-duration.
 ------------------------------------------------------------------------- */
-.metric-marquee {
+.marquee {
   overflow: hidden;
-  /* Figures dissolve at the edges rather than being chopped, so the row reads
+  /* Contents dissolve at the edges rather than being chopped, so the row reads
      as continuing past the viewport. Standard property only; the build adds
      the -webkit- prefix. */
   mask-image: linear-gradient(
@@ -147,24 +162,19 @@ body {
   );
 }
 
-.metric-track {
+.marquee-track {
   display: flex;
-  /* Top-aligned, not stretched. The items lay their contents out bottom-up, so
-     stretching them would hang every figure off the tallest label instead of
-     off the top — and one two-line label would knock the whole row out of
-     line. Anchored at the top, the figures share a line and labels grow down. */
-  align-items: flex-start;
   width: max-content;
-  animation: metric-scroll 32s linear infinite;
+  animation: marquee-scroll var(--marquee-duration, 32s) linear infinite;
 }
 
 /* Hold still while it is being read, or while tabbing through. */
-.metric-marquee:hover .metric-track,
-.metric-marquee:focus-within .metric-track {
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
   animation-play-state: paused;
 }
 
-@keyframes metric-scroll {
+@keyframes marquee-scroll {
   from {
     transform: translate3d(0, 0, 0);
   }
@@ -175,15 +185,49 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   /* No drift: drop the duplicate track and hand scrolling back to the user. */
-  .metric-marquee {
+  .marquee {
     overflow-x: auto;
     mask-image: none;
   }
-  .metric-track {
+  .marquee-track {
     animation: none;
   }
-  .metric-track [data-marquee-clone] {
+  .marquee-track [data-marquee-clone] {
     display: none;
+  }
+}
+
+/* --- Capability tabs ------------------------------------------------------
+   Entrance for a panel and its chips. Driven by keyframes rather than the
+   Reveal transition because it has to replay on every tab switch, not on
+   scroll — React remounts the panel on change, which restarts the animation.
+------------------------------------------------------------------------- */
+.capability-panel {
+  animation: capability-panel-in 320ms var(--ease-out-quart) both;
+}
+
+.capability-chip {
+  animation: capability-chip-in 260ms var(--ease-out-quart) both;
+}
+
+@keyframes capability-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes capability-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capability-panel,
+  .capability-chip {
+    animation: none;
   }
 }
 

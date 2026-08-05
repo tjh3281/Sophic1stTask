@@ -67,7 +67,12 @@ export function MobileNav({
       </button>
 
       {open && (
-        <div className="absolute inset-x-0 top-full max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-line bg-background shadow-lg">
+        // data-lenis-prevent: this panel scrolls on its own, and momentum
+        // scrolling would otherwise take the wheel and glide the page behind it.
+        <div
+          data-lenis-prevent
+          className="absolute inset-x-0 top-full max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-line bg-background shadow-lg"
+        >
           <nav className="px-4 py-3 sm:px-6">
             <ul className="divide-y divide-line">
               {HEADER_NAV.map((item) =>

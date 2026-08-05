@@ -174,4 +174,11 @@ replacing slow, error-prone manual handling.
   (iii) Consistent, traceable testing :  
   Automated testing applies the same checks to every unit and logs the results, giving you reliable pass/fail records and a clear quality trail.
 
-!image.png
+  ## Tech stack
+  1. React + Next.js
+  2. Tailwind CSS
+  3. Animated icons
+  4. Scrubbing background animation
+  5. Momentum Scrolling
+  6. SEO friendly (Agent Search /)
+  7. Responsive design (Mobile / Tablet)

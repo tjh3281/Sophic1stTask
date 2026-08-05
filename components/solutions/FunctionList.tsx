@@ -1,6 +1,7 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import type { SolutionFunction } from "@/lib/solutions";
+import { BRAND_RAMP } from "./figureGradient";
 import { Glyph } from "./Glyph";
 
 /**
@@ -26,7 +27,14 @@ export function FunctionList({ items }: { items: SolutionFunction[] }) {
             <li key={item.title}>
               <Reveal delay={index * 70} className="h-full">
                 <article className="flex h-full flex-col rounded-xl bg-brand-light p-6">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand text-white">
+                  {/* The same blue-to-teal ramp the metric figures are filled
+                      with, so the two sections read as one page rather than
+                      two. Painted on the tile rather than the mark: the glyph
+                      is a hairline stroke, and a gradient across 1.5px of line
+                      is a colour nobody can see. */}
+                  <span
+                    className={`flex h-11 w-11 items-center justify-center rounded-lg text-white ${BRAND_RAMP}`}
+                  >
                     <Glyph name={item.icon} />
                   </span>
                   {/* Set to the reference's proportions: the title one step

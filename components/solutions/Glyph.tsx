@@ -44,6 +44,73 @@ const PATHS: Record<GlyphName, React.ReactNode> = {
       <circle cx="16.5" cy="7.5" r="1.4" />
     </>
   ),
+  // A beam narrowing onto a workpiece, with the mark left behind it.
+  laser: (
+    <>
+      <path d="M12 2v5" />
+      <path d="m8.5 4.5 3.5 4 3.5-4" />
+      <path d="M12 8.5 10 14h4l-2-5.5Z" />
+      <path d="M4 18h16" />
+      <path d="M10 21h4" />
+    </>
+  ),
+  // Shield with a tick: the mark survives wear, heat and handling.
+  durable: (
+    <>
+      <path d="M12 3l7 3v5.5c0 4.2-2.9 7.6-7 8.5-4.1-.9-7-4.3-7-8.5V6l7-3Z" />
+      <path d="m9 12 2 2 4-4" />
+    </>
+  ),
+  // Jointed arm on a base, reaching out to a gripper.
+  arm: (
+    <>
+      <path d="M4 21h8" />
+      <path d="M8 21v-6" />
+      <path d="m8 15 6-7" />
+      <circle cx="8" cy="15" r="1.5" />
+      <circle cx="14" cy="8" r="1.5" />
+      <path d="M15.5 8H19" />
+      <path d="M19 5.5v5" />
+    </>
+  ),
+  // Stacked trays, the middle one drawn out — the switch mid-motion.
+  trays: (
+    <>
+      <path d="M3 4.5h15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
+      <path d="M6 11h15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
+      <path d="M3 17.5h15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
+    </>
+  ),
+  // One stream in, two out: pass one way, reject the other.
+  sort: (
+    <>
+      <path d="M2 12h6" />
+      <path d="m8 12 4-6h7" />
+      <path d="m8 12 4 6h7" />
+      <path d="m16.5 3 3 3-3 3" />
+      <path d="m16.5 15 3 3-3 3" />
+    </>
+  ),
+  // A lens inside a viewfinder frame: something is being looked at closely.
+  lens: (
+    <>
+      <circle cx="12" cy="12" r="4.6" />
+      <circle cx="12" cy="12" r="1.5" />
+      <path d="M4 8.5V5.5A1.5 1.5 0 0 1 5.5 4h3" />
+      <path d="M15.5 4h3A1.5 1.5 0 0 1 20 5.5v3" />
+      <path d="M20 15.5v3a1.5 1.5 0 0 1-1.5 1.5h-3" />
+      <path d="M8.5 20h-3A1.5 1.5 0 0 1 4 18.5v-3" />
+    </>
+  ),
+  // Bars on a baseline: a history you can look back over.
+  chart: (
+    <>
+      <path d="M4 20h16" />
+      <path d="M7.5 20v-4.5" />
+      <path d="M12 20v-9" />
+      <path d="M16.5 20v-13" />
+    </>
+  ),
   // A closed loop of arrows: the work goes round without a hand in it.
   cycle: (
     <>

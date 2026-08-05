@@ -1,4 +1,5 @@
 import { HeroScene } from "@/components/home/HeroScene";
+import { LogoMarquee } from "@/components/home/LogoMarquee";
 import { SolutionCard } from "@/components/solutions/SolutionCard";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
@@ -62,6 +63,8 @@ export default function HomePage() {
           <HeroScene />
         </div>
       </section>
+
+      <LogoMarquee />
 
       <Container>
         {/* scroll-mt clears the sticky header when jumped to from the hero. */}

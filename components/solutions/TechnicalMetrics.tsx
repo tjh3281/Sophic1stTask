@@ -60,8 +60,8 @@ export function TechnicalMetrics({ metrics }: { metrics: Metric[] }) {
         </Reveal>
       </Container>
 
-      <Reveal delay={80} className="metric-marquee mt-10">
-        <div className="metric-track">
+      <Reveal delay={80} className="marquee mt-10">
+        <div className="marquee-track">
           {/* items-start on the copies, not just the track: the figures are
               the top element of each item, so without it they hang off the
               bottom of a stretched row and a two-line label drops its whole
@@ -82,3 +82,4 @@ export function TechnicalMetrics({ metrics }: { metrics: Metric[] }) {
     </section>
   );
 }
+
