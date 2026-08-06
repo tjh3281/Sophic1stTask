@@ -67,8 +67,16 @@ export default function HomePage() {
       <LogoMarquee />
 
       <Container>
-        {/* scroll-mt clears the sticky header when jumped to from the hero. */}
-        <section id="solutions" className="scroll-mt-24 py-16">
+        {/* scroll-mt clears the sticky header when jumped to from the hero.
+            From lg the section is sized to one screen and centred in it, so the
+            jump from the hero lands on all four categories at once with nothing
+            cut off at the fold. Below lg the cards stack, where four of them
+            cannot share a screen without becoming too small to read — so there
+            they scroll like ordinary content. */}
+        <section
+          id="solutions"
+          className="scroll-mt-20 py-16 lg:flex lg:min-h-[calc(100vh-4rem)] lg:flex-col lg:justify-center lg:py-12"
+        >
           <Reveal>
             <h2 className="text-2xl font-bold tracking-tight text-foreground">
               Solutions

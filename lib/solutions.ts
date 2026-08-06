@@ -360,7 +360,7 @@ export const SOLUTIONS: Solution[] = [
           {
             icon: "tag",
             title: "Full Traceability",
-            image: "/images/laser-benefit-1.webp",
+            image: "/images/laser-benefit-2.webp",
             points: [
               "Any unit can be traced back to its batch, shift and date long after it has left the factory.",
               "A recall narrows to the parts actually affected, not the whole run.",
@@ -369,7 +369,7 @@ export const SOLUTIONS: Solution[] = [
           {
             icon: "durable",
             title: "Built to Last",
-            image: "/images/laser-benefit-2.webp",
+            image: "/images/laser-benefit-3.webp",
             points: [
               "Marks survive reflow, cleaning and years of wear without fading or peeling off.",
               "Nothing to reprint, relabel or reapply later.",
@@ -378,7 +378,7 @@ export const SOLUTIONS: Solution[] = [
           {
             icon: "gauge",
             title: "Reliable Reads",
-            image: "/images/laser-benefit-3.webp",
+            image: "/images/laser-benefit-1.webp",
             points: [
               "Every unit gets the same code in the same place, so downstream scanners read it first time.",
               "No operator to schedule, and no misread labels to rework.",

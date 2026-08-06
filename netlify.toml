@@ -1,0 +1,27 @@
+# Netlify build settings.
+#
+# The Next.js runtime itself needs no configuration — Netlify detects the
+# framework and turns the two route handlers under app/api into functions on its
+# own. What is pinned here is the thing that silently changes underneath a
+# project: the Node version.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # Next 16 needs Node 20 or newer. Pinned rather than left to Netlify's
+  # default, so a change to that default cannot break a build months from now.
+  NODE_VERSION = "22"
+
+# Secrets are set in the Netlify UI (Site configuration -> Environment
+# variables), never here — this file is committed. The advisor reads:
+#
+#   GEMINI_API_KEYS   comma-separated Gemini keys, used round-robin
+#   ADVISOR_MODEL     optional, overrides gemini-flash-lite-latest
+#
+# Neither may be prefixed NEXT_PUBLIC_. That prefix ships a value to the
+# browser, which for an API key means giving it away.
+#
+# With no key set the site still works: the advisor falls back to the keyword
+# classifier in lib/advisor/heuristic.ts.

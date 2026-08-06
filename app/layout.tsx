@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
+import { Sophie } from "@/components/advisor/Sophie";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,6 +58,9 @@ export default function RootLayout({
             underneath. */}
         <main className="flex-1 pt-16">{children}</main>
         <Footer />
+        {/* Floats over every page from the bottom-right, outside <main> so it
+            is never caught by a page's own layout or overflow. */}
+        <Sophie />
       </body>
     </html>
   );

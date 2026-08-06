@@ -13,7 +13,15 @@ import { cn } from "@/lib/cn";
  * Left column lists the four categories, right column reveals the third level
  * (sub-solutions) for whichever category is hovered or focused.
  */
-export function SolutionsMenu({ overlay = false }: { overlay?: boolean }) {
+export function SolutionsMenu({
+  overlay = false,
+  blocked = false,
+}: {
+  overlay?: boolean;
+  /** Something else is already hanging off the bar — the search panel, which
+   *  this one would open underneath and overlap. */
+  blocked?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [activeSlug, setActiveSlug] = useState(SOLUTIONS[0].slug);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -63,6 +71,7 @@ export function SolutionsMenu({ overlay = false }: { overlay?: boolean }) {
   }
 
   function openNow() {
+    if (blocked) return;
     clearTimer();
     setOpen(true);
   }

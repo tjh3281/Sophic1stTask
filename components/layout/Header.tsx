@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
 import { HEADER_NAV } from "@/lib/nav";
@@ -11,6 +11,8 @@ import { SOLUTIONS } from "@/lib/solutions";
 import { useScrolled } from "@/lib/useScrolled";
 import { MobileNav } from "./MobileNav";
 import { NavButton } from "./NavButton";
+import { SearchDialog } from "./SearchDialog";
+import { SearchTrigger } from "./SearchTrigger";
 import { SolutionsMenu } from "./SolutionsMenu";
 
 /** Pages whose cover runs underneath the header. */
@@ -22,6 +24,35 @@ export function Header() {
   const pathname = usePathname();
   const scrolled = useScrolled(24);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Site-wide shortcuts. Registered here rather than on the trigger, which is
+  // rendered twice — once per breakpoint — and would bind the keys twice with it.
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const inField =
+        event.target instanceof HTMLElement &&
+        (event.target.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName));
+
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setMenuOpen(false);
+        setSearchOpen((open) => !open);
+        return;
+      }
+      // The bare "/" only works away from a text field, where it is a character
+      // the reader is trying to type rather than a shortcut.
+      if (event.key === "/" && !inField && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        setMenuOpen(false);
+        setSearchOpen(true);
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   // Close the mobile drawer on navigation. Adjusted during render rather than
   // in an effect so the open drawer never paints over the new page.
@@ -81,26 +112,59 @@ export function Header() {
           <nav aria-label="Main" className="hidden lg:block">
             <ul className="flex items-center gap-1">
               {HEADER_NAV.map((item) => (
-                <li key={item.label}>
-                  {item.hasMenu ? (
-                    <SolutionsMenu overlay={overlay} />
-                  ) : (
-                    <NavButton
-                      label={item.label}
-                      cta={item.cta}
-                      overlay={overlay}
-                    />
+                // Search sits just before the call to action, so the bar reads
+                // links → search → Contact rather than putting an icon after
+                // the one filled button.
+                <Fragment key={item.label}>
+                  {item.cta && (
+                    <li className="mr-2">
+                      <SearchTrigger
+                        overlay={overlay}
+                        open={searchOpen}
+                        onToggle={() => setSearchOpen((open) => !open)}
+                      />
+                    </li>
                   )}
-                </li>
+                  <li>
+                    {item.hasMenu ? (
+                      <SolutionsMenu overlay={overlay} blocked={searchOpen} />
+                    ) : (
+                      <NavButton
+                        label={item.label}
+                        cta={item.cta}
+                        overlay={overlay}
+                      />
+                    )}
+                  </li>
+                </Fragment>
               ))}
             </ul>
           </nav>
 
-          <MobileNav
-            overlay={overlay}
-            open={menuOpen}
-            onOpenChange={setMenuOpen}
-          />
+          <div className="flex items-center gap-1 lg:hidden">
+            <SearchTrigger
+              variant="icon"
+              overlay={overlay}
+              open={searchOpen}
+              onToggle={() => {
+                // The drawer and the panel both hang off the same edge of the
+                // bar below lg, so only one of them is ever out at a time.
+                setMenuOpen(false);
+                setSearchOpen((open) => !open);
+              }}
+            />
+            <MobileNav
+              overlay={overlay}
+              open={menuOpen}
+              onOpenChange={(open) => {
+                setMenuOpen(open);
+                if (open) setSearchOpen(false);
+              }}
+            />
+          </div>
+
+          {/* Inside the row, which is the positioned ancestor it hangs from. */}
+          <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
         </div>
       </Container>
     </header>

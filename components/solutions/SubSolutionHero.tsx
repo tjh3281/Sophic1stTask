@@ -107,7 +107,7 @@ export function SubSolutionHero({
                   className={
                     isPhoto
                       ? "object-cover"
-                      : "scale-110 object-contain drop-shadow-2xl"
+                      : "scale-120 object-contain drop-shadow-2xl"
                   }
                 />
               </div>
