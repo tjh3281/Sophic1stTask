@@ -1,4 +1,4 @@
-import type { MatchedCategory } from "./categories";
+import { equipmentFor, type EquipmentEnum, type MatchedCategory } from "./categories";
 import { parseClassifierResult, vagueResult, type ClassifierResult } from "./contract";
 
 /**
@@ -60,7 +60,8 @@ const OFF_SCOPE = compile([
 const KEYWORDS: Record<MatchedCategory, Term[]> = {
   ASSEMBLY: compile([
     "assembl*", "build*", "pack*", "seal*", "carton*", "box", "boxes",
-    "label*", "mark", "marking", "marked", "engrav*", "laser", "sort*",
+    "label*", "mark", "marking", "marked", "engrav*", "etch*", "serial*",
+    "laser", "sort*",
     "by hand", "manual*", "handler*", "handling", "tray*", "pick and place",
     "screw*", "fasten*", "glue", "dispens*", "operator*",
   ]),
@@ -89,6 +90,65 @@ const KEYWORDS: Record<MatchedCategory, Term[]> = {
   ]),
 };
 
+/**
+ * Machine-level terms, scored only inside the category that already won.
+ *
+ * Narrower than the category lists above and deliberately so: these are the
+ * words that name one machine and no other. "pack" belongs to assembly as a
+ * whole, but "carton" and "shrink wrap" belong to the packer specifically, so
+ * only the second kind is listed here.
+ *
+ * The four single-machine categories are absent. Their machine is settled by
+ * arithmetic — one candidate — long before any keyword is read.
+ */
+const EQUIPMENT_KEYWORDS: Partial<Record<EquipmentEnum, Term[]>> = {
+  PACKING: compile([
+    "pack*", "seal*", "carton*", "box", "boxes", "bag*", "shrink wrap",
+    "wrapping", "case clos*", "palletis*", "palletiz*", "weigh*",
+  ]),
+  LASER_MARKING: compile([
+    "laser", "mark", "marking", "marked", "engrav*", "etch*", "serial*",
+    "barcode*", "data matrix", "2d code*", "traceability code*", "part number*",
+  ]),
+  HANDLER: compile([
+    "handler*", "pick and place", "pick-and-place", "robot*", "arm", "arms",
+    "tray*", "sort*", "bin*", "load*", "unload*", "infeed", "gantry",
+  ]),
+  MMS: compile([
+    "stock", "stocks", "inventory", "warehouse*", "storage", "racking",
+    "stock take", "stocktake", "count*", "kitting", "shortage*", "wip",
+    "traceab*", "misplac*", "lost",
+  ]),
+  AMR: compile([
+    "amr", "agv", "robot*", "trolley*", "forklift*", "cart*", "push*",
+    "carry*", "walk*", "transport*", "deliver*", "fetch*", "between station*",
+    "point to point", "navigat*",
+  ]),
+};
+
+/**
+ * Picks the machine inside a settled category, or nothing.
+ *
+ * Nothing is the common case and the safe one — it hands the reader the refine
+ * question, which is one tap. A tie counts as nothing for the same reason: two
+ * machines scoring equally is the classifier saying it cannot tell, and
+ * breaking that tie by declaration order would dress a coin flip up as an
+ * answer.
+ */
+function pickEquipment(text: string, category: MatchedCategory) {
+  const candidates = equipmentFor(category);
+  if (candidates.length === 1) return candidates[0].id;
+
+  const ranked = candidates
+    .map((item) => ({ id: item.id, points: score(text, EQUIPMENT_KEYWORDS[item.id] ?? []) }))
+    .filter((entry) => entry.points > 0)
+    .sort((a, b) => b.points - a.points);
+
+  if (ranked.length === 0) return null;
+  if (ranked[1] && ranked[1].points === ranked[0].points) return null;
+  return ranked[0].id;
+}
+
 function score(text: string, terms: Term[]) {
   let total = 0;
   for (const term of terms) if (term.pattern.test(text)) total += term.weight;
@@ -109,6 +169,7 @@ export function classifyByKeyword(input: string): ClassifierResult {
         {
           primary: "NONE",
           secondary: null,
+          equipment: null,
           confidence: "high",
           user_words: quote(input),
         },
@@ -134,6 +195,12 @@ export function classifyByKeyword(input: string): ClassifierResult {
       {
         primary: best.id,
         secondary: contested ? runnerUp.id : null,
+        // Left null while two categories are still in play. The machine is
+        // scored inside one category, so naming it before the splitter has
+        // chosen which category that is would be answering the second question
+        // before the first — and the validator would drop it anyway if the
+        // reader then picked the other branch.
+        equipment: contested ? null : pickEquipment(text, best.id),
         confidence: best.points >= 2 && !contested ? "high" : "low",
         user_words: quote(input),
       },

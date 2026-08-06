@@ -1,4 +1,10 @@
-import { CATEGORY_ENUMS, type CategoryEnum } from "./categories";
+import {
+  CATEGORY_ENUMS,
+  EQUIPMENT_ENUMS,
+  getEquipment,
+  type CategoryEnum,
+  type EquipmentEnum,
+} from "./categories";
 
 /**
  * The classifier's wire format, and the only thing the UI is allowed to act on.
@@ -13,6 +19,15 @@ export type ClassifierResult = {
   /** null when the input was too vague to place. */
   primary: CategoryEnum | null;
   secondary: CategoryEnum | null;
+  /**
+   * The specific machine, when the reader's words named one; null when they
+   * only named the area. Always belongs to `primary` — see below.
+   *
+   * Null is a perfectly good answer here and costs the reader one extra tap.
+   * A wrong one costs them a page about a machine they did not ask about, so
+   * nothing downstream is allowed to fill this in by guessing.
+   */
+  equipment: EquipmentEnum | null;
   confidence: "high" | "low";
   /** A short quote of the reader's own words, for the reflect line. */
   user_words: string;
@@ -26,6 +41,7 @@ export function vagueResult(source: ClassifierResult["source"]): ClassifierResul
   return {
     primary: null,
     secondary: null,
+    equipment: null,
     confidence: "low",
     user_words: "",
     source,
@@ -71,10 +87,33 @@ export function parseClassifierResult(
   return {
     primary,
     secondary,
+    equipment: asEquipment(raw.equipment, primary),
     confidence: raw.confidence === "high" ? "high" : "low",
     user_words: userWords,
     source,
   };
+}
+
+/**
+ * A machine is only kept if it sits inside the category it was returned with.
+ *
+ * The two answers are one judgement made twice, and a model that says
+ * "assembly" and then names an AMR has contradicted itself. The category is
+ * the safer half — it is the coarser call, and it is what the splitter and the
+ * symptom buttons agree on — so the machine is the half that gets dropped.
+ * Dropping it costs one question; trusting it costs a page about the wrong
+ * machine.
+ */
+function asEquipment(
+  value: unknown,
+  primary: CategoryEnum | null,
+): EquipmentEnum | null {
+  if (value === null || value === undefined || value === "null") return null;
+  if (typeof value !== "string") return null;
+  if (!(EQUIPMENT_ENUMS as readonly string[]).includes(value)) return null;
+
+  const equipment = value as EquipmentEnum;
+  return getEquipment(equipment).category === primary ? equipment : null;
 }
 
 /**
@@ -110,9 +149,25 @@ Rules:
   it is too vague to place: set primary to null, not NONE.
 - "user_words" must quote the user's own phrasing, never your paraphrase.
 
+Then name the specific machine in "equipment", but ONLY if the user's own words
+point at one. The machine MUST belong to the category you put in "primary":
+
+- ASSEMBLY -> PACKING (transferring, sealing, cartoning or labelling finished
+  goods), LASER_MARKING (serial numbers, barcodes or 2D codes onto parts),
+  HANDLER (robotic pick-and-place, tray switching, sorting by grade)
+- INSPECTION -> MACHINE_VISION
+- MATERIAL_HANDLING -> MMS (storing, tracking and counting stock),
+  AMR (self-driving robots carrying material between stations)
+- ICT_FCT -> FCT
+
+Set "equipment" to null whenever the user named only the area and not the job.
+Null is a good answer: it costs the user one extra question. A wrong machine
+sends them to the wrong page, so never guess to avoid a null.
+
 Return exactly this shape:
 {"primary": "ASSEMBLY|INSPECTION|MATERIAL_HANDLING|ICT_FCT|NONE|null",
  "secondary": "same set or null",
+ "equipment": "PACKING|LASER_MARKING|HANDLER|MACHINE_VISION|MMS|AMR|FCT|null",
  "confidence": "high|low",
  "user_words": "<short phrase quoting the user's own pain, for the reflect step>"}`;
 

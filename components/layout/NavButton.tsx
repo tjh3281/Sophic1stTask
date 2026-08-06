@@ -1,38 +1,53 @@
+import type { Route } from "next";
+import Link from "next/link";
 import { cn } from "@/lib/cn";
 
 /**
- * An inert header item. Deliberately a <button> with no handler rather than an
- * <a href="#"> so the prototype never navigates or dirties browser history,
- * while still being focusable and visually identical to the live "Solution" item.
+ * A header item.
+ *
+ * With an `href` it is a real link, so middle-click and "open in new tab" work
+ * the way they do everywhere else in the bar. Without one it is a <button>
+ * rather than an <a href="#">, so the items that are still inert never
+ * navigate or dirty browser history, while staying focusable and visually
+ * identical to the live ones.
  */
 export function NavButton({
   label,
+  href,
   cta = false,
   overlay = false,
   className,
 }: {
   label: string;
+  href?: Route;
   cta?: boolean;
   /** Sitting on a dark cover rather than the solid bar. */
   overlay?: boolean;
   className?: string;
 }) {
+  const classes = cn(
+    "inline-block rounded-md text-sm font-medium transition-colors duration-150 ease-gentle",
+    cta
+      ? "btn-brand px-4 py-2 text-white"
+      : cn(
+          "px-3 py-2",
+          overlay
+            ? "text-white/90 hover:text-white"
+            : "text-foreground hover:text-brand",
+        ),
+    className,
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={classes}>
+        {label}
+      </Link>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      className={cn(
-        "rounded-md text-sm font-medium transition-colors duration-150 ease-gentle",
-        cta
-          ? "bg-brand px-4 py-2 text-white hover:bg-brand-dark"
-          : cn(
-              "px-3 py-2",
-              overlay
-                ? "text-white/90 hover:text-white"
-                : "text-foreground hover:text-brand",
-            ),
-        className,
-      )}
-    >
+    <button type="button" className={classes}>
       {label}
     </button>
   );

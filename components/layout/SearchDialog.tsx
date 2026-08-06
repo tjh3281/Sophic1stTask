@@ -415,6 +415,12 @@ function ResultIcon({
           <path d="M3.5 8.5H6M3.5 11.5H6M14 8.5h2.5M14 11.5h2.5" {...stroke} />
         </>
       )}
+      {kind === "page" && (
+        <>
+          <rect x="3.25" y="5" width="13.5" height="10" rx="1.25" {...stroke} />
+          <path d="m3.9 5.9 6.1 4.7 6.1-4.7" {...stroke} />
+        </>
+      )}
     </svg>
   );
 }

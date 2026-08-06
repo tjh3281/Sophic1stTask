@@ -45,7 +45,7 @@ export default function HomePage() {
                     there is no route to prefetch or transition to. */}
                 <a
                   href="#solutions"
-                  className="group inline-flex items-center gap-2 rounded-md bg-brand px-5 py-3 text-sm font-medium text-white transition-[background-color,transform] duration-150 ease-out hover:bg-brand-dark active:scale-[0.97]"
+                  className="btn-brand group inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-medium text-white transition-transform duration-150 ease-out active:scale-[0.97]"
                 >
                   Explore solutions
                   <span

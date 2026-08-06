@@ -5,10 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import {
   ADVISOR_CATEGORIES,
+  equipmentFor,
   getCategory,
+  getEquipment,
+  getRefiner,
   getSplitter,
+  isEquipment,
   isMatchedCategory,
+  type EquipmentEnum,
   type MatchedCategory,
+  type Refiner,
   type Splitter,
 } from "@/lib/advisor/categories";
 import { MAX_INPUT_LENGTH, type ClassifierResult } from "@/lib/advisor/contract";
@@ -19,8 +25,15 @@ import { SophieMark } from "./SophieMark";
  * Sophie — the automation solution advisor.
  *
  * A lead qualifier wearing a friendly face, not a chatbot. It has one job: turn
- * "our line is slow" into "INSPECTION — defects escaping final visual check",
- * and hand that to a human with the problem already written down.
+ * "our line is slow" into "Machine Vision — defects escaping final visual
+ * check", and hand that to a human with the problem already written down.
+ *
+ * It answers with a machine, not a category. A category is a diagnosis and a
+ * machine is a recommendation, and the reader came for the second: telling
+ * somebody their problem is "Assembly Automation" leaves them on a page with
+ * three machines on it, still working out which one they were sent for. So
+ * every path below ends at one sub-solution page — at worst after one more
+ * question, never at a category.
  *
  * The rule that shapes every branch below: the contact button is a reward for a
  * diagnosed problem, never an escape from a vague one. Somebody who types
@@ -32,8 +45,24 @@ import { SophieMark } from "./SophieMark";
 type Stage =
   | { name: "entry" }
   | { name: "thinking" }
-  | { name: "splitter"; splitter: Splitter; problem: string }
-  | { name: "result"; category: MatchedCategory; words: string; problem: string }
+  /** `equipment` rides along so a machine the classifier already named is not
+   *  thrown away by asking which category it was in. It is only used if the
+   *  reader's answer lands on the category it belongs to. */
+  | {
+      name: "splitter";
+      splitter: Splitter;
+      equipment: EquipmentEnum | null;
+      problem: string;
+    }
+  /** Which of a category's machines. Only reached when the category holds more
+   *  than one and nothing in the reader's words picked between them. */
+  | {
+      name: "refine";
+      refiner: Refiner;
+      words: string;
+      problem: string;
+    }
+  | { name: "result"; equipment: EquipmentEnum; words: string; problem: string }
   /** Carries the reader's own words, so the one screen that turns someone away
    *  still shows it read what they wrote. */
   | { name: "nofit"; words: string }
@@ -44,9 +73,9 @@ export function Sophie() {
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState<Stage>({ name: "entry" });
   const [draft, setDraft] = useState("");
-  /** `category: null` is the undiagnosed case — see the vague stage below. */
+  /** `equipment: null` is the undiagnosed case — see the vague stage below. */
   const [lead, setLead] = useState<{
-    category: MatchedCategory | null;
+    equipment: EquipmentEnum | null;
     problem: string;
   } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -73,6 +102,44 @@ export function Sophie() {
   }
 
   /**
+   * The one place a category turns into an answer.
+   *
+   * Every path arrives here — the classifier, the splitter, and the symptom
+   * buttons — so the rule about how specific the answer gets is written once.
+   * A machine already in hand is used if it belongs to this category; failing
+   * that, a category holding exactly one machine settles itself; failing both,
+   * the reader is asked which job it is.
+   */
+  function settle(
+    category: MatchedCategory,
+    equipment: EquipmentEnum | null,
+    words: string,
+    problem: string,
+  ) {
+    const named =
+      equipment && getEquipment(equipment).category === category ? equipment : null;
+    const candidates = equipmentFor(category);
+    const resolved = named ?? (candidates.length === 1 ? candidates[0].id : null);
+
+    if (resolved) {
+      setStage({ name: "result", equipment: resolved, words, problem });
+      return;
+    }
+
+    const refiner = getRefiner(category);
+    // Unreachable while every category has at least one machine: with none
+    // resolved there must be two or more, which is exactly when getRefiner
+    // answers. Kept so that emptying a category in SOLUTIONS degrades to the
+    // re-prompt instead of throwing at the reader.
+    if (!refiner) {
+      setStage({ name: "vague", attempts: 0 });
+      return;
+    }
+
+    setStage({ name: "refine", refiner, words, problem });
+  }
+
+  /**
    * A symptom button is already a diagnosis — the reader picked the category by
    * naming their own pain. Sending it to the classifier would spend a round
    * trip to be told what we already know, and would let the model overrule a
@@ -80,7 +147,7 @@ export function Sophie() {
    */
   function pickSymptom(category: MatchedCategory) {
     const { symptom } = getCategory(category);
-    setStage({ name: "result", category, words: symptom, problem: symptom });
+    settle(category, null, symptom, symptom);
   }
 
   async function classify(text: string, attempts: number) {
@@ -119,22 +186,19 @@ export function Sophie() {
     }
 
     const secondary = isMatchedCategory(result.secondary) ? result.secondary : null;
+    const equipment = isEquipment(result.equipment) ? result.equipment : null;
 
     if (result.confidence === "low" || secondary) {
       setStage({
         name: "splitter",
         splitter: getSplitter(result.primary, secondary),
+        equipment,
         problem,
       });
       return;
     }
 
-    setStage({
-      name: "result",
-      category: result.primary,
-      words: result.user_words || problem,
-      problem,
-    });
+    settle(result.primary, equipment, result.user_words || problem, problem);
   }
 
   /**
@@ -143,12 +207,16 @@ export function Sophie() {
    * categories they are in; asking a classifier to second-guess that can only
    * produce a third answer that contradicts them.
    */
-  function answerSplitter(resolvesTo: MatchedCategory | null, problem: string) {
+  function answerSplitter(
+    resolvesTo: MatchedCategory | null,
+    equipment: EquipmentEnum | null,
+    problem: string,
+  ) {
     if (!resolvesTo) {
       setStage({ name: "vague", attempts: 0 });
       return;
     }
-    setStage({ name: "result", category: resolvesTo, words: problem, problem });
+    settle(resolvesTo, equipment, problem, problem);
   }
 
   return (
@@ -162,7 +230,7 @@ export function Sophie() {
             className="sophie-panel flex w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-xl border border-line bg-background shadow-2xl shadow-slate-900/20"
           >
             <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-white">
+              <span className="btn-brand flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white">
                 <SophieMark className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -221,7 +289,11 @@ export function Sophie() {
                         key={option.label}
                         type="button"
                         onClick={() =>
-                          answerSplitter(option.resolvesTo, stage.problem)
+                          answerSplitter(
+                            option.resolvesTo,
+                            stage.equipment,
+                            stage.problem,
+                          )
                         }
                         className="rounded-md border border-line px-3 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-brand hover:text-brand"
                       >
@@ -232,12 +304,52 @@ export function Sophie() {
                 </Bubble>
               )}
 
+              {stage.name === "refine" && (
+                <Bubble>
+                  <p className="text-sm leading-relaxed text-foreground">
+                    {stage.refiner.question}
+                  </p>
+                  {/* Stacked, not wrapped into chips like the splitter's two
+                      words — these options are whole jobs, and a reader
+                      comparing three of them reads down a column faster than
+                      across a paragraph. */}
+                  <ul className="mt-3 space-y-2">
+                    {stage.refiner.options.map((option) => (
+                      <li key={option.resolvesTo}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setStage({
+                              name: "result",
+                              equipment: option.resolvesTo,
+                              words: stage.words,
+                              problem: stage.problem,
+                            })
+                          }
+                          className="w-full rounded-lg border border-line bg-background px-3 py-2.5 text-left text-[0.8125rem] leading-relaxed text-foreground transition-colors hover:border-brand hover:bg-brand-light/40"
+                        >
+                          {option.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </Bubble>
+              )}
+
               {stage.name === "result" && (
                 <Result
-                  category={stage.category}
+                  equipment={stage.equipment}
                   words={stage.words}
+                  onPick={(next) =>
+                    setStage({
+                      name: "result",
+                      equipment: next,
+                      words: stage.words,
+                      problem: stage.problem,
+                    })
+                  }
                   onContact={() =>
-                    setLead({ category: stage.category, problem: stage.problem })
+                    setLead({ equipment: stage.equipment, problem: stage.problem })
                   }
                 />
               )}
@@ -285,7 +397,7 @@ export function Sophie() {
                     // as undiagnosed rather than as a guess: a lead labelled
                     // with the wrong category costs the engineer who picks it
                     // up more than one labelled with none.
-                    setLead({ category: null, problem: draft })
+                    setLead({ equipment: null, problem: draft })
                   }
                 />
               )}
@@ -299,10 +411,12 @@ export function Sophie() {
           aria-expanded={open}
           aria-label={open ? "Close Sophie" : "Ask Sophie which solution fits"}
           className={cn(
-            "flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg shadow-slate-900/25",
-            "transition-[background-color,transform] duration-200 ease-out active:scale-95",
+            "btn-brand flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg shadow-slate-900/25",
+            "transition-transform duration-200 ease-out active:scale-95",
             "motion-reduce:transition-none motion-reduce:active:scale-100",
-            open ? "bg-brand-dark" : "bg-brand hover:bg-brand-dark",
+            // Open holds the deeper face, so the launcher reads as pressed for
+            // as long as the panel above it is out.
+            open && "[&::before]:opacity-0",
           )}
         >
           {open ? (
@@ -323,7 +437,7 @@ export function Sophie() {
 
       {lead && (
         <LeadForm
-          category={lead.category}
+          equipment={lead.equipment}
           problem={lead.problem}
           onClose={() => setLead(null)}
         />
@@ -391,7 +505,7 @@ function Entry({
           className={cn(
             "mt-2 w-full rounded-md px-4 py-2.5 text-sm font-medium transition-colors",
             trimmed
-              ? "bg-brand text-white hover:bg-brand-dark"
+              ? "btn-brand text-white"
               : "cursor-not-allowed bg-surface text-muted",
           )}
         >
@@ -440,41 +554,45 @@ function Thinking() {
 }
 
 function Result({
-  category,
+  equipment,
   words,
+  onPick,
   onContact,
 }: {
-  category: MatchedCategory;
+  equipment: EquipmentEnum;
   words: string;
+  onPick: (equipment: EquipmentEnum) => void;
   onContact: () => void;
 }) {
-  const solution = getCategory(category);
+  const machine = getEquipment(equipment);
+  const category = getCategory(machine.category);
+  const siblings = equipmentFor(machine.category).filter(
+    (item) => item.id !== equipment,
+  );
 
   return (
     <div className="space-y-4">
       <Bubble>
         <p className="text-sm leading-relaxed text-foreground">
-          Sounds like <span className="font-medium">{solution.label}</span> is
-          your bottleneck{words ? ` — ${stripPeriod(words)}` : ""}. Here&rsquo;s
-          what fits.
+          Sounds like <span className="font-medium">{category.label}</span> is
+          your bottleneck{words ? ` — ${stripPeriod(words)}` : ""}. This is the
+          machine for it.
         </p>
       </Bubble>
 
       <div className="rounded-lg border border-line bg-surface p-4">
-        <p className="text-sm font-semibold text-foreground">{solution.label}</p>
-        <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-muted">
-          {solution.oneLine}
+        {/* The category above the machine, not instead of it. It is the
+            reasoning, kept visible in small type so the reader can see how the
+            answer was reached and disagree with it if it is wrong. */}
+        <p className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted">
+          {category.label}
         </p>
-        <ul className="mt-3 space-y-1 border-t border-line pt-3">
-          {solution.equipment.map((item) => (
-            <li
-              key={item}
-              className="font-mono text-[0.6875rem] leading-relaxed text-foreground/80"
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
+        <p className="mt-1 text-sm font-semibold text-foreground">
+          {machine.label}
+        </p>
+        <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-muted">
+          {machine.summary}
+        </p>
       </div>
 
       {/* Contact is the primary action and the deep link supports it — one
@@ -483,16 +601,34 @@ function Result({
       <button
         type="button"
         onClick={onContact}
-        className="w-full rounded-md bg-brand px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
+        className="btn-brand w-full rounded-md px-4 py-3 text-sm font-medium text-white"
       >
         Talk to our team →
       </button>
       <Link
-        href={solution.href}
+        href={machine.href}
         className="block text-center text-xs font-medium text-brand transition-colors hover:text-brand-dark"
       >
-        See how {solution.label} works →
+        See {machine.label} →
       </Link>
+
+      {siblings.length > 0 && (
+        // The escape hatch for a wrong turn. Being specific means being wrong
+        // sometimes, and a reader who lands on the wrong machine needs to fix
+        // it here rather than start the conversation again.
+        <div className="border-t border-line pt-3">
+          <p className="text-[0.6875rem] text-muted">Not quite? Also in {category.label}:</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {siblings.map((item) => (
+              <ShortButton
+                key={item.id}
+                label={item.label}
+                onClick={() => onPick(item.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

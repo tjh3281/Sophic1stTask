@@ -59,6 +59,59 @@ body {
   outline: none;
 }
 
+/* --- Filled buttons ------------------------------------------------------
+   Every solid call to action on the site wears the brand ramp: the same blue
+   falling to teal that the capability tabs, the function tiles and the spec
+   figures already carry. Written once here rather than as a repeated string of
+   utilities, so the CTAs cannot drift apart one edit at a time.
+
+   Run left to right, not top to bottom like the tabs. A button is wide and
+   short, and a vertical ramp across forty pixels of height is a ramp nobody
+   can see — which would spend the gradient and look like a flat fill.
+
+   Hover deepens to blue-on-dark-blue. It is done with a second layer rather
+   than by swapping background-image, because background-image does not
+   interpolate: swapping it flips the colour in one frame, and an instant flip
+   under the cursor reads as a glitch on something the size of a button.
+------------------------------------------------------------------------- */
+.btn-brand {
+  position: relative;
+  /* The hover face, sat underneath. */
+  background-image: linear-gradient(to right, var(--brand-dark), var(--brand));
+  /* Contains the overlay's negative z-index, so it can sit above this
+     element's own background without escaping behind the page. */
+  isolation: isolate;
+}
+
+.btn-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Follows whatever the button is: pill, rounded rectangle, or the circle the
+     advisor's launcher uses. */
+  border-radius: inherit;
+  background-image: linear-gradient(to right, var(--brand), var(--accent));
+  transition: opacity 200ms var(--ease-gentle);
+}
+
+.btn-brand:hover::before {
+  opacity: 0;
+}
+
+/* Disabled buttons are held on the resting face — a control that cannot be
+   pressed should not answer the cursor. */
+.btn-brand:disabled::before,
+.btn-brand[aria-disabled="true"]::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-brand::before {
+    transition: none;
+  }
+}
+
 /* --- Motion -------------------------------------------------------------
    Entrances use ease-out: the fast start reads as responsive. Built-in CSS
    curves are too weak, so these are the stronger custom equivalents.

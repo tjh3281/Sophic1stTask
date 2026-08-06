@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { getCategory, type MatchedCategory } from "@/lib/advisor/categories";
+import { getCategory, getEquipment, type EquipmentEnum } from "@/lib/advisor/categories";
 
 /**
  * The handoff. Everything the advisor learned is already in the form when it
@@ -13,16 +13,20 @@ import { getCategory, type MatchedCategory } from "@/lib/advisor/categories";
  * not belong in a link they might paste into a chat with a colleague.
  */
 export function LeadForm({
-  category,
+  equipment,
   problem,
   onClose,
 }: {
   /** null when the advisor never managed a diagnosis. */
-  category: MatchedCategory | null;
+  equipment: EquipmentEnum | null;
   problem: string;
   onClose: () => void;
 }) {
-  const solution = category ? getCategory(category) : null;
+  const machine = equipment ? getEquipment(equipment) : null;
+  // Both go over. The machine is what the reader was shown and what an engineer
+  // should quote against; the category is the coarser label the sales side
+  // already sorts by, and deriving it here means the two can never disagree.
+  const solution = machine ? getCategory(machine.category) : null;
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +51,11 @@ export function LeadForm({
       const response = await fetch("/api/advisor/lead", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...fields, category: category ?? "UNDIAGNOSED" }),
+        body: JSON.stringify({
+          ...fields,
+          category: solution?.id ?? "UNDIAGNOSED",
+          equipment: equipment ?? "",
+        }),
       });
       const payload = (await response.json()) as { error?: string };
       if (!response.ok) {
@@ -77,8 +85,8 @@ export function LeadForm({
             </h2>
             {!sent && (
               <p className="mt-1 text-xs text-muted">
-                {solution
-                  ? `We'll come back with the ${solution.label} options that fit your line.`
+                {machine
+                  ? `We'll come back with the ${machine.label} options that fit your line.`
                   : "Tell us what's happening and an engineer will work out which way to take it."}
               </p>
             )}
@@ -112,7 +120,7 @@ export function LeadForm({
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
+              className="btn-brand mt-6 rounded-md px-5 py-2.5 text-sm font-medium text-white"
             >
               Done
             </button>
@@ -129,11 +137,14 @@ export function LeadForm({
               <p
                 className={cn(
                   "mt-1 text-sm font-medium",
-                  solution ? "text-foreground" : "text-muted",
+                  machine ? "text-foreground" : "text-muted",
                 )}
               >
-                {solution ? solution.label : "Not identified yet"}
+                {machine ? machine.label : "Not identified yet"}
               </p>
+              {solution && (
+                <p className="mt-0.5 text-xs text-muted">{solution.label}</p>
+              )}
             </div>
 
             <Field label="Name" value={fields.name} onChange={(v) => set("name", v)} required autoComplete="name" />
@@ -163,8 +174,8 @@ export function LeadForm({
               type="submit"
               disabled={busy}
               className={cn(
-                "w-full rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-white transition-colors",
-                busy ? "opacity-60" : "hover:bg-brand-dark",
+                "btn-brand w-full rounded-md px-5 py-2.5 text-sm font-medium text-white",
+                busy && "opacity-60",
               )}
             >
               {busy ? "Sending…" : "Send to our team"}

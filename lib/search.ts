@@ -9,9 +9,9 @@ import { SOLUTIONS } from "./solutions";
  * The whole index is a dozen entries, so it is built once at module scope and
  * matched synchronously on every keystroke — no async, no network, no worker.
  *
- * Only real routes are indexed. The other header items (Company, Partners,
- * Careers, Community, Contact) are inert prototype buttons with nowhere to go,
- * and a result that lands on nothing is worse than no result at all.
+ * Only real routes are indexed. The remaining header items (Company, Partners,
+ * Careers, Community) are inert prototype buttons with nowhere to go, and a
+ * result that lands on nothing is worse than no result at all.
  */
 
 /** Lower-cased mirrors of the fields we match against, so a keystroke does not
@@ -25,8 +25,9 @@ type Haystack = {
   keywords: string;
 };
 
-/** Which level of the tree a result sits at. Picks the icon beside it. */
-export type SearchEntryKind = "home" | "category" | "equipment";
+/** Which level of the tree a result sits at. Picks the icon beside it.
+ *  "page" is for the routes that sit outside the tree entirely. */
+export type SearchEntryKind = "home" | "category" | "equipment" | "page";
 
 export type SearchEntry = {
   id: string;
@@ -59,6 +60,24 @@ function buildIndex(): SearchEntry[] {
         breadcrumb: "sophic automation",
         summary: "four solution categories, one automation partner",
         keywords: "overview start landing index main page",
+      },
+    },
+    {
+      id: "contact",
+      kind: "page",
+      title: "Contact Us",
+      href: "/contact",
+      breadcrumb: "Sophic Automation",
+      summary: "Talk to an engineer about your line.",
+      lower: {
+        title: "contact us",
+        breadcrumb: "sophic automation",
+        summary: "talk to an engineer about your line",
+        // The words somebody actually types when they are looking for this:
+        // how to reach a company, not what the page is called.
+        keywords:
+          "contact enquiry inquiry email get in touch talk to sales support" +
+          " quote quotation reach us message form enquiry@sophicautomation.com",
       },
     },
   ];

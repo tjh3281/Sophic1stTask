@@ -156,10 +156,6 @@ replacing slow, error-prone manual handling.
 - Outlier
   Electrical tests that prove a finished board actually works → before it ever ships to the customer.
 
-- Benefits  
-  (i) Higher efficiency (Document) : ICT removes simple error first,so FCT only test board worth testing.
-  (ii) Better coverage (User): catches both physical build defects and funtional/software defects.
-  (iii) Lower total costs (money-bag) : fewer boards reach expensive late-debugging
 - Solutions
 
 1. Automated Functional Test Equipment (Only exist on the InvestPenang Profile)
@@ -178,7 +174,8 @@ replacing slow, error-prone manual handling.
   1. React + Next.js
   2. Tailwind CSS
   3. Animated icons
-  4. Scrubbing background animation
+  4. Scrubbing background animation (arm + chip)
   5. Momentum Scrolling
-  6. SEO friendly (Agent Search /)
+  6. SEO friendly (Agentic Search /)
   7. Responsive design (Mobile / Tablet)
+  8. Search function

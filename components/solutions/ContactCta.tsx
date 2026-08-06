@@ -1,16 +1,19 @@
+import { ContactCtaButton } from "@/components/contact/ContactCtaButton";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
-import { SpecularButton } from "@/components/ui/SpecularButton";
 
 /**
  * Closing call to action, at the foot of every sub-solution page.
  *
- * No onClick is passed. This is a Server Component, and a function cannot cross
- * into a Client Component from here — but it is also the behaviour we want: the
- * site has no contact route yet, and the header's Contact entry is an inert
- * button too. Wiring it up is one `href` once that page exists.
+ * Opens the site's contact form with this page's machine already chosen. That
+ * pre-selection is the whole difference between this button and the header's
+ * Contact: somebody who has just read a page about the laser marker should not
+ * have to tell us that is what they were reading.
+ *
+ * Still a Server Component. The click lives in ContactCtaButton, which is all
+ * the "use client" boundary this needs — the slug crosses it as a string.
  */
-export function ContactCta() {
+export function ContactCta({ preset }: { preset: string }) {
   return (
     <Container>
       {/* Asymmetric: tight above so the button sits close under the rule, with
@@ -25,26 +28,7 @@ export function ContactCta() {
             hairline at rest (45% coverage) deepening to solid black under the
             sweep. */}
         <Reveal>
-          <SpecularButton
-            size="lg"
-            radius={18}
-            tint="#ffffff"
-            tintOpacity={0}
-            blur={0}
-            textColor="#0f172a"
-            lineColor="#000000"
-            baseColor="#000000"
-            intensity={1}
-            shineSize={10}
-            shineFade={40}
-            thickness={1}
-            speed={0.35}
-            followMouse
-            proximity={250}
-            autoAnimate={false}
-          >
-            Contact Us
-          </SpecularButton>
+          <ContactCtaButton preset={preset}>Contact Us</ContactCtaButton>
         </Reveal>
       </section>
     </Container>

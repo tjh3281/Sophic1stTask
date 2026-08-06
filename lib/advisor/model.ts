@@ -1,4 +1,4 @@
-import { CATEGORY_ENUMS } from "./categories";
+import { CATEGORY_ENUMS, EQUIPMENT_ENUMS } from "./categories";
 import {
   CLASSIFIER_SYSTEM_PROMPT,
   parseClassifierResult,
@@ -52,10 +52,13 @@ const RESPONSE_SCHEMA = {
   properties: {
     primary: { type: "STRING", enum: [...CATEGORY_ENUMS, "null"] },
     secondary: { type: "STRING", enum: [...CATEGORY_ENUMS, "null"] },
+    // The schema can hold the machine to the seven that exist, but not to the
+    // ones that belong to `primary` — that pairing is checked in the validator.
+    equipment: { type: "STRING", enum: [...EQUIPMENT_ENUMS, "null"] },
     confidence: { type: "STRING", enum: ["high", "low"] },
     user_words: { type: "STRING" },
   },
-  required: ["primary", "secondary", "confidence", "user_words"],
+  required: ["primary", "secondary", "equipment", "confidence", "user_words"],
 } as const;
 
 /**

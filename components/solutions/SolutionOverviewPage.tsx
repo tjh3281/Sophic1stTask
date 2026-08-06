@@ -90,8 +90,9 @@ export function SubSolutionPage({
         <SubSolutionBenefits items={subSolution.benefits} />
       )}
       {/* Unconditional: every sub-solution page ends on the same ask, whether
-          or not its content has been written yet. */}
-      <ContactCta />
+          or not its content has been written yet. The slug goes with it, so the
+          form opens already knowing which machine the reader was looking at. */}
+      <ContactCta preset={subSolution.slug} />
     </>
   );
 }

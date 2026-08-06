@@ -1,4 +1,4 @@
-import { isMatchedCategory } from "@/lib/advisor/categories";
+import { getEquipment, isEquipment, isMatchedCategory } from "@/lib/advisor/categories";
 
 /**
  * Receives a qualified lead from the advisor's contact step.
@@ -20,6 +20,9 @@ type Lead = {
   email: string;
   phone: string;
   category: string;
+  /** The specific machine the advisor landed on. Empty when it never got that
+   *  far, which is the same case as an UNDIAGNOSED category. */
+  equipment: string;
   problem: string;
 };
 
@@ -38,6 +41,7 @@ function readLead(body: Record<string, unknown>): Lead | string {
     email: text("email", 254),
     phone: text("phone", 40),
     category: text("category", 60),
+    equipment: text("equipment", 60),
     problem: text("problem", 2_000),
   };
 
@@ -51,6 +55,16 @@ function readLead(body: Record<string, unknown>): Lead | string {
   // needs to know it arrived unclassified rather than trust a wrong label.
   if (lead.category !== "UNDIAGNOSED" && !isMatchedCategory(lead.category)) {
     return "Unrecognised category.";
+  }
+  // Optional, since an undiagnosed lead has none. When present it has to be a
+  // real machine AND has to sit in the category alongside it — a lead saying
+  // "Inspection & Testing / Autonomous Mobile Robot" describes no product we
+  // make, and an engineer reading it would have to guess which half is wrong.
+  if (lead.equipment) {
+    if (!isEquipment(lead.equipment)) return "Unrecognised equipment.";
+    if (getEquipment(lead.equipment).category !== lead.category) {
+      return "Equipment does not belong to that category.";
+    }
   }
 
   return lead;

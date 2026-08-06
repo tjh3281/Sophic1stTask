@@ -131,6 +131,7 @@ export function Header() {
                     ) : (
                       <NavButton
                         label={item.label}
+                        href={item.href}
                         cta={item.cta}
                         overlay={overlay}
                       />

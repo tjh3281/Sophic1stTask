@@ -143,12 +143,23 @@ export function MobileNav({
                   </li>
                 ) : (
                   <li key={item.label}>
-                    <button
-                      type="button"
-                      className="w-full px-1 py-3.5 text-left text-sm font-medium text-foreground"
-                    >
-                      {item.label}
-                    </button>
+                    {item.href ? (
+                      // The drawer closes itself on navigation, from the
+                      // pathname watch in Header.
+                      <Link
+                        href={item.href}
+                        className="block px-1 py-3.5 text-sm font-medium text-foreground"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        className="w-full px-1 py-3.5 text-left text-sm font-medium text-foreground"
+                      >
+                        {item.label}
+                      </button>
+                    )}
                   </li>
                 ),
               )}

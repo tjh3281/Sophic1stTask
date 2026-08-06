@@ -1,5 +1,5 @@
 import type { Route } from "next";
-import { getSolution } from "@/lib/solutions";
+import { getSolution, getSubSolution } from "@/lib/solutions";
 
 /**
  * The fixed set the advisor is allowed to return, and nothing else.
@@ -107,6 +107,126 @@ export function isMatchedCategory(value: unknown): value is MatchedCategory {
   );
 }
 
+/* --- Equipment ------------------------------------------------------------
+   One level below the category: the actual machine, and the page that
+   describes it.
+
+   A category is the right unit for a diagnosis and the wrong unit for an
+   answer. "Assembly Automation" is true but it is not a recommendation —
+   it covers three machines that solve three different problems, and a reader
+   sent to the category page has to work out which of them they came for. The
+   advisor already knows enough to say, so it says it.
+
+   Two of the four categories hold a single machine, which means the specific
+   answer costs nothing there: naming the category names the machine. Only
+   assembly and material handling need the extra question below.
+-------------------------------------------------------------------------- */
+
+export const EQUIPMENT_ENUMS = [
+  "PACKING",
+  "LASER_MARKING",
+  "HANDLER",
+  "MACHINE_VISION",
+  "MMS",
+  "AMR",
+  "FCT",
+] as const;
+
+export type EquipmentEnum = (typeof EQUIPMENT_ENUMS)[number];
+
+type EquipmentCopy = {
+  category: MatchedCategory;
+  /** Sub-solution slug inside that category's solution. */
+  slug: string;
+  /** The job it takes over, in the buyer's words rather than the machine's
+   *  own name. Doubles as the label on the refine buttons, where a reader is
+   *  choosing between jobs they recognise, not products they don't. */
+  job: string;
+};
+
+const EQUIPMENT_COPY: Record<EquipmentEnum, EquipmentCopy> = {
+  PACKING: {
+    category: "ASSEMBLY",
+    slug: "automated-packing-equipment",
+    job: "Packing, sealing and labelling finished goods",
+  },
+  LASER_MARKING: {
+    category: "ASSEMBLY",
+    slug: "laser-marking-equipment",
+    job: "Marking serial numbers or codes onto parts",
+  },
+  HANDLER: {
+    category: "ASSEMBLY",
+    slug: "automated-handler-equipment",
+    job: "Loading, sorting and moving parts between stations",
+  },
+  MACHINE_VISION: {
+    category: "INSPECTION",
+    slug: "machine-vision",
+    job: "Checking parts for defects with cameras",
+  },
+  MMS: {
+    category: "MATERIAL_HANDLING",
+    slug: "material-management-system",
+    job: "Knowing where stock is and what is left",
+  },
+  AMR: {
+    category: "MATERIAL_HANDLING",
+    slug: "autonomous-mobile-robot",
+    job: "Carrying material across the floor",
+  },
+  FCT: {
+    category: "ICT_FCT",
+    slug: "automated-functional-test-equipment",
+    job: "Testing finished boards before they ship",
+  },
+};
+
+export type AdvisorEquipment = {
+  id: EquipmentEnum;
+  category: MatchedCategory;
+  label: string;
+  summary: string;
+  href: Route;
+  job: string;
+};
+
+function buildEquipment(id: EquipmentEnum): AdvisorEquipment {
+  const copy = EQUIPMENT_COPY[id];
+  const { subSolution } = getSubSolution(COPY[copy.category].slug, copy.slug);
+  return {
+    id,
+    category: copy.category,
+    label: subSolution.title,
+    summary: subSolution.summary,
+    href: subSolution.href,
+    job: copy.job,
+  };
+}
+
+/** Declaration order is category order, then the order the machines appear on
+ *  their category page — so a reader who sees both lists sees the same
+ *  sequence twice. */
+export const ADVISOR_EQUIPMENT: AdvisorEquipment[] =
+  EQUIPMENT_ENUMS.map(buildEquipment);
+
+export function getEquipment(id: EquipmentEnum): AdvisorEquipment {
+  const equipment = ADVISOR_EQUIPMENT.find((e) => e.id === id);
+  if (!equipment) throw new Error(`Unknown advisor equipment: ${id}`);
+  return equipment;
+}
+
+export function equipmentFor(category: MatchedCategory): AdvisorEquipment[] {
+  return ADVISOR_EQUIPMENT.filter((e) => e.category === category);
+}
+
+export function isEquipment(value: unknown): value is EquipmentEnum {
+  return (
+    typeof value === "string" &&
+    (EQUIPMENT_ENUMS as readonly string[]).includes(value)
+  );
+}
+
 /* --- Splitter questions ---------------------------------------------------
    Asked once, when two categories both fit or the classifier is unsure.
 
@@ -165,5 +285,47 @@ export function getSplitter(
       { label: getCategory(primary).label, resolvesTo: primary },
       { label: getCategory(secondary).label, resolvesTo: secondary },
     ],
+  };
+}
+
+/* --- Refine question ------------------------------------------------------
+   Asked after the category is settled, only when that category holds more
+   than one machine and nothing in the reader's words picked one.
+
+   It is a different question from the splitter above. The splitter asks which
+   problem the reader has; this asks which machine solves the one they have
+   already named. So it is never a dead end: every option resolves, and the
+   worst case is one more tap.
+-------------------------------------------------------------------------- */
+
+export type Refiner = {
+  question: string;
+  options: { label: string; resolvesTo: EquipmentEnum }[];
+};
+
+/** Written per category, because the useful question depends on what the
+ *  machines actually differ by. Material handling splits cleanly in two —
+ *  knowing where material is versus getting it there — the way inspection and
+ *  test split on visible versus powered. Assembly has no such single axis, so
+ *  it asks the reader to point at the job instead of pretending there is one. */
+const REFINE_QUESTIONS: Partial<Record<MatchedCategory, string>> = {
+  ASSEMBLY:
+    "That covers a few machines. Which job would you hand over first?",
+  MATERIAL_HANDLING:
+    "Is the problem knowing where material is, or getting it where it's needed?",
+};
+
+/** Null when the category holds a single machine — there is nothing to ask. */
+export function getRefiner(category: MatchedCategory): Refiner | null {
+  const options = equipmentFor(category);
+  if (options.length < 2) return null;
+
+  return {
+    question:
+      REFINE_QUESTIONS[category] ?? "Which of these is closest to the job?",
+    options: options.map((equipment) => ({
+      label: equipment.job,
+      resolvesTo: equipment.id,
+    })),
   };
 }
