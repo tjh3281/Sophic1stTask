@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 import {
@@ -41,7 +42,13 @@ type Fields = {
   message: string;
 };
 
-export function ContactForm({ preset }: { preset: string }) {
+export function ContactForm() {
+  // Read here rather than passed down from the page. Doing it in the page
+  // would make the whole route server-rendered per request; doing it here
+  // keeps the page static and costs one Suspense boundary above this
+  // component. Requires "use client", which this already is.
+  const preset = useSearchParams().get("solution") ?? "";
+
   const [fields, setFields] = useState<Fields>(() => ({
     firstName: "",
     lastName: "",

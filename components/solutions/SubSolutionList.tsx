@@ -26,55 +26,62 @@ export function SubSolutionList({ items }: { items: SubSolution[] }) {
           {items.map((item, index) => (
             <li key={item.slug}>
               <Reveal delay={index * 60} className="h-full">
-                <Link
-                  href={item.href}
-                  className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-background transition-[border-color,box-shadow] duration-200 ease-out hover:border-brand hover:shadow-lg hover:shadow-slate-900/5"
-                >
-                  {item.image && (
-                    // Every card fills this panel edge to edge, with no
-                    // per-image special case — that is the only way a row of
-                    // them looks like one set.
-                    //
-                    // It holds because the sources are prepared to suit it. The
-                    // machine shots are already 4:3, each one centred on a white
-                    // plate at the same optical size, so cover neither crops
-                    // them nor leaves a margin; the panel is white to match
-                    // their backdrop. Scene photographs are cropped to fit.
-                    // Contain would undo this: it fits to whichever edge binds
-                    // first, so images of differing ratios settle at differing
-                    // heights and the row goes ragged.
-                    <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-line bg-white">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                      />
-                    </div>
-                  )}
+                {/* The glow sits outside the card, which is overflow-hidden and
+                    would clip anything drawn beyond its own edges. Same
+                    treatment as the category cards on the home page. */}
+                <div className="float-glow float-glow-card">
+                  <Link
+                    href={item.href}
+                    // The tight contact shadow; the wrapper's glow is the
+                    // ambient half of the same elevation.
+                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-background transition-[border-color,box-shadow] duration-200 ease-out hover:border-brand hover:shadow-lg hover:shadow-slate-900/5"
+                  >
+                    {item.image && (
+                      // Every card fills this panel edge to edge, with no
+                      // per-image special case — that is the only way a row of
+                      // them looks like one set.
+                      //
+                      // It holds because the sources are prepared to suit it.
+                      // The machine shots are already 4:3, each one centred on a
+                      // white plate at the same optical size, so cover neither
+                      // crops them nor leaves a margin; the panel is white to
+                      // match their backdrop. Scene photographs are cropped to
+                      // fit. Contain would undo this: it fits to whichever edge
+                      // binds first, so images of differing ratios settle at
+                      // differing heights and the row goes ragged.
+                      <div className="relative aspect-[4/3] w-full overflow-hidden border-b border-line bg-white">
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        />
+                      </div>
+                    )}
 
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="text-lg font-semibold leading-snug text-foreground transition-colors duration-150 ease-gentle group-hover:text-brand">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">
-                      {item.summary}
-                    </p>
-                    {/* mt-auto pins this to the bottom, so the call to action
-                        lines up across cards whose copy runs to different
-                        lengths. */}
-                    <span className="mt-auto flex items-center gap-2 pt-6 text-xs font-semibold uppercase tracking-wider text-brand">
-                      Read more
-                      <span
-                        aria-hidden="true"
-                        className="transition-transform duration-200 ease-out group-hover:translate-x-1"
-                      >
-                        →
+                    <div className="flex flex-1 flex-col p-5">
+                      <h3 className="text-lg font-semibold leading-snug text-foreground transition-colors duration-150 ease-gentle group-hover:text-brand">
+                        {item.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted">
+                        {item.summary}
+                      </p>
+                      {/* mt-auto pins this to the bottom, so the call to action
+                          lines up across cards whose copy runs to different
+                          lengths. */}
+                      <span className="mt-auto flex items-center gap-2 pt-6 text-xs font-semibold uppercase tracking-wider text-brand">
+                        Read more
+                        <span
+                          aria-hidden="true"
+                          className="transition-transform duration-200 ease-out group-hover:translate-x-1"
+                        >
+                          →
+                        </span>
                       </span>
-                    </span>
-                  </div>
-                </Link>
+                    </div>
+                  </Link>
+                </div>
               </Reveal>
             </li>
           ))}

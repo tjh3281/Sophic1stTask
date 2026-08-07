@@ -26,9 +26,9 @@ export function NavButton({
   className?: string;
 }) {
   const classes = cn(
-    "inline-block rounded-md text-sm font-medium transition-colors duration-150 ease-gentle",
+    "inline-block rounded-md text-sm font-medium transition-[color,transform] duration-200 ease-gentle",
     cta
-      ? "btn-brand px-4 py-2 text-white"
+      ? "btn-brand px-4 py-2 text-white hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none"
       : cn(
           "px-3 py-2",
           overlay
@@ -38,17 +38,19 @@ export function NavButton({
     className,
   );
 
-  if (href) {
-    return (
-      <Link href={href} className={classes}>
-        {label}
-      </Link>
-    );
-  }
-
-  return (
+  const control = href ? (
+    <Link href={href} className={classes}>
+      {label}
+    </Link>
+  ) : (
     <button type="button" className={classes}>
       {label}
     </button>
   );
+
+  // Only the filled item floats. The plain nav links have no fill to throw a
+  // colour, and glowing every item would turn the bar into a light show.
+  if (!cta) return control;
+
+  return <span className="float-glow float-glow-sm">{control}</span>;
 }

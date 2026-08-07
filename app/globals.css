@@ -112,6 +112,136 @@ body {
   }
 }
 
+/* --- Floating glow -------------------------------------------------------
+   Lifts a thing off the page by throwing brand colour onto the surface
+   underneath it, the way a lit object would. Used on buttons and on the
+   home page's category cards.
+
+   Always a wrapper, never a pseudo-element on the thing itself. Two reasons,
+   and each rules it out on its own: .btn-brand has already spent its ::before
+   on the hover face, so a glow layered under that would be revealed straight
+   through the button as the face faded; and the cards are overflow-hidden,
+   which clips anything drawn outside them.
+
+   The echo is smaller than what it lifts and pushed down. Matching the size
+   would read as a ring around the edge; sitting it low is what makes the thing
+   look like it is above the page rather than glowing on it.
+------------------------------------------------------------------------- */
+.float-glow {
+  /* Tuned per placement by the modifiers below. Radius has to be stated
+     because the wrapper has none of its own to inherit from the button. */
+  --float-radius: 0.375rem;
+  --float-blur: 15px;
+  --float-lift: 7px;
+  --float-strength: 0.45;
+
+  position: relative;
+  display: inline-block;
+  /* Holds the negative z-index below, so the glow cannot slip behind the
+     section's own background and disappear. */
+  isolation: isolate;
+}
+
+.float-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--float-radius);
+  background: linear-gradient(to right, var(--brand), var(--accent));
+  filter: blur(var(--float-blur));
+  opacity: var(--float-strength);
+  transform: translateY(var(--float-lift)) scale(0.92);
+  transition:
+    opacity 250ms var(--ease-gentle),
+    transform 250ms var(--ease-gentle);
+}
+
+/* Deepens and spreads as the button rises, so the two read as one movement
+   rather than a button that moved and a shadow that brightened. Derived from
+   the resting values, so tuning one placement keeps its own proportions. */
+.float-glow:hover::before {
+  opacity: calc(var(--float-strength) + 0.17);
+  transform: translateY(calc(var(--float-lift) * 1.55)) scale(0.96);
+}
+
+/* Pressed: the button comes back down, so the light it casts tightens. */
+.float-glow:active::before {
+  opacity: calc(var(--float-strength) + 0.05);
+  transform: translateY(calc(var(--float-lift) * 0.7)) scale(0.9);
+}
+
+/**
+ * Header call to action.
+ *
+ * Much tighter than the hero's. The bar is 64px with a hard bottom border and
+ * no clipping, so a glow at the hero's settings reaches past that border and
+ * onto the page below, where it reads as a leak rather than as a shadow. These
+ * numbers keep the furthest reach — lift at its hover value plus the blur —
+ * inside the space under the button.
+ */
+.float-glow-sm {
+  --float-blur: 8px;
+  --float-lift: 3px;
+  --float-strength: 0.4;
+}
+
+/** Sophie's launcher: a circle, and on its own over the page rather than in a
+ *  row of other controls, so it can carry a little more. */
+.float-glow-round {
+  --float-radius: 9999px;
+  --float-blur: 16px;
+  --float-lift: 6px;
+  --float-strength: 0.5;
+}
+
+/**
+ * Small information tiles, such as the contact page's email, phone and hours.
+ *
+ * Scaled down from the card settings rather than reusing them: a 10px drop
+ * under a 90px tile is proportionally twice what it is under a card, and the
+ * glow ends up reading as a smudge the tile is sitting in rather than light it
+ * is casting.
+ */
+.float-glow-tile {
+  display: block;
+  height: 100%;
+
+  --float-radius: 0.75rem;
+  --float-blur: 14px;
+  --float-lift: 5px;
+  --float-strength: 0.14;
+}
+
+/**
+ * The home page's four category cards.
+ *
+ * Overrides display and height rather than leaving them to utilities: this
+ * rule is unlayered, so it beats anything Tailwind emits inside its layers,
+ * and a `block h-full` on the element would lose to the inline-block above.
+ * The card stretches to its grid row, so its wrapper has to as well.
+ */
+.float-glow-card {
+  display: block;
+  height: 100%;
+
+  --float-radius: 0.75rem;
+  /* Wider and lower than a button's — a card is an order of magnitude larger,
+     and a glow scaled for a button reads as a hard line under this one. */
+  --float-blur: 22px;
+  --float-lift: 10px;
+  /* Far weaker, too. Four of these sit on screen at once, and a glow strong
+     enough to look right on one card turns a grid of them into a light show.
+     This carries the elevation; hovering one is what makes it stand up. */
+  --float-strength: 0.16;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-glow::before {
+    transition: none;
+  }
+}
+
 /* --- Motion -------------------------------------------------------------
    Entrances use ease-out: the fast start reads as responsive. Built-in CSS
    curves are too weak, so these are the stronger custom equivalents.
@@ -203,6 +333,98 @@ html.lenis {
   }
 }
 
+/* --- Contact light -------------------------------------------------------
+   The board lights up under the needle. Position and size are measured
+   against the photograph in HeroScene and arrive as custom properties; the
+   look and the timing are here.
+
+   Screen blending is what makes it read as light rather than as a shape laid
+   over the picture: screen leaves the white cell around the board untouched
+   and only lifts what is dark, which is the board itself. A plain translucent
+   ellipse would fog the bench around it in equal measure and look pasted on.
+------------------------------------------------------------------------- */
+.hero-chip-glow {
+  position: absolute;
+  left: var(--glow-x, 50%);
+  top: var(--glow-y, 50%);
+  width: var(--glow-w, 0);
+  height: var(--glow-h, 0);
+  /* Centred on the measured point rather than hung from its corner. */
+  margin-left: calc(var(--glow-w, 0px) / -2);
+  margin-top: calc(var(--glow-h, 0px) / -2);
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    closest-side,
+    rgb(200 241 255 / 0.95),
+    rgb(96 196 246 / 0.5) 44%,
+    rgb(56 160 230 / 0) 78%
+  );
+  /* Softens the ellipse's edge into the board. Small — a heavy blur spreads
+     the light past the tray and it stops looking like it has a source. */
+  filter: blur(5px);
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity 520ms var(--ease-out-quart),
+    transform 520ms var(--ease-out-quart);
+}
+
+.hero-chip-glow[data-contact="true"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* The hot point directly under the needle, breathing gently — so the contact
+   reads as live and working rather than as a lamp left switched on. */
+.hero-chip-glow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28%;
+  height: 48%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 255 255 / 0.9),
+    rgb(210 242 255 / 0) 76%
+  );
+  animation: hero-chip-pulse 2.6s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.hero-chip-glow[data-contact="true"]::after {
+  animation-play-state: running;
+}
+
+@keyframes hero-chip-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    scale: 0.88;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arm is drawn docked at this setting, so the board stays lit — it just
+     arrives without the swell and holds without the pulse. */
+  .hero-chip-glow {
+    transition: none;
+  }
+
+  .hero-chip-glow::after {
+    animation: none;
+    opacity: 0.78;
+  }
+}
+
 /* --- Solution cards ------------------------------------------------------
    The photograph has no frame. It dissolves into the card face rather than
    ending on a hard vertical seam — the same move the hero stage makes against
@@ -258,6 +480,42 @@ html.lenis {
 .marquee:hover .marquee-track,
 .marquee:focus-within .marquee-track {
   animation-play-state: paused;
+}
+
+/* --- Logo hover ----------------------------------------------------------
+   Hovering a mark brings it back to its own livery.
+
+   A cross-fade rather than the colour copy simply covering the grey one: the
+   two are antialiased separately, so laying one over the other leaves a grey
+   fringe around every letter. Fading the grey out as the colour comes in ends
+   with nothing underneath to show through.
+
+   The strip already stops under the cursor, so there is time to read a mark
+   before it moves on. Marks with no colour file stay grey and do nothing —
+   see the note in LogoMarquee.
+------------------------------------------------------------------------- */
+.logo-mark-mono,
+.logo-mark-color {
+  transition: opacity 260ms var(--ease-gentle);
+}
+
+.logo-mark-color {
+  opacity: 0;
+}
+
+.logo-mark:hover .logo-mark-color {
+  opacity: 1;
+}
+
+.logo-mark:hover .logo-mark-mono {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark-mono,
+  .logo-mark-color {
+    transition: none;
+  }
 }
 
 @keyframes marquee-scroll {

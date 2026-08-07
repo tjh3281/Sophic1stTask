@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { Container } from "@/components/ui/Container";
 import { ENQUIRY_EMAIL } from "@/lib/contact";
@@ -19,16 +20,16 @@ export const metadata: Metadata = {
  * The slug is the only thing that travels in the URL. It says which page
  * somebody came from, which is not private and survives being shared — unlike
  * anything they type into the form below, which stays in the component.
+ *
+ * That parameter is read in the form, on the client, rather than here — and
+ * the page is deliberately kept free of it. Awaiting `searchParams` in a page
+ * makes the whole route dynamic, which on Netlify means every visit wakes a
+ * serverless function and an idle one cold-starts first. This was the only
+ * route on the site paying that cost, and the wait was plainly visible on the
+ * Contact Us button. Nothing here depends on the request, so the page
+ * prerenders at build time and comes off the CDN instead.
  */
-export default async function ContactPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ solution?: string | string[] }>;
-}) {
-  const { solution } = await searchParams;
-  // Repeating the parameter is not an error worth a page for; take the first.
-  const preset = Array.isArray(solution) ? (solution[0] ?? "") : (solution ?? "");
-
+export default function ContactPage() {
   return (
     <section className="bg-surface py-14 sm:py-20">
       <Container>
@@ -87,7 +88,18 @@ export default async function ContactPage({
             </p>
           </div>
 
-          <ContactForm preset={preset} />
+          {/* Required: a client component reading the query string cannot be
+              prerendered, and without a boundary the build refuses the page
+              rather than silently making it dynamic again.
+
+              The fallback is only ever seen on a cold page load — someone
+              opening or sharing the URL directly. Arriving by clicking Contact
+              Us is a client navigation, where the router already holds the
+              params and the hook resolves without suspending. It reserves the
+              form's height so neither path shifts the layout. */}
+          <Suspense fallback={<div className="min-h-[36rem]" />}>
+            <ContactForm />
+          </Suspense>
         </div>
       </Container>
     </section>
@@ -112,13 +124,18 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-background px-4 py-4 shadow-sm shadow-slate-900/[0.03]">
-      <div className="flex items-center gap-2 text-muted">
-        {icon}
-        <span className="text-sm font-semibold text-foreground">{label}</span>
-      </div>
-      <div className="mt-2.5 text-[0.9375rem] font-semibold leading-relaxed text-foreground">
-        {children}
+    // The wrapper carries the glow; h-full on the tile inside is what keeps
+    // the phone and hours tiles level in their two-column row, now that the
+    // wrapper rather than the tile is the grid item.
+    <div className="float-glow float-glow-tile">
+      <div className="h-full rounded-xl border border-line bg-background px-4 py-4 shadow-sm shadow-slate-900/[0.03]">
+        <div className="flex items-center gap-2 text-muted">
+          {icon}
+          <span className="text-sm font-semibold text-foreground">{label}</span>
+        </div>
+        <div className="mt-2.5 text-[0.9375rem] font-semibold leading-relaxed text-foreground">
+          {children}
+        </div>
       </div>
     </div>
   );

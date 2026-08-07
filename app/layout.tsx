@@ -17,6 +17,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  /**
+   * Where relative metadata URLs resolve from.
+   *
+   * Without this Next has no way to turn app/opengraph-image.png into the
+   * absolute URL that og:image requires, and link previews fall back to the
+   * favicon — which is the globe out of the logo, and on its own reads as a
+   * stock world map rather than as Sophic.
+   *
+   * Netlify sets URL to the site's own address at build time, so this follows
+   * the site rather than pinning a hostname that goes stale the day it is
+   * renamed. Locally there is no such variable and the dev server fills in.
+   */
+  metadataBase: new URL(process.env.URL ?? "http://localhost:3000"),
   title: {
     default: "Sophic Automation — Solutions Prototype",
     template: "%s — Sophic Automation",

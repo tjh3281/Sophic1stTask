@@ -41,20 +41,26 @@ export default function HomePage() {
                 </p>
               </Reveal>
               <Reveal delay={210} className="mt-8">
-                {/* Same-page jump, so a plain anchor rather than next/link —
-                    there is no route to prefetch or transition to. */}
-                <a
-                  href="#solutions"
-                  className="btn-brand group inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-medium text-white transition-transform duration-150 ease-out active:scale-[0.97]"
-                >
-                  Explore solutions
-                  <span
-                    aria-hidden="true"
-                    className="transition-transform duration-200 ease-out group-hover:translate-y-0.5"
+                {/* The wrapper carries the glow. It cannot hang off the button
+                    itself: .btn-brand already spends its ::before on the hover
+                    face, and a second layer underneath would be revealed
+                    through the button the moment that face faded. */}
+                <span className="float-glow">
+                  {/* Same-page jump, so a plain anchor rather than next/link —
+                      there is no route to prefetch or transition to. */}
+                  <a
+                    href="#solutions"
+                    className="btn-brand group inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-medium text-white transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transform-none"
                   >
-                    ↓
-                  </span>
-                </a>
+                    Explore solutions
+                    <span
+                      aria-hidden="true"
+                      className="transition-transform duration-200 ease-out group-hover:translate-y-0.5"
+                    >
+                      ↓
+                    </span>
+                  </a>
+                </span>
               </Reveal>
             </div>
           </div>

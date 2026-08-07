@@ -405,34 +405,42 @@ export function Sophie() {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          aria-label={open ? "Close Sophie" : "Ask Sophie which solution fits"}
-          className={cn(
-            "btn-brand flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg shadow-slate-900/25",
-            "transition-transform duration-200 ease-out active:scale-95",
-            "motion-reduce:transition-none motion-reduce:active:scale-100",
-            // Open holds the deeper face, so the launcher reads as pressed for
-            // as long as the panel above it is out.
-            open && "[&::before]:opacity-0",
-          )}
-        >
-          {open ? (
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
-              <path
-                d="m6 6 12 12M18 6 6 18"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-            </svg>
-          ) : (
-            <SophieMark className="h-7 w-7" />
-          )}
-        </button>
+        {/* The glow lives on the wrapper, not the button: .btn-brand has spent
+            its ::before on the hover face, and a layer under that face would
+            show straight through the button as the face faded. */}
+        <span className="float-glow float-glow-round">
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            aria-expanded={open}
+            aria-label={open ? "Close Sophie" : "Ask Sophie which solution fits"}
+            className={cn(
+              // Lighter than the shadow it replaced. The coloured glow beneath
+              // now does most of the lifting, and a full neutral drop shadow
+              // on top of it muddied the colour into grey.
+              "btn-brand flex h-14 w-14 items-center justify-center rounded-full text-white shadow-md shadow-slate-900/15",
+              "transition-transform duration-200 ease-out active:scale-95",
+              "motion-reduce:transition-none motion-reduce:active:scale-100",
+              // Open holds the deeper face, so the launcher reads as pressed for
+              // as long as the panel above it is out.
+              open && "[&::before]:opacity-0",
+            )}
+          >
+            {open ? (
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+                <path
+                  d="m6 6 12 12M18 6 6 18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                />
+              </svg>
+            ) : (
+              <SophieMark className="h-7 w-7" />
+            )}
+          </button>
+        </span>
       </div>
 
       {lead && (
