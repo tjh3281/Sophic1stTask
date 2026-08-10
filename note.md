@@ -14,26 +14,26 @@ knowing what's absent is half of understanding a framework.
 The guide covers the whole framework. This site is a static marketing prototype,
 so it uses maybe a third of it — deeply. Here's the honest map.
 
-| Guide topic | In this project? | Where |
-| --- | --- | --- |
-| Server Components (default) | ✅ Heavily | Every file without `"use client"` |
-| Client Components (`"use client"`) | ✅ 8 files | [Header.tsx](components/layout/Header.tsx), [HeroScene.tsx](components/home/HeroScene.tsx), [MetricValue.tsx](components/solutions/MetricValue.tsx), … |
-| `layout.tsx` nesting | ✅ Two levels | [app/layout.tsx](app/layout.tsx), [app/solutions/layout.tsx](app/solutions/layout.tsx) |
-| `page.tsx` | ✅ 12 of them | [app/page.tsx](app/page.tsx) + 11 under `app/solutions/` |
-| Metadata API | ✅ | [app/layout.tsx](app/layout.tsx), `solutionMetadata()` in [SolutionOverviewPage.tsx](components/solutions/SolutionOverviewPage.tsx) |
-| Static rendering (SSG) | ✅ All 14 routes | `npm run build` output — every route marked `○` |
-| `next/image` | ✅ | Covers, hero, cards |
-| Dynamic routes `[id]` | ❌ | Folders are hardcoded — see §2 |
-| `generateStaticParams` | ❌ | Not needed without dynamic segments |
-| Server Actions | ❌ | No forms, no mutations |
-| Route Handlers (`route.ts`) | ❌ | No API surface |
-| `use cache` / `cacheComponents` | ❌ | Nothing to cache — see §4 |
-| `proxy.ts` | ❌ | No auth, no redirects |
-| `loading.tsx` / `error.tsx` | ❌ | Nothing async can fail yet |
-| Authentication | ❌ | Public site |
+| Guide topic                        | In this project? | Where                                                                                                                                                  |
+| ---------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Server Components (default)        | ✅ Heavily       | Every file without `"use client"`                                                                                                                      |
+| Client Components (`"use client"`) | ✅ 8 files       | [Header.tsx](components/layout/Header.tsx), [HeroScene.tsx](components/home/HeroScene.tsx), [MetricValue.tsx](components/solutions/MetricValue.tsx), … |
+| `layout.tsx` nesting               | ✅ Two levels    | [app/layout.tsx](app/layout.tsx), [app/solutions/layout.tsx](app/solutions/layout.tsx)                                                                 |
+| `page.tsx`                         | ✅ 12 of them    | [app/page.tsx](app/page.tsx) + 11 under `app/solutions/`                                                                                               |
+| Metadata API                       | ✅               | [app/layout.tsx](app/layout.tsx), `solutionMetadata()` in [SolutionOverviewPage.tsx](components/solutions/SolutionOverviewPage.tsx)                    |
+| Static rendering (SSG)             | ✅ All 14 routes | `npm run build` output — every route marked `○`                                                                                                        |
+| `next/image`                       | ✅               | Covers, hero, cards                                                                                                                                    |
+| Dynamic routes `[id]`              | ❌               | Folders are hardcoded — see §2                                                                                                                         |
+| `generateStaticParams`             | ❌               | Not needed without dynamic segments                                                                                                                    |
+| Server Actions                     | ❌               | No forms, no mutations                                                                                                                                 |
+| Route Handlers (`route.ts`)        | ❌               | No API surface                                                                                                                                         |
+| `use cache` / `cacheComponents`    | ❌               | Nothing to cache — see §4                                                                                                                              |
+| `proxy.ts`                         | ❌               | No auth, no redirects                                                                                                                                  |
+| `loading.tsx` / `error.tsx`        | ❌               | Nothing async can fail yet                                                                                                                             |
+| Authentication                     | ❌               | Public site                                                                                                                                            |
 
 > **The single most useful takeaway:** this project is proof that a large,
-> animated, image-heavy site can be built with *zero* data fetching, zero
+> animated, image-heavy site can be built with _zero_ data fetching, zero
 > caching config, and zero client-side state management. Reach for those tools
 > when a real requirement arrives, not by default.
 
@@ -70,7 +70,7 @@ possible.** This project follows it precisely, and `TechnicalMetrics` is the
 clearest demonstration.
 
 The section needs one interactive thing: numbers that count up on scroll. So
-*only* the number is a Client Component:
+_only_ the number is a Client Component:
 
 ```
 TechnicalMetrics   (server) — heading, marquee, layout, gradient classes
@@ -84,15 +84,15 @@ reason. Splitting it means the browser downloads only the counting logic.
 
 Every client file here earns it:
 
-| File | Why it must be a Client Component |
-| --- | --- |
-| [Header.tsx](components/layout/Header.tsx) | `usePathname()`, `useState`, scroll listener |
-| [HeroScene.tsx](components/home/HeroScene.tsx) | `requestAnimationFrame` scroll scrubbing |
-| [Reveal.tsx](components/ui/Reveal.tsx) | `IntersectionObserver` |
-| [MetricValue.tsx](components/solutions/MetricValue.tsx) | `IntersectionObserver` + rAF |
-| [BenefitIcon.tsx](components/solutions/BenefitIcon.tsx) | `useState` to swap in the animated file |
-| [useScrolled.ts](lib/useScrolled.ts) | `useSyncExternalStore` |
-| [SolutionsMenu.tsx](components/layout/SolutionsMenu.tsx), [MobileNav.tsx](components/layout/MobileNav.tsx) | Open/close state |
+| File                                                                                                       | Why it must be a Client Component            |
+| ---------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| [Header.tsx](components/layout/Header.tsx)                                                                 | `usePathname()`, `useState`, scroll listener |
+| [HeroScene.tsx](components/home/HeroScene.tsx)                                                             | `requestAnimationFrame` scroll scrubbing     |
+| [Reveal.tsx](components/ui/Reveal.tsx)                                                                     | `IntersectionObserver`                       |
+| [MetricValue.tsx](components/solutions/MetricValue.tsx)                                                    | `IntersectionObserver` + rAF                 |
+| [BenefitIcon.tsx](components/solutions/BenefitIcon.tsx)                                                    | `useState` to swap in the animated file      |
+| [useScrolled.ts](lib/useScrolled.ts)                                                                       | `useSyncExternalStore`                       |
+| [SolutionsMenu.tsx](components/layout/SolutionsMenu.tsx), [MobileNav.tsx](components/layout/MobileNav.tsx) | Open/close state                             |
 
 ### A real bug this project hit at the boundary
 
@@ -100,7 +100,7 @@ This is worth internalising, because the guide doesn't warn about it and the
 symptom is bizarre.
 
 `"use client"` doesn't just mark a component — it marks the **whole module**.
-Anything exported from that file becomes a *client reference* when a Server
+Anything exported from that file becomes a _client reference_ when a Server
 Component imports it. Not the value. A reference.
 
 The gradient class string was originally exported from `MetricValue.tsx` (a
@@ -108,8 +108,10 @@ client module) and imported by `TechnicalMetrics.tsx` (a server module). It
 compiled. It passed lint. And the rendered HTML contained:
 
 ```html
-<dd class="text-5xl … function(){throw Error(&quot;Attempted to call
-FIGURE_GRADIENT() from the server but FIGURE_GRADIENT is on the client…&quot;)}">
+<dd
+  class='text-5xl … function(){throw Error("Attempted to call
+FIGURE_GRADIENT() from the server but FIGURE_GRADIENT is on the client…")}'
+></dd>
 ```
 
 React stringified the client stub straight into the `class` attribute.
@@ -127,7 +129,11 @@ directive and so can be imported safely from both sides:
 `TechnicalMetrics` (server) passes props into `MetricValue` (client):
 
 ```tsx
-<MetricValue values={metric.values} decimals={metric.decimals} suffix={metric.suffix} />
+<MetricValue
+  values={metric.values}
+  decimals={metric.decimals}
+  suffix={metric.suffix}
+/>
 ```
 
 Numbers, strings, arrays — all fine. A function or a class instance would throw.
@@ -168,7 +174,7 @@ exactly why the header works. [Header.tsx](components/layout/Header.tsx) lives i
 the root layout, so navigating from `/` to a solution page doesn't remount it —
 its scroll listener and open/closed menu state survive.
 
-It's also why the mega menu can close itself *on* navigation rather than by
+It's also why the mega menu can close itself _on_ navigation rather than by
 unmounting: it has to detect the change with `usePathname()`, because nothing
 tears it down.
 
@@ -178,16 +184,24 @@ tears it down.
 job — put a different typeface on this branch of the tree:
 
 ```tsx
-const display = Poppins({ subsets: ["latin"], weight: ["300","400","500","600"], display: "swap" });
+const display = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
+});
 
-export default function SolutionsLayout({ children }: { children: React.ReactNode }) {
+export default function SolutionsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <div className={`contents ${display.className}`}>{children}</div>;
 }
 ```
 
 Two things to learn from this:
 
-1. **Scoping cuts payload.** Because the font is imported *here* and not in the
+1. **Scoping cuts payload.** Because the font is imported _here_ and not in the
    root layout, the Poppins files are only requested on `/solutions/*`. The home
    page never downloads them.
 2. **`display: contents` is the trick that makes it safe.** The wrapper needs to
@@ -224,8 +238,12 @@ export function generateStaticParams() {
   return SOLUTIONS.map((s) => ({ slug: s.slug }));
 }
 
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;          // await is mandatory
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params; // await is mandatory
   return <SolutionOverviewPage slug={slug} />;
 }
 ```
@@ -236,12 +254,12 @@ coming from a CMS, this is the first refactor to make.
 
 ### The special files this project skips
 
-| File | Why it's absent |
-| --- | --- |
-| `loading.tsx` | Nothing is async. There is no fetch to suspend on. |
-| `error.tsx` | No runtime rendering can fail — all data is a static import. |
-| `not-found.tsx` | Next's default is fine for a prototype. `getSolution()` throws on an unknown slug, which fails the *build* — better than a runtime 404. |
-| `route.ts` | No API surface. |
+| File            | Why it's absent                                                                                                                         |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `loading.tsx`   | Nothing is . There is no fetch to suspend on.                                                                                           |
+| `error.tsx`     | No runtime rendering can fail — all data is a static import.                                                                            |
+| `not-found.tsx` | Next's default is fine for a prototype. `getSolution()` throws on an unknown slug, which fails the _build_ — better than a runtime 404. |
+| `route.ts`      | No API surface.                                                                                                                         |
 
 That last row is a nice illustration of static rendering: because
 [lib/solutions.ts](lib/solutions.ts) throws on an unknown slug and every page is
@@ -249,11 +267,14 @@ prerendered, a bad slug breaks `npm run build` instead of shipping.
 
 ### Metadata
 
-Two patterns are in use. Root layout sets a title *template*:
+Two patterns are in use. Root layout sets a title _template_:
 
 ```tsx
 export const metadata: Metadata = {
-  title: { default: "Sophic Automation — Solutions Prototype", template: "%s — Sophic Automation" },
+  title: {
+    default: "Sophic Automation — Solutions Prototype",
+    template: "%s — Sophic Automation",
+  },
   description: "…",
 };
 ```
@@ -269,7 +290,7 @@ export function solutionMetadata(slug: string): Metadata {
 
 So `/solutions/ict-fct` gets `<title>ICT & FCT — Sophic Automation</title>`
 without anyone writing that string. `app/icon.png` needs no code at all — the
-filename *is* the API.
+filename _is_ the API.
 
 ---
 
@@ -290,7 +311,7 @@ Because it's a static import, it's inlined at build time. **No fetch, no
 about Server Actions and Route Handlers is real and correct — it's simply not
 reachable from a site with no writes and no external data.
 
-Worth knowing what this data module *does* drive, though, because it's a pattern
+Worth knowing what this data module _does_ drive, though, because it's a pattern
 worth copying — one source of truth feeding many consumers:
 
 ```
@@ -368,7 +389,7 @@ You can see the prerendering directly:
 ```
 
 This is deliberate in [MetricValue.tsx](components/solutions/MetricValue.tsx):
-the server renders the *final* values, and the client rewinds them to zero on
+the server renders the _final_ values, and the client rewinds them to zero on
 mount to animate. So the real numbers are present without JavaScript, for search
 engines, and for anyone on reduced motion. The animation is decoration layered
 on top of working content — a good habit generally.
@@ -385,7 +406,7 @@ const nextConfig: NextConfig = { cacheComponents: true };
 
 ```ts
 // lib/posts.ts
-import { cacheLife, cacheTag } from "next/cache";   // the import the guide omits
+import { cacheLife, cacheTag } from "next/cache"; // the import the guide omits
 
 export async function getPosts() {
   "use cache";
@@ -426,7 +447,8 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = {              // ← `config`, not `matcher`
+export const config = {
+  // ← `config`, not `matcher`
   matcher: ["/admin/:path*"],
 };
 ```
@@ -475,7 +497,7 @@ Next.js ships. Concretely, in this repo:
   ```ts
   // next.config.ts
   const nextConfig: NextConfig = {
-    logging: { browserToTerminal: true },   // or 'warn'
+    logging: { browserToTerminal: true }, // or 'warn'
   };
   ```
 
@@ -489,18 +511,18 @@ Next.js ships. Concretely, in this repo:
 Each of these was checked against the docs shipped inside `node_modules` for
 Next 16.2.12, not from memory.
 
-| The guide says | Actually |
-| --- | --- |
-| Docs at `node_modules/next/docs/index.md` | `node_modules/next/dist/docs/index.md` — the guide's path doesn't exist |
-| `proxy.ts` exports `export const matcher = […]` | Exports `export const config = { matcher: […] }` |
-| PPR via *experimental* `cacheComponents: true` | `cacheComponents` is **top-level** in `next.config.ts`. `experimental.ppr` and `experimental_ppr` were removed — `cacheComponents` makes PPR the default |
-| *Experimental* `browserToTerminal` | `logging.browserToTerminal`, top-level since v16.2.0 |
-| Route Handlers in `route.tsx` | `route.ts` / `route.js` by convention — the docs use `.ts` throughout |
-| `cacheLife` / `cacheTag` used without imports | Both come from `next/cache` |
-| Next.js ships `claude.md` / `agents.md` scaffolding | Editor-tool convention, not a Next.js feature |
-| Lock file at `.next/next-dev.lock` | Not verified in this install — treat as uncertain |
+| The guide says                                      | Actually                                                                                                                                                 |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Docs at `node_modules/next/docs/index.md`           | `node_modules/next/dist/docs/index.md` — the guide's path doesn't exist                                                                                  |
+| `proxy.ts` exports `export const matcher = […]`     | Exports `export const config = { matcher: […] }`                                                                                                         |
+| PPR via _experimental_ `cacheComponents: true`      | `cacheComponents` is **top-level** in `next.config.ts`. `experimental.ppr` and `experimental_ppr` were removed — `cacheComponents` makes PPR the default |
+| _Experimental_ `browserToTerminal`                  | `logging.browserToTerminal`, top-level since v16.2.0                                                                                                     |
+| Route Handlers in `route.tsx`                       | `route.ts` / `route.js` by convention — the docs use `.ts` throughout                                                                                    |
+| `cacheLife` / `cacheTag` used without imports       | Both come from `next/cache`                                                                                                                              |
+| Next.js ships `claude.md` / `agents.md` scaffolding | Editor-tool convention, not a Next.js feature                                                                                                            |
+| Lock file at `.next/next-dev.lock`                  | Not verified in this install — treat as uncertain                                                                                                        |
 
-The guide is broadly sound on the *concepts* — server-first rendering, small
+The guide is broadly sound on the _concepts_ — server-first rendering, small
 client boundaries, function-level caching, `proxy.ts` replacing middleware. The
 errors are all in exact API shapes, which is precisely why the project's
 `AGENTS.md` says to read `node_modules/next/dist/docs/` before writing code.
@@ -524,7 +546,7 @@ export type Route<RouteInferType = any> = string & {};
 ```
 
 That accepts **any** string. So in this project the annotation is
-*documentation* — it tells a reader "this is a route, not an arbitrary URL" — but
+_documentation_ — it tells a reader "this is a route, not an arbitrary URL" — but
 it catches nothing. Real validation needs opting in:
 
 ```ts

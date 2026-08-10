@@ -1025,7 +1025,7 @@ export const SOLUTIONS: Solution[] = [
             icon: "tag",
             title: "Consistent and Traceable",
             image: "/images/afte-2.webp",
-            points: [
+            points: [     
               "The same checks are applied to every unit, in the same order, to the same limits.",
               "Results are logged as you go, leaving reliable pass/fail records and a clear quality trail.",
             ],

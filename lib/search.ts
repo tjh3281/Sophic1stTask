@@ -1,4 +1,10 @@
 import type { Route } from "next";
+import {
+  CAREERS_HERO,
+  JOB_OPENINGS,
+  OPENINGS_HREF,
+  PILLARS,
+} from "./careers";
 import { SOLUTIONS } from "./solutions";
 
 /**
@@ -10,8 +16,14 @@ import { SOLUTIONS } from "./solutions";
  * matched synchronously on every keystroke — no async, no network, no worker.
  *
  * Only real routes are indexed. The remaining header items (Company, Partners,
- * Careers, Community) are inert prototype buttons with nowhere to go, and a
- * result that lands on nothing is worse than no result at all.
+ * Community) are inert prototype buttons with nowhere to go, and a result that
+ * lands on nothing is worse than no result at all.
+ *
+ * The individual vacancies under /careers/openings are deliberately left out.
+ * They are placeholder roles, and six of them carrying the word "engineer"
+ * would outweigh the whole real catalogue on the query most likely to be typed
+ * here. The openings page that lists them is indexed instead. Index the roles
+ * themselves once they are Sophic's actual vacancies.
  */
 
 /** Lower-cased mirrors of the fields we match against, so a keystroke does not
@@ -78,6 +90,48 @@ function buildIndex(): SearchEntry[] {
         keywords:
           "contact enquiry inquiry email get in touch talk to sales support" +
           " quote quotation reach us message form enquiry@sophicautomation.com",
+      },
+    },
+    {
+      id: "careers",
+      kind: "page",
+      title: "Careers",
+      href: "/careers",
+      breadcrumb: "Sophic Automation",
+      summary: CAREERS_HERO.title,
+      lower: {
+        title: "careers",
+        breadcrumb: "sophic automation",
+        summary: CAREERS_HERO.title.toLowerCase(),
+        // The pillar names carry most of this: somebody searching "work life
+        // balance" or "culture" is looking for exactly this page.
+        keywords: lower(
+          "career jobs join us hiring work with us people talent employee" +
+            " life at sophic benefits perks",
+          ...PILLARS.map((pillar) => pillar.name),
+        ),
+      },
+    },
+    {
+      id: "careers-openings",
+      kind: "page",
+      title: "Job Openings",
+      href: OPENINGS_HREF,
+      breadcrumb: "Careers",
+      summary: "Open roles across engineering, software and field service.",
+      lower: {
+        title: "job openings",
+        breadcrumb: "careers",
+        summary: "open roles across engineering software and field service",
+        keywords: lower(
+          "vacancy vacancies position role apply application recruitment" +
+            " internship intern graduate hiring now",
+          // Departments and locations, so "penang" or "singapore" finds the
+          // list. The role titles stay out — see the note at the top.
+          ...JOB_OPENINGS.map(
+            (job) => `${job.department} ${job.location} ${job.employmentType}`,
+          ),
+        ),
       },
     },
   ];

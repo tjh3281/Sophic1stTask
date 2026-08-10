@@ -170,6 +170,68 @@ replacing slow, error-prone manual handling.
   (iii) Consistent, traceable testing :  
   Automated testing applies the same checks to every unit and logs the results, giving you reliable pass/fail records and a clear quality trail.
 
+  # Careers
+  1. Hero content : - Talent as catalyst for digital innovation
+
+In Sophic Automation, we believed that talent plays a pivotal role in driving digital innovation within a company. They possess the skills, creativity, and expertise necessary to propel technological advancements and transform traditional processes.
+
+To us, employees are the driving force behind the successful implementation of digital strategies and initiatives. Their abilities to adapt to emerging technologies, think critically, and collaborate enable businesses to stay competitive in the digital landscape. Investing in talent development and nurturing a culture of innovation empowers employees to harness their potential and drive transformative change, leading to enhanced productivity, customer satisfaction, and sustainable growth.
+
+Recognizing the importance of talents and empowering employees as digital innovators is vital for Sophic Automation, striving to thrive in today's rapidly evolving digital age.
+
+2. Why work with us?
+
+- Collaboration
+- Teamwork
+- Engagement
+- Growth Mindset
+- Diversity
+- Motivation
+- Diversity
+- Work-life balance
+- Work-Place Technologies
+
+3. Culture / Values / Environment
+
+- Culture
+  Motivation
+
+In Sophic Automation, we prioritize creating an environment that fosters motivation by providing meaningful work, opportunities for growth, and recognition for achievements. We believe that when employees feel valued, supported, and empowered, they are more likely to go above and beyond in their roles. Our leaders actively engage with their teams, providing clear goals, regular feedback, and opportunities for skill development.
+
+Engagement
+
+There is mutual respect and friendliness with all employees, as the energized work environment inspires employees to make work decisions that are for the overall good of the company. Every task they perform is productive in nature, as employees are motivated to seek out the highest levels of success.
+
+Collaboration
+
+Collaboration lies at the heart of our company culture as we recognize the immense value it brings to our organization. We promote a collaborative environment where teamwork, communication, and collective problem-solving are highly valued. By embracing collaboration, we harness the collective intelligence of our teams, capitalize on our collective strengths, and achieve exceptional results.
+
+- Value
+  Teamwork
+
+We understand that collaboration and collective effort are essential to achieving goals and driving growth. By fostering a culture that promotes teamwork, we actively encourage employees to work together, share ideas, and leverage their diverse skills and perspectives. Teamwork is not just a value we uphold; it is a key driver in our pursuit of excellence and ensuring the success of our organization.
+
+Growth Mindset
+
+Embracing a growth mindset empowers our employees to embrace challenges, persist in the face of obstacles, and see failures as opportunities for growth. By promoting a growth mindset, we create an environment where individuals are inspired to stretch their capabilities, embrace change, and continuously strive for personal and professional advancement.
+
+Diversity
+
+We embrace diversity in all its forms, including but not limited to race, gender, age, ethnicity, and background. We believe that a diverse workforce fosters creativity, innovation, and a broader range of perspectives. This diverse tapestry of experiences and perspectives enhances our problem-solving abilities, promotes better decision-making, and drives our overall success.
+
+- Environment
+  Work-Place Technologies
+
+At Sophic Automation, we rely on technology to develop, deploy, and maintain our products and services. Advanced software, hardware, and infrastructure enable efficient coding, testing, and deployment processes, leading to faster time-to-market and improved product quality. Workplace technology also supports collaboration among teams of developers, engineers, and project managers, enabling seamless communication and knowledge sharing.
+
+Work-Life Balance
+
+In our ongoing commitment to supporting the work-life balance of our valued employees, we understand that, despite our best efforts, they may occasionally find themselves deeply engrossed in their job responsibilities. In recognition of this, we have taken proactive measures to alleviate potential stress and provide opportunities for relaxation and rejuvenation. As part of our initiative, employees have access to amenities such as a pool, dart boards, PlayStation gaming consoles, and a karaoke setup, all available until midnight. By offering these recreational facilities, we aim to create an environment where our employees can unwind and recharge, ensuring their well-being and fostering a positive work atmosphere.
+
+4. Job Openings
+
+- place holder is needed
+
   ## Tech stack
   1. React + Next.js
   2. Tailwind CSS

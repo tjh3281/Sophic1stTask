@@ -1,0 +1,38 @@
+.stroke-text {
+  display: block;
+  width: 100%;
+  line-height: 0;
+}
+
+.stroke-text--hover {
+  cursor: pointer;
+}
+
+.stroke-text__svg {
+  display: block;
+  width: 100%;
+  /* Placeholder height, used only for the frame or two before the glyphs have
+     been measured. Once they have, the rule below takes over. */
+  height: var(--stroke-text-height, 160px);
+}
+
+/**
+ * After measurement the box is driven by the wordmark's own aspect ratio
+ * instead of a fixed pixel height.
+ *
+ * Upstream keeps the fixed height at every width. That is fine at the size the
+ * demo uses and wrong everywhere else: the SVG scales to fit its width, so on a
+ * narrow screen the glyphs shrink while the box stays 166px tall, and the
+ * wordmark ends up floating in a band of empty space that grows as the screen
+ * gets smaller. Sizing by ratio means the box is always exactly as tall as the
+ * letters inside it.
+ */
+.stroke-text[data-measured="true"] .stroke-text__svg {
+  height: auto;
+  aspect-ratio: var(--stroke-text-ratio);
+}
+
+.stroke-text__stroke,
+.stroke-text__fill {
+  user-select: none;
+}

@@ -40,8 +40,8 @@ export function Footer() {
             <Image
               src="/images/sophic-logo-dark.png"
               alt="Sophic Digital Solutions"
-              width={184}
-              height={102}
+              width={480}
+              height={267}
               className="h-11 w-auto object-contain object-left"
             />
             <p className="mt-3 text-sm font-bold tracking-tight text-foreground">

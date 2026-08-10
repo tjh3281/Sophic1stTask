@@ -15,10 +15,19 @@ import { SearchDialog } from "./SearchDialog";
 import { SearchTrigger } from "./SearchTrigger";
 import { SolutionsMenu } from "./SolutionsMenu";
 
-/** Pages whose cover runs underneath the header. */
-const COVER_ROUTES = new Set<string>(
-  SOLUTIONS.filter((s) => s.coverImage).map((s) => s.href),
-);
+/**
+ * Pages whose cover runs underneath the header.
+ *
+ * The solution categories derive theirs from the tree — a category has a cover
+ * exactly when it has a cover image. Careers is listed by hand because its
+ * cover is a component rather than a row of data, so there is nothing to derive
+ * it from; the alternative is a route that looks like every other cover page
+ * and wears an opaque bar over the top of its photograph.
+ */
+const COVER_ROUTES = new Set<string>([
+  ...SOLUTIONS.filter((s) => s.coverImage).map((s) => s.href),
+  "/careers",
+]);
 
 export function Header() {
   const pathname = usePathname();
@@ -88,8 +97,8 @@ export function Header() {
             <Image
               src="/images/sophic-logo-dark.png"
               alt=""
-              width={184}
-              height={102}
+              width={480}
+              height={267}
               priority
               className={cn(
                 "absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-300",
@@ -99,8 +108,8 @@ export function Header() {
             <Image
               src="/images/sophic-logo-light.png"
               alt=""
-              width={184}
-              height={102}
+              width={480}
+              height={267}
               priority
               className={cn(
                 "absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-300",

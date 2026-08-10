@@ -1,0 +1,122 @@
+/**
+ * The culture cube.
+ *
+ * Six faces of a solid, one pillar each, turned by scroll position. The
+ * rotation arrives as two custom properties written straight onto the cube
+ * element — see PillarCube.tsx for why that is not React state.
+ */
+
+.pillar-cube-stage {
+  position: relative;
+  perspective: 1600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Taller than the cube itself: a solid turning on two axes reaches further
+     than its own face at the halfway point, and a stage sized to the face
+     clips the corners exactly when the tumble is most visible. */
+  height: calc(var(--cube-size) * 1.45);
+}
+
+/**
+ * The glow, thrown onto the page from behind the cube.
+ *
+ * A separate element rather than a filter on the cube: `filter` on a
+ * preserve-3d element forces it to flatten, which would collapse the whole
+ * solid into a single plane. box-shadow and a sibling blob are the two ways to
+ * light a 3D object without destroying it, and this uses both.
+ *
+ * --cube-glow runs 0 at rest to 1 at the middle of a turn, so the cube lights
+ * up as it moves and settles back down once a face is square to the reader.
+ */
+.pillar-cube-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--cube-size) * 1.25);
+  height: calc(var(--cube-size) * 1.25);
+  /* Swells very slightly as it brightens, so the light reads as coming from
+     the movement rather than as a lamp being faded up behind it. */
+  transform: translate(-50%, -50%)
+    scale(calc(0.88 + var(--cube-glow, 0) * 0.16));
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(41 168 184 / 0.6),
+    rgb(11 95 165 / 0.34) 52%,
+    rgb(11 95 165 / 0) 78%
+  );
+  filter: blur(34px);
+  opacity: calc(var(--cube-glow, 0) * 0.85);
+  pointer-events: none;
+}
+
+.pillar-cube {
+  position: relative;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  transform-style: preserve-3d;
+  /* The fallbacks are the first stop, so the cube is already showing its first
+     face in the server-rendered HTML rather than snapping to it on hydration. */
+  transform: rotateX(var(--cube-rx, -90deg)) rotateY(var(--cube-ry, 0deg));
+  will-change: transform;
+}
+
+/**
+ * The illustration behind the whole section, one per side of the cube.
+ *
+ * Left legible on purpose. These are drawings of the thing the face beside them
+ * is about — people fitting puzzle pieces together for Collaboration, hands
+ * stacked for Diversity — and blurring them into a colour wash throws away the
+ * only part that says anything. The scrim over them does the work of keeping
+ * the type readable instead.
+ *
+ * Just enough blur to stop the hard vector edges buzzing against text, and a
+ * touch of saturation to hold the colour through the scrim. The slight scale
+ * covers the transparent border `blur()` leaves behind, since it samples past
+ * the element's edge and finds nothing there.
+ */
+.pillar-backdrop img {
+  filter: blur(2px) saturate(1.08);
+  transform: scale(1.03);
+}
+
+.pillar-cube__face {
+  position: absolute;
+  inset: 0;
+  /* Without this you read the far faces through the near one, mirrored. */
+  backface-visibility: hidden;
+  /* Resting elevation, plus a teal rim that comes up with the turn. Both in
+     one declaration because a second box-shadow rule would replace this one
+     rather than add to it. */
+  box-shadow:
+    0 18px 40px rgb(15 23 42 / 0.09),
+    0 0 calc(var(--cube-size) * 0.09)
+      rgb(41 168 184 / calc(var(--cube-glow, 0) * 0.55));
+}
+
+/* Each face pushed out to half the cube's width along its own normal. The
+   rotations here are what the stops in the component undo, one at a time. */
+.pillar-cube__face--front {
+  transform: translateZ(var(--cube-half));
+}
+
+.pillar-cube__face--right {
+  transform: rotateY(90deg) translateZ(var(--cube-half));
+}
+
+.pillar-cube__face--back {
+  transform: rotateY(180deg) translateZ(var(--cube-half));
+}
+
+.pillar-cube__face--left {
+  transform: rotateY(-90deg) translateZ(var(--cube-half));
+}
+
+.pillar-cube__face--top {
+  transform: rotateX(90deg) translateZ(var(--cube-half));
+}
+
+.pillar-cube__face--bottom {
+  transform: rotateX(-90deg) translateZ(var(--cube-half));
+}
