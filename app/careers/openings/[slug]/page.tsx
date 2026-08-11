@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  ApplyButton,
+  ApplyProvider,
+} from "@/components/careers/ApplyDialog";
 import { CareersPageHeader } from "@/components/careers/CareersPageHeader";
-import { PlaceholderNotice } from "@/components/careers/PlaceholderNotice";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
-import { ENQUIRY_EMAIL } from "@/lib/contact";
 import { JOB_OPENINGS, OPENINGS_HREF, findOpening } from "@/lib/careers";
 
 /** Every role is known at build time, so all six prerender and the route never
@@ -25,7 +27,7 @@ export async function generateMetadata({
 
   return {
     title: job.title,
-    description: `${job.title} — ${job.employmentType}, ${job.location}. ${job.summary}`,
+    description: `${job.title} — ${job.hiringType}. ${job.location}.`,
   };
 }
 
@@ -46,10 +48,6 @@ export default async function OpeningPage({
   const job = findOpening(slug);
   if (!job) notFound();
 
-  const applyHref = `mailto:${ENQUIRY_EMAIL}?subject=${encodeURIComponent(
-    `Application: ${job.title}`,
-  )}`;
-
   return (
     <>
       <CareersPageHeader
@@ -59,49 +57,38 @@ export default async function OpeningPage({
           { label: "Job Openings", href: OPENINGS_HREF },
           { label: job.title },
         ]}
-        eyebrow={job.department}
+        eyebrow="Job opening"
         title={job.title}
       >
-        {/* Boxed here, where there are three of them and they are the first
-            thing a reader checks — unlike the listing, where the same facts
-            repeat down every row and chips would be all you saw. Department is
-            missing on purpose: it is the eyebrow above. */}
+        {/* Boxed here, where they are the first thing a reader checks — unlike
+            the listing, where the same facts repeat down every row and chips
+            would be all you saw. */}
         <ul className="mt-7 flex flex-wrap gap-2">
+          <Fact>{job.hiringType}</Fact>
           <Fact>{job.location}</Fact>
-          <Fact>{job.employmentType}</Fact>
-          <Fact>{job.experience}</Fact>
+          {job.salary && <Fact>{job.salary}</Fact>}
         </ul>
       </CareersPageHeader>
 
+      {/* Both apply buttons open one dialog, so it is hoisted to the level
+          that contains the pair of them. */}
+      <ApplyProvider role={job.title}>
       <Container>
         <div className="grid gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:gap-14">
           <div>
-            <Reveal>
-              <PlaceholderNotice />
-            </Reveal>
-
-            <Reveal className="mt-8">
-              <h2 className="text-lg font-bold tracking-[-0.015em] text-foreground">
-                About the role
-              </h2>
-              <p className="mt-3 text-base leading-relaxed text-muted">
-                {job.about}
-              </p>
-            </Reveal>
-
-            <Section title="What you will be doing" items={job.responsibilities} />
-            <Section title="What we are looking for" items={job.requirements} />
-            <Section title="Nice to have" items={job.niceToHave} />
+            {/* The posting's own two headings, in the posting's own order.
+                There is no lead paragraph above them because the ads do not
+                have one, and writing one would mean putting words in Sophic's
+                mouth about a job they are hiring for. */}
+            <Section title="Job Description" items={job.description} first />
+            <Section title="Job Requirements" items={job.requirements} />
 
             <Reveal className="mt-12">
               {/* Repeats the action at the natural end of the read, for
                   anybody below lg who never saw the sidebar as a sidebar. */}
               <div className="border-t border-line pt-8">
                 <span className="float-glow">
-                  <a
-                    href={applyHref}
-                    className="btn-brand group inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-medium text-white transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transform-none"
-                  >
+                  <ApplyButton className="btn-brand group inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-medium text-white transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transform-none">
                     Apply for this role
                     <span
                       aria-hidden="true"
@@ -109,7 +96,7 @@ export default async function OpeningPage({
                     >
                       →
                     </span>
-                  </a>
+                  </ApplyButton>
                 </span>
                 <p className="mt-4 text-sm text-muted">
                   Or go back to{" "}
@@ -135,10 +122,9 @@ export default async function OpeningPage({
                 </p>
 
                 <dl className="mt-4 space-y-3 text-sm">
-                  <Row label="Department" value={job.department} />
+                  <Row label="Hiring type" value={job.hiringType} />
                   <Row label="Location" value={job.location} />
-                  <Row label="Type" value={job.employmentType} />
-                  <Row label="Experience" value={job.experience} />
+                  {job.salary && <Row label="Salary" value={job.salary} />}
                 </dl>
 
                 {/* No float-glow wrapper on this one, unlike the button at the
@@ -147,30 +133,40 @@ export default async function OpeningPage({
                     same element and shrink-wraps — which would take the w-full
                     off the button inside it. The card already sits on its own
                     glow; a second one inside it would be light on light. */}
-                <a
-                  href={applyHref}
-                  className="btn-brand mt-6 flex w-full items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-medium text-white transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transform-none"
-                >
+                <ApplyButton className="btn-brand mt-6 flex w-full items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-medium text-white transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transform-none">
                   Apply for this role
-                </a>
+                </ApplyButton>
 
+                {/* Says what to have ready, which is the one thing worth
+                    knowing before the dialog opens. */}
                 <p className="mt-3 text-center text-xs text-muted">
-                  Opens your mail client
+                  Résumé as a PDF
                 </p>
               </div>
             </div>
           </aside>
         </div>
       </Container>
+      </ApplyProvider>
     </>
   );
 }
 
-/** One headed list of bullets. Three of these make up the body of the ad, so
- *  the heading level, spacing and marker are set once. */
-function Section({ title, items }: { title: string; items: string[] }) {
+/** One headed list of bullets. Both halves of the ad are one of these, so the
+ *  heading level, spacing and marker are set once. */
+function Section({
+  title,
+  items,
+  first,
+}: {
+  title: string;
+  items: string[];
+  /** The first section sits under the page header, which brings its own space,
+   *  so it does not need the gap that separates one section from the next. */
+  first?: boolean;
+}) {
   return (
-    <Reveal className="mt-10">
+    <Reveal className={first ? undefined : "mt-10"}>
       <h2 className="text-lg font-bold tracking-[-0.015em] text-foreground">{title}</h2>
       <ul className="mt-4 space-y-3">
         {items.map((item) => (

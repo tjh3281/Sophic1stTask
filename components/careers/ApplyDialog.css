@@ -1,0 +1,114 @@
+/**
+ * The application dialog.
+ *
+ * A native <dialog> opened with showModal(), so the focus trap, the Escape key,
+ * the inert page behind it and the top-layer stacking are the browser's job
+ * rather than three hundred lines of ours. What is left for CSS is the two
+ * things a native dialog does not style itself: the backdrop, and the way it
+ * arrives.
+ */
+
+.apply-dialog {
+  width: min(38rem, calc(100vw - 2rem));
+  /* Never taller than the screen it is centred in. The frame stays this size
+     and the body inside it scrolls, so the title and the send button hold
+     still while a long form moves between them. */
+  max-height: min(48rem, calc(100dvh - 3rem));
+  /* Centred. The UA stylesheet already does this for a modal dialog, but only
+     while the box is auto-sized — spelling it out keeps it true. */
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 30px 60px -20px rgb(15 23 42 / 0.35);
+}
+
+.apply-dialog::backdrop {
+  background: rgb(15 23 42 / 0.5);
+}
+
+/* display and both animations are on [open] rather than on the element itself.
+   A closed <dialog> is display:none, and a bare `display: flex` here would
+   override that and leave the form sitting in the page. */
+.apply-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  animation: apply-dialog-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The title bar and the close button, which do not move. */
+.apply-dialog__head {
+  flex: none;
+}
+
+/* Everything else, which does.
+   min-height: 0 because a flex item will not shrink below its content without
+   it, and the frame would grow past the screen instead of this scrolling.
+   overscroll-behavior stops a flick that reaches the end of the form from
+   carrying on into the page behind. */
+.apply-dialog__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.apply-dialog[open]::backdrop {
+  animation: apply-dialog-backdrop-in 220ms ease-out;
+}
+
+@keyframes apply-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+
+@keyframes apply-dialog-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apply-dialog[open],
+  .apply-dialog[open]::backdrop {
+    animation: none;
+  }
+}
+
+/* The résumé drop target. A dashed outline is the one border style that reads
+   as "put something here" rather than as a field that is already filled in. */
+.apply-drop {
+  display: block;
+  border: 1.5px dashed var(--line);
+  border-radius: 0.625rem;
+  background: var(--surface);
+  padding: 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 200ms var(--ease-gentle, ease),
+    background-color 200ms var(--ease-gentle, ease);
+}
+
+.apply-drop:hover,
+.apply-drop[data-dragging="true"] {
+  border-color: var(--brand);
+  background: var(--brand-light);
+}
+
+/* The input is visually hidden but still focusable, so this is the only ring
+   a keyboard user gets on it. */
+.apply-drop:has(input:focus-visible) {
+  border-color: var(--brand);
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.apply-drop[data-error="true"] {
+  border-color: rgb(220 38 38 / 0.7);
+}

@@ -19,11 +19,13 @@ import { SOLUTIONS } from "./solutions";
  * Community) are inert prototype buttons with nowhere to go, and a result that
  * lands on nothing is worse than no result at all.
  *
- * The individual vacancies under /careers/openings are deliberately left out.
- * They are placeholder roles, and six of them carrying the word "engineer"
- * would outweigh the whole real catalogue on the query most likely to be typed
- * here. The openings page that lists them is indexed instead. Index the roles
- * themselves once they are Sophic's actual vacancies.
+ * The individual vacancies under /careers/openings are deliberately left out,
+ * real though they now are. Five of the nine carry the word "engineer" and
+ * three are the same title with a different division in brackets — indexing
+ * them would bury the equipment catalogue under near-duplicates on the query
+ * most likely to be typed here. The openings page that lists them is indexed
+ * instead, with their locations and hiring types as keywords, so "penang" or
+ * "contract" still lands you on the list.
  */
 
 /** Lower-cased mirrors of the fields we match against, so a keystroke does not
@@ -118,19 +120,17 @@ function buildIndex(): SearchEntry[] {
       title: "Job Openings",
       href: OPENINGS_HREF,
       breadcrumb: "Careers",
-      summary: "Open roles across engineering, software and field service.",
+      summary: "Open roles across software, engineering, sales and finance.",
       lower: {
         title: "job openings",
         breadcrumb: "careers",
-        summary: "open roles across engineering software and field service",
+        summary: "open roles across software engineering sales and finance",
         keywords: lower(
           "vacancy vacancies position role apply application recruitment" +
-            " internship intern graduate hiring now",
-          // Departments and locations, so "penang" or "singapore" finds the
+            " hiring now",
+          // Locations and hiring types, so "penang" or "contract" finds the
           // list. The role titles stay out — see the note at the top.
-          ...JOB_OPENINGS.map(
-            (job) => `${job.department} ${job.location} ${job.employmentType}`,
-          ),
+          ...JOB_OPENINGS.map((job) => `${job.location} ${job.hiringType}`),
         ),
       },
     },

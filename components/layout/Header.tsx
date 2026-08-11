@@ -19,14 +19,23 @@ import { SolutionsMenu } from "./SolutionsMenu";
  * Pages whose cover runs underneath the header.
  *
  * The solution categories derive theirs from the tree — a category has a cover
- * exactly when it has a cover image. Careers is listed by hand because its
- * cover is a component rather than a row of data, so there is nothing to derive
- * it from; the alternative is a route that looks like every other cover page
- * and wears an opaque bar over the top of its photograph.
+ * exactly when it has a cover image. The careers routes are listed by hand
+ * because their covers are components rather than rows of data, so there is
+ * nothing to derive it from; the alternative is a route that looks like every
+ * other cover page and wears an opaque bar over the top of its artwork.
+ *
+ * Matched exactly, which is what keeps the individual role pages out: they open
+ * on a flat band rather than a cover, and a transparent bar over that would be
+ * white type on the page's own background.
+ *
+ * A route added here owes its cover a top scrim dark enough for white nav links
+ * across the full width — including the right-hand end, where the bar is at its
+ * busiest and a cover's artwork is often at its lightest.
  */
 const COVER_ROUTES = new Set<string>([
   ...SOLUTIONS.filter((s) => s.coverImage).map((s) => s.href),
   "/careers",
+  "/careers/openings",
 ]);
 
 export function Header() {

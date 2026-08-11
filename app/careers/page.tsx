@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CareersCover } from "@/components/careers/CareersCover";
 import { CulturePillars } from "@/components/careers/CulturePillars";
-import { ForkliftLift } from "@/components/careers/ForkliftLift";
+import { ForkliftRun } from "@/components/careers/ForkliftRun";
 import { PillarCube } from "@/components/careers/PillarCube";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
@@ -36,32 +36,39 @@ export default function CareersPage() {
     <>
       <CareersCover />
 
+      {/* --- The forklift's run --------------------------------------------
+          Both sections below are inside it. The box travels from the top of
+          the argument section onto the truck's fork in the culture-cube
+          section, so it belongs to neither and wraps both. */}
+      <ForkliftRun>
       {/* --- The argument ------------------------------------------------- */}
       <section className="border-b border-line bg-background py-16 sm:py-24">
         <Container>
-          {/* The heading is a load on a forklift, so it belongs inside the
-              machine rather than beside it — ForkliftLift owns the column and
-              the words are handed to it.
+          {/* 34%, not a rem width: the machine in this column and the truck in
+              the section below are both positioned as fractions of the
+              Container, which is the only frame the two sections share. See
+              ForkliftLift.css.
 
-              22rem, not the 19rem this started at: the truck stands at the
-              right of the column and reaches a little way into the gutter, and
-              the heading needs to keep clear of the mast.
+              No eyebrow here. The column is a picture from lg up, and a label
+              floating above it was the one thing stopping the box from sitting
+              level with the first line of the paragraph beside it.
 
-              No min-height. Forcing one bought a longer pin and paid for it in
-              dead page — the paragraphs set their own height, and on a wide
-              screen they wrap short enough that a floor of 34rem left a screen
-              of blank under the whole section. */}
-          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-16">
-            <ForkliftLift>
-              <Reveal>
-                <Eyebrow>Why we invest in people</Eyebrow>
-                {/* Capped well short of the column so the last few characters
-                    of a line never end up under the mast. */}
-                <h2 className="mt-4 text-[1.75rem] font-bold leading-[1.15] tracking-[-0.025em] text-foreground sm:text-[2rem] lg:max-w-[15rem]">
-                  Employees are the driving force.
-                </h2>
-              </Reveal>
-            </ForkliftLift>
+              No min-height either. The column stretches to the paragraphs, and
+              the load's travel is whatever height that gives — so the two
+              always end together and no dead page can open up under them. */}
+          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,40%)_minmax(0,1fr)] lg:gap-16">
+            {/* The box starts here — top of this column, level with the first
+                line of the paragraph beside it. The column itself is empty from
+                lg up; the machine that fills it is drawn by ForkliftRun, in a
+                layer spanning this section and the next. */}
+            <div data-forklift-start>
+              {/* Ordinary type below lg, where there is no machine to carry it.
+                  Hidden from view — but not from screen readers or search
+                  engines — once the sign on the box takes over. */}
+              <h2 className="forklift-headline text-[1.75rem] font-bold leading-[1.15] tracking-[-0.025em] text-foreground sm:text-[2rem]">
+                Employees are the driving force.
+              </h2>
+            </div>
 
             <div className="relative">
               {/* The hero's opening paragraph, moved off the photograph and set
@@ -96,6 +103,7 @@ export default function CareersPage() {
           heading left outside would scroll away and leave the cube turning
           under nothing. */}
       <PillarCube />
+      </ForkliftRun>
 
       {/* --- All of them, in full ------------------------------------------- */}
       <section className="border-y border-line bg-background py-16 sm:py-24">
@@ -106,12 +114,6 @@ export default function CareersPage() {
               Culture, values, environment.
             </h2>
           </Reveal>
-          <Reveal delay={70} className="mt-4">
-            <p className="max-w-2xl text-base leading-relaxed text-muted">
-              Pick a heading.
-            </p>
-          </Reveal>
-
           <CulturePillars />
         </Container>
       </section>
@@ -146,17 +148,17 @@ export default function CareersPage() {
                       Job openings
                     </p>
                   </div>
-                  {/* No count. The list behind this button is placeholder
-                      content, and "6 roles open" is the one claim on the page a
-                      reader could act on before they reach the notice that says
-                      the roles are samples. */}
+                  {/* No count, even though the roles are real now. A number
+                      here is a claim that goes stale the day a role is filled,
+                      and it would be the one thing on the page a reader could
+                      act on that nobody remembers to update. */}
                   <h2 className="mt-5 text-[1.75rem] font-bold leading-[1.15] tracking-[-0.025em] text-white sm:text-[2rem]">
-                    Roles across engineering, software and field service.
+                    Roles across software, engineering, sales and finance.
                   </h2>
                   <p className="mt-4 text-base leading-relaxed text-white/75">
-                    Penang, Selangor and Singapore. If none of them is quite
-                    you, the culture above is still the job — tell us what you
-                    do and we will find where it fits.
+                    Bukit Minyak, Batu Kawan, Bayan Lepas and Kulim. If none of
+                    them is quite you, the culture above is still the job — tell
+                    us what you do and we will find where it fits.
                   </p>
                 </div>
 

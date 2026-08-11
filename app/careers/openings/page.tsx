@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CareersPageHeader } from "@/components/careers/CareersPageHeader";
-import { PlaceholderNotice } from "@/components/careers/PlaceholderNotice";
+import { OpeningsCover } from "@/components/careers/OpeningsCover";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { ENQUIRY_EMAIL } from "@/lib/contact";
@@ -10,8 +9,8 @@ import { JOB_OPENINGS } from "@/lib/careers";
 export const metadata: Metadata = {
   title: "Job Openings",
   description:
-    "Open roles at Sophic Automation across engineering, software and field" +
-    " service in Penang, Selangor and Singapore.",
+    "Open roles at Sophic Automation across software, engineering, sales and" +
+    " finance, in Pulau Pinang and Kedah.",
 };
 
 /**
@@ -24,30 +23,15 @@ export const metadata: Metadata = {
  * sight while the column of titles stays a column.
  */
 export default function OpeningsPage() {
-  const departments = [...new Set(JOB_OPENINGS.map((job) => job.department))];
-
   return (
     <>
-      <CareersPageHeader
-        trail={[
-          { label: "Home", href: "/" },
-          { label: "Careers", href: "/careers" },
-          { label: "Job Openings" },
-        ]}
-        eyebrow="Careers"
-        title="Job openings"
-        lead={`${JOB_OPENINGS.length} roles across ${departments.length} teams, in Penang, Selangor and Singapore.`}
-      />
+      <OpeningsCover />
 
       <Container>
         <section className="py-10 sm:py-14">
-          <Reveal>
-            <PlaceholderNotice />
-          </Reveal>
-
           {/* divide-y rather than a border per row: one hairline between any
               two rows, and none stranded above the first or below the last. */}
-          <ul className="mt-8 divide-y divide-line border-y border-line">
+          <ul className="divide-y divide-line border-y border-line">
             {JOB_OPENINGS.map((job, index) => (
               <li key={job.slug}>
                 <Reveal delay={Math.min(index, 4) * 50}>
@@ -62,15 +46,16 @@ export default function OpeningsPage() {
                       <h2 className="text-lg font-bold tracking-[-0.015em] text-foreground transition-colors duration-200 ease-gentle group-hover:text-brand">
                         {job.title}
                       </h2>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted">
-                        {job.summary}
-                      </p>
 
-                      <ul className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-muted">
-                        <Meta>{job.department}</Meta>
+                      {/* No summary line. The ads do not carry one, and the
+                          three Software Engineer roles open on the same nine
+                          bullets — a first line lifted off those would print
+                          the same sentence three times and tell you nothing the
+                          division in the title has not already told you. */}
+                      <ul className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-muted">
+                        <Meta>{job.hiringType}</Meta>
                         <Meta>{job.location}</Meta>
-                        <Meta>{job.employmentType}</Meta>
-                        <Meta>{job.experience}</Meta>
+                        {job.salary && <Meta>{job.salary}</Meta>}
                       </ul>
                     </div>
 

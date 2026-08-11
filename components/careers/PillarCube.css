@@ -1,14 +1,24 @@
 /**
  * The culture cube.
  *
- * Six faces of a solid, one pillar each, turned by scroll position. The
- * rotation arrives as two custom properties written straight onto the cube
- * element — see PillarCube.tsx for why that is not React state.
+ * Six faces of a solid, one pillar each, turned by scroll position. The solid
+ * is the crate on the forklift's fork — it is built in ForkliftRun, which also
+ * owns the stops and the loop that drives them, and the rotation arrives here
+ * as custom properties inherited from the run. See ForkliftRun.tsx for why that
+ * is not React state.
+ *
+ * --cube-size and --cube-half come from the same place, since the cube has to
+ * be sized against the crate it is drawn over rather than against this column.
  */
 
 .pillar-cube-stage {
   position: relative;
-  perspective: 1600px;
+  /* Depth measured in cubes, not pixels. The faces have to fade in at exactly
+     the size of the crate they are replacing, and perspective enlarges the near
+     face by p / (p - size/2) — a constant only if p tracks the cube. A fixed
+     1600px would make that factor drift with the viewport, and with it the size
+     the cube arrives at. See --cube-size in ForkliftRun.css. */
+  perspective: calc(var(--cube-size) * 5.2);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -55,15 +55,17 @@ export function CulturePillars() {
   const group = PILLAR_GROUPS[active];
 
   return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-[15rem_1fr] lg:gap-10">
-      {/* Below lg the tabs run as a scrollable row; the negative margin lets
-          them bleed to the screen edge so it is clear there are more. */}
+    <div className="mt-8">
+      {/* A row above the panel rather than a column beside it: three short
+          words do not need a 15rem column, and the panel gets the full measure
+          back. On narrow screens the row scrolls, and the negative margin lets
+          it bleed to the screen edge so it is clear there are more. */}
       <div
         role="tablist"
         aria-label="What it is like to work here"
-        aria-orientation="vertical"
+        aria-orientation="horizontal"
         onKeyDown={onKeyDown}
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0"
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0"
       >
         {PILLAR_GROUPS.map((item, index) => {
           const selected = index === active;
@@ -81,25 +83,14 @@ export function CulturePillars() {
               tabIndex={selected ? 0 : -1}
               onClick={() => setActive(index)}
               className={cn(
-                "shrink-0 whitespace-nowrap rounded-lg px-4 py-3 text-left text-sm font-medium",
-                "transition-colors duration-200 ease-gentle lg:w-full",
+                "shrink-0 whitespace-nowrap rounded-lg px-5 py-3 text-left text-sm font-medium",
+                "transition-colors duration-200 ease-gentle",
                 selected
                   ? `text-white ${BRAND_RAMP}`
                   : "bg-surface text-muted hover:bg-brand-light hover:text-brand",
               )}
             >
               {item.name}
-              {/* The count is the useful part of a tab nobody has opened yet:
-                  it says how much is behind it. Hidden while the row is
-                  horizontal, where the tabs are already tight. */}
-              <span
-                className={cn(
-                  "ml-2 hidden text-xs tabular-nums lg:inline",
-                  selected ? "text-white/70" : "text-muted/70",
-                )}
-              >
-                {item.pillars.length}
-              </span>
             </button>
           );
         })}
@@ -112,7 +103,7 @@ export function CulturePillars() {
         id={`pillar-panel-${active}`}
         aria-labelledby={`pillar-tab-${active}`}
         tabIndex={0}
-        className="capability-panel rounded-xl border border-line bg-background p-6 sm:p-8"
+        className="capability-panel mt-6 rounded-xl border border-line bg-background p-6 sm:p-8"
       >
         {/* The same rule-and-caps label the rest of the section uses, so the
             panel reads as part of the page rather than as a widget dropped

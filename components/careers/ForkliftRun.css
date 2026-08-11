@@ -1,0 +1,250 @@
+/**
+ * One forklift, one mast, one load — across two sections.
+ *
+ * The load is not in either section. It lives in a layer that spans both of
+ * them, because it has to travel from the top of the argument section down onto
+ * the truck's fork in the culture-cube section, and nothing scoped to a single
+ * section can do that. The rail is drawn the same way: its foot is pinned to
+ * the top of the truck every frame, so the track is continuous by construction
+ * rather than by two numbers happening to agree.
+ *
+ * The six pillar faces are laid over the white crate in the render rather than
+ * standing beside it: the thing the forklift puts down is the thing that turns.
+ * They are drawn at the crate's own size and centre, and only fade in once it
+ * is on the fork, so the first section is the render and nothing else. Where a
+ * corner of the crate shows past a face mid-turn it is white on white.
+ *
+ * There is one picture of the machine, forklift.png, 680x1690. The mast and the
+ * truck are two windows onto it, meeting at row 850 — adjacent rows of one
+ * image, so the profile is continuous however hard the mast is stretched.
+ *
+ * Fractions below were measured off the artwork:
+ *
+ *   rails inside the picture      left 0.08971, width 0.3206 (frame = 3.1193x rail)
+ *   the seam                      row 850 of 1690
+ *   truck window                  rows 850-1690, h/w 1.23529
+ *   box crop                      h/w 0.93408, carriage centre at 0.946 of width
+ *   truck's fork, in its crop     bottom at 0.958 of height
+ *   the crate, in the box crop    x 54-563, y 0-531 of 622x581
+ *                                 → centre 49.6% / 45.7%, 510x532 in a 622 crop
+ *   the sign, on the crate        12.127% / 21.847%, 41.433% x 46.386%
+ */
+
+.forklift-run {
+  position: relative;
+  /* Never `overflow: hidden` here: that would make this the scroll container
+     for the culture cube's sticky frame and stop it sticking. `clip` does not
+     create one, so it is the one way to keep the cube's widest moment — a
+     solid on the corner reaches half its diagonal, well past the crate it is
+     drawn on — from pushing a scrollbar onto the page at narrow desktops. */
+  overflow-x: clip;
+}
+
+.forklift-flight {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .forklift-run {
+    /* The Container's content width. This fallback is only what the server
+       renders with — the script measures the Container itself and overwrites
+       it, because 100vw counts the scrollbar and the layout does not, and
+       below 80rem that difference would put the rail and the truck a scrollbar
+       apart. Declared here so both inherit the same value. */
+    --c: min(76rem, 100vw - 4rem);
+
+    --box-w: calc(var(--c) * 0.3174);
+    --box-h: calc(var(--box-w) * 0.93408);
+    --truck-w: calc(var(--c) * 0.271);
+    --rail-w: calc(var(--truck-w) / 3.11927);
+    /* Put the rails under the box's carriage. Every other horizontal position
+       on both machines is measured from here. */
+    --rail-x: calc(var(--box-w) * 0.946 - var(--rail-w) / 2);
+
+    /* Sized to arrive at exactly the crate it fades in over: the crate is
+       510x532 in a 622-wide crop, so a face wants to land at 0.8376 of the
+       crop. What is declared here is smaller than that, because perspective
+       pushes the near face back out again — with the stage's depth set to 5.2
+       cubes (PillarCube.css), that is a factor of 5.2 / 4.7, and
+       0.8376 / 1.10638 = 0.7571.
+
+       Depth in cubes rather than in pixels is the whole reason this holds. A
+       fixed 1600px would foreshorten a 300px cube harder than a 230px one, and
+       the size the faces arrive at would drift with the viewport. */
+    --cube-size: calc(var(--box-w) * 0.7571);
+    --cube-half: calc(var(--cube-size) / 2);
+  }
+
+  .forklift-flight {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    /* Laid exactly over the Container both sections use, so `left: 0` inside
+       here is the same left edge the text starts at. */
+    left: 50%;
+    width: var(--c);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  /* The upper mast: the top 850 rows of the picture, stretched to whatever
+     height the run needs this frame.
+
+     Both this and the truck below are windows onto one file, and both lay it
+     out the same way — `left: 0; width: 100%` against a box of --truck-w. The
+     two are therefore in horizontal register by construction rather than by
+     two crops agreeing, which is what went wrong when they were separate files:
+     a narrower crop stretched to fit put the mast's internal brace on a
+     different line from the truck's and the join stepped. Stretching vertically
+     cannot move anything sideways, so however far this is pulled the seam holds.
+
+     This box is only ever the screen and a little more — see the mast in
+     ForkliftRun.tsx for why — so the picture's height and offset are written
+     per frame from the whole span, not set here as a percentage of the box.
+
+     --rail-head is where the top of the mast sits relative to this box: 0 while
+     the head is still on screen, and negative once it has gone off the top. The
+     fade over its cut end is anchored to it, so it stays on the mast's head
+     rather than sliding down to the edge of the window when the two part
+     company. */
+  .forklift-rail {
+    position: absolute;
+    left: calc(var(--rail-x) - var(--truck-w) * 0.08971);
+    width: var(--truck-w);
+    overflow: hidden;
+    /* Short. The fade is only there to keep the cut end of the mast from
+       reading as a cut end — long enough to see it dissolve and it stops
+       looking like steel and starts looking like a smudge. About two thirds of
+       the width of the rails themselves is the most that still passes. */
+    --rail-fade: calc(var(--truck-w) * 0.2);
+    mask-image: linear-gradient(
+      to bottom,
+      transparent var(--rail-head, 0px),
+      #000 calc(var(--rail-head, 0px) + var(--rail-fade))
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent var(--rail-head, 0px),
+      #000 calc(var(--rail-head, 0px) + var(--rail-fade))
+    );
+  }
+
+  .forklift-rail img {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    /* top and height are written per frame. */
+  }
+
+  .forklift-box {
+    position: absolute;
+    left: 0;
+    width: var(--box-w);
+    height: var(--box-h);
+    /* top is written per frame. */
+  }
+
+  /* The headline, screwed to the crate's face in the render. Fades off as the
+     load touches the fork. */
+  .forklift-sign {
+    position: absolute;
+    left: 12.127%;
+    top: 21.847%;
+    width: 41.433%;
+    height: 46.386%;
+  }
+
+  /* The cube, centred on the crate it takes over from — 49.6% / 45.7% is that
+     crate's own centre in the crop. Starts invisible: the whole of the first
+     section is the render, and the faces are written in from the moment the
+     fork comes down. */
+  .forklift-load {
+    position: absolute;
+    left: 49.6%;
+    top: 45.7%;
+    width: calc(var(--cube-size) * 1.45);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+
+  /* The truck, inside the culture-cube section's sticky frame. Positioned off
+     the same --rail-x, so the rail above meets its mast.
+
+     isolate, so the shadow's z-index: -1 stays inside this box. Without it the
+     shadow would sink behind the section's backdrop illustration instead of
+     just behind the wheels. */
+  .forklift-stand {
+    position: relative;
+    isolation: isolate;
+    width: var(--truck-w);
+    margin-left: calc(var(--rail-x) - var(--truck-w) * 0.08971);
+  }
+
+  /* The machine itself: the bottom 840 rows of the same picture, at its own
+     proportions. Everything the mast above needs to line up with is in here,
+     and it is the same file drawn the same way — see .forklift-rail.
+
+     201.190% is 1690/840 and -101.190% is -850/840: the picture scaled so its
+     bottom 840 rows fill this box, then slid up until they do. */
+  .forklift-truck {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: calc(var(--truck-w) * 1.23529);
+  }
+
+  .forklift-truck img {
+    position: absolute;
+    left: 0;
+    /* 1690/840 and -850/840, to as many places as they are worth. The mast
+       above overlaps this edge by a couple of pixels rather than trusting the
+       two to land on the same device pixel — see SEAM_OVERLAP. */
+    top: -101.190476%;
+    width: 100%;
+    max-width: none;
+    height: 201.190476%;
+  }
+
+  /* The floor. Without it the machine hangs in the air — a cut-out render has
+     no contact point, and the eye reads the missing shadow before it reads
+     anything else.
+
+     Wider than the truck and offset left, because the load hangs off the front
+     of the mast and its shadow belongs on the floor with everything else. */
+  .forklift-stand::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: -2%;
+    right: 5%;
+    /* The render's lowest opaque pixel is not where the tyres meet the floor —
+       measured on screen, the contact line sits about five percent higher, so
+       the ellipse is raised to match rather than left under the bounding box.*/
+    top: 88.8%;
+    height: 7.6%;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      rgb(15 23 42 / 0.3),
+      rgb(15 23 42 / 0.13) 55%,
+      rgb(15 23 42 / 0) 100%
+    );
+    filter: blur(7px);
+  }
+
+  /* The headline is the plate on the crate once the machine is running. It
+     stays in the document for screen readers and search engines either way. */
+  .forklift-run[data-machine="on"] .forklift-headline {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
