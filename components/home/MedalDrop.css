@@ -1,0 +1,419 @@
+/* --- The hanging medal ---------------------------------------------------
+   A medal lowered on its ribbon into the awards section, triggered when the
+   reader leaves the hero rather than when the page loads.
+
+   Three separate images — ribbon, clasp, disc — assembled here rather than
+   shipped as one flattened picture, because the whole effect depends on them
+   being able to move against each other. A single PNG can only slide; three
+   linked pieces can swing on their joints, trail behind one another, and come
+   to rest at different moments, which is what separates this from a box
+   sliding down the page.
+
+   Everything is `translate` and `rotate` — the individual transform
+   properties, not the `transform` shorthand. That is deliberate: the drop and
+   the swing are two separate animations with different durations, delays and
+   curves, and they overlap. Written as `transform` they would fight over one
+   property and the later one would simply win; written as separate properties
+   they compose, which is also how the browser gets to keep the whole rig on
+   the compositor.
+
+   Nothing here animates a property that costs layout or paint.
+-------------------------------------------------------------------------- */
+
+.medal-hang {
+  /* One number sets the size of the whole rig. Everything else is a ratio of
+     it, taken from the trimmed artwork — ribbon 294x330, clasp 142x43, disc
+     268x271 — so the three pieces keep their proportions to each other at
+     every width and there is only ever one value to tune.
+
+     The ceiling is the disc's own 268px. There is no detail above 1x to be
+     had: the face carries small type that is already at the edge of legible,
+     which is why the credentials are also set as real text beside it. */
+  --disc-w: clamp(10rem, 24vw, 16.75rem);
+
+  /* The disc's own height is not among these: it is 1.0112 of its width and
+     the <img> keeps that itself, so naming it here would only be a second
+     place for it to go wrong. It does appear inside --rig-h below. */
+  --ribbon-w: calc(var(--disc-w) * 1.097);
+  --ribbon-h: calc(var(--disc-w) * 1.2313);
+  --clasp-w: calc(var(--disc-w) * 0.5299);
+  --clasp-h: calc(var(--disc-w) * 0.1604);
+
+  /* Where the two straps of the V converge. Measured off the artwork: they
+     cross about two thirds of the way down and merge into a single band that
+     ends at the very bottom edge, a shade right of centre. This is the point
+     the clasp grips and the medal hangs from, so both joints below are
+     anchored to it.
+
+     Lengths off the ribbon's own dimensions rather than the percentages the
+     ratios came as, because the element that uses them is positioned inside
+     the rig, not inside the ribbon — and the rig is nearly twice the ribbon's
+     height, so a percentage lands the medal's hanging point somewhere near
+     its own feet. */
+  --vertex-x: calc(var(--ribbon-w) * 0.5102);
+  --vertex-y: calc(var(--ribbon-h) * 0.997);
+
+  /* Ribbon top to the bottom of the disc:
+     ribbon 1.2313 x 0.997, plus disc 1.0112, less the 0.35 of a clasp the
+     disc is tucked up behind. */
+  --rig-h: calc(var(--disc-w) * 2.1827);
+
+  position: relative;
+  width: var(--ribbon-w);
+  height: var(--rig-h);
+
+  /* Lifts the ribbon's squarely cut top edge just above the section's own top,
+     where the section's overflow clip disposes of it.
+
+     Deliberately a sliver rather than a real offset. The fade on the ribbon
+     starts from nothing at its top edge, so the further this pushes that edge
+     up, the further into the fade the clip line falls and the stronger the
+     ribbon is at the moment it first appears — which puts back the hard edge
+     both of them exist to remove. This is only enough to absorb subpixel
+     rounding between the two boxes; the fade does the rest. */
+  margin-top: calc(var(--rig-h) * -0.02);
+}
+
+/* The light the medal is hanging in. Fades up behind it as it arrives, so the
+   silver has something to be silver against — on a flat dark field it reads
+   as grey. */
+.medal-hang::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: var(--vertex-x);
+  bottom: 0;
+  width: calc(var(--disc-w) * 1.9);
+  height: calc(var(--disc-w) * 1.45);
+  translate: -50% 20%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(56 138 200 / 0.32),
+    rgb(14 62 110 / 0.14) 54%,
+    transparent 78%
+  );
+  opacity: 0;
+  /* Held back until the medal is most of the way down — the glow is the thing
+     landing, so it must not arrive before the thing that lands. */
+  transition: opacity 900ms var(--ease-out-quart) 750ms;
+}
+
+.medal-hang:not([data-state="idle"])::before {
+  opacity: 1;
+}
+
+/* --- The three links -----------------------------------------------------
+   A chain of pivots, each hanging off the one above:
+
+     arm     the ribbon, swinging from a point above the top of the screen
+     joint   the clasp, hanging at the ribbon's vertex
+     swivel  the disc, hanging from the clasp
+
+   Nesting is what keeps them attached. Each pivot rotates about its own
+   anchor point, so a child inherits everything its parent did and adds its
+   own on top — the same way a real joint works. Rotating three separate
+   layers about three separate centres would pull them apart within a degree
+   or two.
+-------------------------------------------------------------------------- */
+
+.medal-hang__arm {
+  position: absolute;
+  inset: 0;
+  /* The pivot sits above the ribbon's cut top edge, not on it, because that
+     is where the ribbon actually continues to. A pendulum swung from its own
+     visible top is short and quick; hanging it from a point off-screen gives
+     the long, slow arc of something suspended from much further up. */
+  transform-origin: var(--vertex-x) -12%;
+  --swing: 2.4deg;
+  /* Parked above the section until the reader gets here. The JS only ever
+     adds the animation; this is what holds the rig off-screen until it does,
+     and what the reduced-motion and no-JS rules below cancel. */
+  translate: 0 -104%;
+}
+
+.medal-hang__ribbon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: auto;
+  /* Preflight puts `max-width: 100%` on every image, and the layers below are
+     positioned inside zero-width anchors, where 100% of the containing block
+     is nothing at all. Stated on all three so the rule travels with them. */
+  max-width: none;
+  /* Dissolves the top of the ribbon into the dark above it.
+
+     The section's clip already disposes of the squarely cut edge, but the two
+     sections either side of that clip are the same colour, so on its own it
+     just moves the problem: the ribbon reaches full strength on an invisible
+     line. The fade runs well past where the clip falls, so what is actually
+     on screen is a ribbon coming out of shadow.
+
+     A third of the ribbon's length, which sounds like a lot and is not: the
+     top tenth of it is behind the clip before any of this applies, and the
+     straps are at their widest up there, so a short fade on that much blue
+     still ends on something that reads as an edge. */
+  mask-image: linear-gradient(to bottom, transparent 0, #000 34%);
+}
+
+/* Both joints are zero-sized anchors rather than boxes: they exist only to
+   carry a pivot point and a rotation, and a point is exactly what a joint is.
+   Sizing them would mean choosing a box for something that has no extent, and
+   would drag `transform-origin` off the place the rotation has to happen. */
+.medal-hang__joint,
+.medal-hang__swivel {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+
+.medal-hang__joint {
+  left: var(--vertex-x);
+  top: var(--vertex-y);
+  --trail: calc(var(--clasp-h) * 0.1);
+  --swing: 1.1deg;
+}
+
+/* Hangs off the same point its parent does. The two are not redundant: this
+   one exists so the medal can lag and swing a shade more than the clasp it
+   hangs from, which is the difference between a chain and a bracket. */
+.medal-hang__swivel {
+  left: 0;
+  top: 0;
+  --trail: calc(var(--clasp-h) * 0.16);
+  --swing: 0.85deg;
+}
+
+.medal-hang__clasp {
+  position: absolute;
+  left: calc(var(--clasp-w) / -2);
+  /* Slightly more of it above the vertex than below, so the ribbon's end
+     stops inside the slot rather than hanging out of the bottom of it. */
+  top: calc(var(--clasp-h) * -0.6);
+  width: var(--clasp-w);
+  height: auto;
+  max-width: none;
+}
+
+.medal-hang__disc {
+  position: absolute;
+  left: calc(var(--disc-w) / -2);
+  /* Tucked up behind the clasp by about a third of its height. Two things
+     depend on this overlap: the medal's shoulders meet the underside of the
+     clasp instead of leaving daylight either side of it, and there is enough
+     slack for the medal to trail and overshoot on the way down without ever
+     visibly parting company with the thing it hangs from. */
+  top: calc(var(--clasp-h) * -0.35);
+  width: var(--disc-w);
+  height: auto;
+  max-width: none;
+  /* Weight. Offset downward rather than centred, so it reads as an object
+     above the page catching light from in front. */
+  filter: drop-shadow(
+    0 calc(var(--disc-w) * 0.05) calc(var(--disc-w) * 0.07) rgb(1 8 18 / 0.6)
+  );
+}
+
+/* --- The drop ------------------------------------------------------------
+   Armed by the observer in MedalDrop, which flips data-state once the reader
+   crosses out of the hero. Everything is `both`-filled, so each piece holds
+   its first frame from the moment it is armed and its last frame forever
+   after.
+-------------------------------------------------------------------------- */
+
+/* Matched on "not idle" rather than on "drop", so that marking the rig settled
+   further down does not pull the animations off the elements — which, with
+   the resting position living in the animation's last frame rather than in the
+   base rules, would send the whole thing back up off the screen. */
+.medal-hang:not([data-state="idle"]) .medal-hang__arm {
+  animation:
+    medal-lower 1900ms both,
+    medal-swing 4200ms 1120ms ease-in-out both;
+}
+
+.medal-hang:not([data-state="idle"]) .medal-hang__joint {
+  animation:
+    medal-trail 1900ms both,
+    medal-swing 4200ms 1200ms ease-in-out both;
+}
+
+.medal-hang:not([data-state="idle"]) .medal-hang__swivel {
+  animation:
+    medal-trail 1900ms both,
+    medal-swing 4200ms 1280ms ease-in-out both;
+}
+
+/* Only while something is actually moving. Left in place it costs a
+   compositor layer for the life of the page, and — as the reveal rules in
+   globals.css found out — a standing will-change quietly changes how
+   everything inside the element is composited. */
+.medal-hang[data-state="drop"] .medal-hang__arm,
+.medal-hang[data-state="drop"] .medal-hang__joint,
+.medal-hang[data-state="drop"] .medal-hang__swivel {
+  will-change: translate, rotate;
+}
+
+/**
+ * The rig coming down.
+ *
+ * Percentages, so the travel scales with the rig: -104% puts the whole thing
+ * clear above its own box, and the section's overflow clip is what turns that
+ * into "off the top of the screen".
+ *
+ * The curve is the point, and it is a lowering rather than a fall. Only a
+ * gentle ease-in at the start — enough that it does not begin at full speed —
+ * and then something close to constant travel, which is what a thing on the
+ * end of a line does and what a thing in free fall very much does not. It
+ * brakes into place, goes a little past where it belongs, and comes back in
+ * two decreasing bounces.
+ *
+ * The travel is split 62/38 between arriving and settling rather than evenly,
+ * because a good half of the distance is covered above the section's top edge
+ * where nobody can see it. Weighting the run this way is what buys the part
+ * that is actually on screen enough time to be watched.
+ *
+ * The overshoot is about two percent of the rig, a dozen pixels at full size:
+ * enough to feel the weight arrive, small enough that it is never read as a
+ * mistake.
+ */
+@keyframes medal-lower {
+  0% {
+    translate: 0 -104%;
+    animation-timing-function: cubic-bezier(0.32, 0.06, 0.5, 0.72);
+  }
+  62% {
+    translate: 0 2.1%;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.25, 1);
+  }
+  77% {
+    translate: 0 -0.85%;
+    animation-timing-function: ease-in-out;
+  }
+  88% {
+    translate: 0 0.32%;
+    animation-timing-function: ease-in-out;
+  }
+  95% {
+    translate: 0 -0.1%;
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+/**
+ * What the lower links do while the rig is falling — the reason this reads as
+ * a medal on a ribbon and not as a rigid cut-out.
+ *
+ * A chain being lowered does not fall as one piece. The links below the one
+ * being held lag behind while it accelerates, so the assembly gathers up; then
+ * the top stops and the weight at the bottom keeps going, drawing the ribbon
+ * taut and pulling past its resting point before it settles. So each link is
+ * held a little high through the fall, thrown past its place at the moment the
+ * rig brakes, and allowed to come back.
+ *
+ * Both links get this, at different strengths and both compounding — the clasp
+ * lags a little, the medal below it lags a little more — which is what
+ * produces the ribbon-then-connector-then-medal order as the rig comes to
+ * rest. Lengths rather than percentages: the anchors these hang from are
+ * points with no height for a percentage to refer to.
+ */
+@keyframes medal-trail {
+  0% {
+    translate: 0 calc(var(--trail) * -1);
+    animation-timing-function: ease-in;
+  }
+  55% {
+    translate: 0 calc(var(--trail) * -1);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.3, 1);
+  }
+  71% {
+    translate: 0 var(--trail);
+    animation-timing-function: ease-in-out;
+  }
+  84% {
+    translate: 0 calc(var(--trail) * -0.34);
+    animation-timing-function: ease-in-out;
+  }
+  93% {
+    translate: 0 calc(var(--trail) * 0.11);
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+/**
+ * The settle: a pendulum losing its swing.
+ *
+ * Each half-swing is roughly 18% of the run, so the period stays constant
+ * while the amplitude decays by about a third each time — which is what a
+ * pendulum actually does, and what distinguishes this from a wobble. At this
+ * duration the period works out around 1.6 seconds, the swing of something
+ * hanging a couple of feet down.
+ *
+ * The amplitude comes in as a custom property so all three links can share one
+ * set of keyframes and still swing by different amounts. They are also started
+ * a little apart, and a delay on identical keyframes is a phase lag: the clasp
+ * is always a fraction behind the ribbon and the medal a fraction behind the
+ * clasp, so the movement runs down the chain instead of the three of them
+ * moving as a plank.
+ */
+@keyframes medal-swing {
+  0% {
+    rotate: 0deg;
+  }
+  12% {
+    rotate: calc(var(--swing) * -1);
+  }
+  30% {
+    rotate: calc(var(--swing) * 0.6);
+  }
+  48% {
+    rotate: calc(var(--swing) * -0.34);
+  }
+  66% {
+    rotate: calc(var(--swing) * 0.18);
+  }
+  84% {
+    rotate: calc(var(--swing) * -0.08);
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Hung, not lowered. The rig is worth keeping — it is the section's picture,
+     and the credentials it carries are the point — so it is simply already
+     there, at the position the animation would have left it.
+
+     Written against the same selectors that arm the motion, and not against
+     the bare classes. `animation: none` on `.medal-hang__arm` alone loses to
+     `.medal-hang:not([data-state="idle"]) .medal-hang__arm` on specificity, so
+     the medal would go on being lowered for exactly the reader who asked it
+     not to be. Matching shape for shape leaves order to decide, and this block
+     is last. */
+  .medal-hang__arm,
+  .medal-hang__joint,
+  .medal-hang__swivel,
+  .medal-hang:not([data-state="idle"]) .medal-hang__arm,
+  .medal-hang:not([data-state="idle"]) .medal-hang__joint,
+  .medal-hang:not([data-state="idle"]) .medal-hang__swivel,
+  .medal-hang[data-state="drop"] .medal-hang__arm,
+  .medal-hang[data-state="drop"] .medal-hang__joint,
+  .medal-hang[data-state="drop"] .medal-hang__swivel {
+    animation: none;
+    translate: none;
+    rotate: none;
+    will-change: auto;
+  }
+
+  .medal-hang::before {
+    transition: none;
+    opacity: 1;
+  }
+}

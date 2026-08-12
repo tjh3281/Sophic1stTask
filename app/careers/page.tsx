@@ -156,9 +156,8 @@ export default function CareersPage() {
                     Roles across software, engineering, sales and finance.
                   </h2>
                   <p className="mt-4 text-base leading-relaxed text-white/75">
-                    Bukit Minyak, Batu Kawan, Bayan Lepas and Kulim. If none of
-                    them is quite you, the culture above is still the job — tell
-                    us what you do and we will find where it fits.
+                    If none of them is quite you, the culture above is still the
+                    job — tell us what you do and we will find where it fits.
                   </p>
                 </div>
 

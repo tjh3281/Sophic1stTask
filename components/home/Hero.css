@@ -1,0 +1,294 @@
+/* --- Home hero -----------------------------------------------------------
+   The opening screen: a drifting field of colour, the headline assembled out
+   of particles, five figures walking into place, and the button.
+
+   The headline and the field are canvases and look after themselves. This file
+   owns the part that is ordinary DOM — the evolution row — and the timing that
+   holds the four of them together.
+
+   All of it is keyframes rather than the site's Reveal component. Reveal fires
+   on scroll and replays on re-entry, which is right for everything further
+   down the page and wrong here: this is the first thing on screen, it should
+   play once as the page arrives, and it should not play again when the reader
+   scrolls back to the top.
+-------------------------------------------------------------------------- */
+
+.hero {
+  /* What is left on a clock, now that the figures are a video.
+     The ground and the "er" are driven by the clip's own playback position
+     instead — see EvolutionSequence — because a delay that lines up with the
+     video on one machine lines up with nothing on a slower one. These two are
+     set to land just after the clip settles in the ordinary case; if the video
+     is slow they simply arrive first, which costs nothing, and unlike the "er"
+     they are copy rather than the other half of a picture. */
+  --hero-lede-at: 2150ms;
+  --hero-cta-at: 2300ms;
+}
+
+/* --- The evolution row ---------------------------------------------------
+   The clip of the five figures, with "er" trailing them.
+
+   Everything in the row is measured off --evo-h, the height of the tallest
+   figure — which, after the crop below, is exactly the height of the stage.
+   That is what lets the "er" go on being positioned against a single number.
+-------------------------------------------------------------------------- */
+
+.hero-evolution {
+  /* The height of the tallest figure, and with it the size of the whole row.
+     The floor is what a 390px phone can take once the "er" is beside it. */
+  --evo-h: clamp(4.2rem, 10.5vw, 8.5rem);
+  /* A stand-in for the pixel unit the cutouts used, kept so the small offsets
+     further down stay in proportion as the row scales. */
+  --evo-unit: calc(var(--evo-h) / 208);
+
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.hero-evolution__row {
+  display: flex;
+  /* Feet on one line. The stage is cropped to the ink, so its bottom edge is
+     the ground the figures stand on; the "er" is nudged onto that line by hand
+     below, since a text baseline and a box edge do not agree on their own. */
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* --- The clip ------------------------------------------------------------
+   The figures occupy a band across the middle of a 16:9 frame with a great
+   deal of black around them. Rather than shipping that black as layout, the
+   stage is a window onto the part of the frame that has something in it, and
+   the video is scaled up and pushed off its own top-left corner to suit.
+
+   The four crop values are the ink's bounding box as a fraction of the frame,
+   measured across every frame of the clip so nothing is clipped at the moments
+   the figures stray widest. --evo-aspect is that box's own aspect ratio, which
+   is what keeps the video's 16:9 intact: stage 3.1196:1, video scaled by
+   1/0.8709 across and 1/0.4963 down, comes back to 16:9 exactly.
+-------------------------------------------------------------------------- */
+
+.hero-evolution__stage {
+  --evo-crop-x: 0.0458;
+  --evo-crop-y: 0.2315;
+  --evo-crop-w: 0.8709;
+  --evo-crop-h: 0.4963;
+  --evo-aspect: 3.1196;
+
+  position: relative;
+  overflow: hidden;
+  height: var(--evo-h);
+  width: calc(var(--evo-h) * var(--evo-aspect));
+}
+
+.hero-evolution__video {
+  position: absolute;
+  width: calc(100% / var(--evo-crop-w));
+  height: calc(100% / var(--evo-crop-h));
+  left: calc(-100% * var(--evo-crop-x) / var(--evo-crop-w));
+  top: calc(-100% * var(--evo-crop-y) / var(--evo-crop-h));
+
+  /* Both of these are here to get out of the way of a default, and the crop
+     above is wrong without them.
+
+     Tailwind's preflight puts `max-width: 100%` on every img and video, which
+     silently clamps the width set above back to the stage — so the frame never
+     gets scaled up across, only down the page. And a <video> defaults to
+     `object-fit: contain`, unlike an <img>, so the frame then letterboxes
+     itself inside that mismatched box rather than filling it. Between them the
+     figures came out around an eighth too small, sat low, and left a band of
+     empty stage to the right of the last one.
+
+     `fill` distorts nothing: the box is sized to the source's own 16:9. */
+  max-width: none;
+  object-fit: fill;
+
+  /* White figures on black, and screen is what makes the black disappear:
+     screening black leaves the backdrop exactly as it was, so the field and
+     its scrim show through untouched and only the figures are added. A plain
+     opaque video would sit on the hero as a black band no matter how dark the
+     background behind it happened to be. */
+  mix-blend-mode: screen;
+
+  /* Two small repairs to a compressed source, both worth having once it is
+     being screened rather than boxed:
+       - greyscale, because chroma is stored at quarter resolution and a black
+         and white source picks up faint coloured fringing along every edge,
+         which screen blending would otherwise add to the page as colour;
+       - a little contrast, which pushes the near-black mush around the
+         silhouettes back down to black so the edges stay clean. */
+  filter: grayscale(1) contrast(1.12);
+}
+
+.hero-er {
+  /* Negative, and deliberately so. The stage is cropped to the widest the
+     figures ever get, the last of them reaches that edge only at the extremes
+     of his stride, and the "e" carries its own left side bearing on top — so
+     three separate slivers of air stack up between the two. This takes them
+     back out, and the word sits against the figures the way it does in the
+     original artwork. */
+  /* Set against the widest moment of the walk, not an average one. The last
+     figure's arm swings through about 24px of travel at this size, so the gap
+     breathes as he strides; this leaves a few pixels between his hand and the
+     "e" at full reach, which is as close as the two can sit without reading as
+     a collision at that instant. The negative value is cancelling the "e"'s
+     own left side bearing, not pulling the word out of place. */
+  margin-inline-start: calc(var(--evo-unit) * -3);
+  /* Sits on the figures' feet.
+     Flex end-alignment lines up boxes, and a box is not a baseline: with
+     line-height 1 the type's baseline sits some way down a 1em box, so the
+     letters would otherwise float above the ground. Measured against the face
+     below, and it has to be re-measured if that face is ever swapped — every
+     family puts its baseline somewhere slightly different inside the em. */
+  margin-bottom: -0.14em;
+  /* Deliberately less than the figures grew by. They were the small half of
+     this pairing and are now the larger one, which is the way round the
+     original artwork has it. */
+  font-size: calc(var(--evo-h) * 1.12);
+  font-family: var(--font-display), var(--font-geist-sans), sans-serif;
+  /* The display face carries one weight and it is already black. Asking for
+     700 against a family with no bold is what makes a browser smear the
+     outlines into a fake one. */
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #5ec8e0;
+  /* Grows out of the last figure rather than out of its own middle. */
+  transform-origin: left bottom;
+
+  /* Transitions rather than keyframes, because what drives this is a state
+     change — the clip reaching the frame where the fifth figure has landed —
+     and not a moment on a clock. See EvolutionSequence.
+
+     The two directions are timed differently, and the rule each one uses is
+     the rule of the state it is going to. Coming in is the payoff and can take
+     its time with a curve that overshoots. Going out has a deadline: the clip
+     resets a few frames later, and "er" has to be gone before the figures it
+     belongs to collapse back to one. */
+  opacity: 0;
+  transform: translateY(8%) scale(0.82);
+  transition:
+    opacity 280ms var(--ease-gentle),
+    transform 280ms var(--ease-gentle);
+}
+
+.hero-evolution[data-phase="built"] .hero-er {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 720ms var(--ease-pop),
+    transform 720ms var(--ease-pop);
+}
+
+/* --- The ground ----------------------------------------------------------
+   A line of light under the row, drawn from the middle outwards as the
+   figures arrive. It is what stops them floating: five cutouts with nothing
+   under them read as stickers on the background.
+
+   Wider than the row it belongs to and fading at both ends, so it reads as a
+   lit strip continuing past the figures rather than as a rule with two ends.
+-------------------------------------------------------------------------- */
+
+.hero-evolution__track {
+  position: relative;
+  width: 132%;
+  margin-inline-start: -16%;
+  margin-top: calc(var(--evo-unit) * 3);
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--brand) 26%,
+    var(--accent) 58%,
+    transparent
+  );
+  transform-origin: center;
+  /* Draws as soon as the clip actually starts, so the ground arrives under the
+     first figure rather than at a time guessed in advance. */
+  opacity: 0;
+  transform: scaleX(0.15);
+  transition:
+    opacity 1000ms var(--ease-out-quint),
+    transform 1000ms var(--ease-out-quint);
+}
+
+.hero-evolution[data-phase="playing"] .hero-evolution__track,
+.hero-evolution[data-phase="built"] .hero-evolution__track {
+  opacity: 1;
+  transform: none;
+}
+
+/* The spill. Kept above the line rather than centred on it, so the light looks
+   like it is coming off the strip and catching the figures' feet. */
+.hero-evolution__track::after {
+  content: "";
+  position: absolute;
+  inset: -9px 8% auto;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(94 200 224 / 0.55) 45%,
+    rgb(41 168 184 / 0.35),
+    transparent
+  );
+  filter: blur(7px);
+}
+
+/* --- The rest ------------------------------------------------------------
+   The lede and the button, which only have to arrive after everything else.
+-------------------------------------------------------------------------- */
+
+.hero-fade {
+  animation: hero-fade-in 640ms var(--ease-out-quart) both;
+  animation-delay: var(--delay);
+}
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* --- The scrim -----------------------------------------------------------
+   The field underneath is a photograph's worth of colour and it does not know
+   there is type on it. Two gradients tame it:
+
+     - a vignette, which holds the middle open and closes the corners down, so
+       the headline sits in the clear part of the frame;
+     - a top-weighted wash, which is what makes the header's white nav links
+       legible across the full width of the bar.
+-------------------------------------------------------------------------- */
+
+.hero-scrim {
+  background:
+    radial-gradient(
+      124% 88% at 50% 46%,
+      rgb(2 10 20 / 0.12),
+      rgb(2 10 20 / 0.55) 58%,
+      rgb(2 8 18 / 0.82) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgb(2 8 18 / 0.68),
+      rgb(2 8 18 / 0.22) 26%,
+      rgb(2 8 18 / 0.3) 68%,
+      rgb(2 8 18 / 0.66)
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade {
+    animation: none;
+  }
+
+  /* The clip is parked on a frame from its closing hold instead of played, and
+     the component marks the sequence built straight away — so these two are
+     shown rather than hidden, they just arrive without travelling. */
+  .hero-er,
+  .hero-evolution__track {
+    transition: none;
+  }
+}

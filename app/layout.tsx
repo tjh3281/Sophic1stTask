@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
@@ -13,6 +13,26 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+/**
+ * Display face, used only for the "er" in the home hero.
+ *
+ * Stands in for Chase Grotesk, which is a commercial licence rather than
+ * something that can be pulled from a font CDN. Archivo Black is the nearest
+ * thing that ships free: a single-weight grotesque drawn for display, with the
+ * same very heavy strokes, tight counters and slightly squared bowls. Swap the
+ * real face in here if the licence is bought — nothing else has to change,
+ * since everything downstream goes through --font-display.
+ *
+ * It carries one weight and that weight is already black, so anything setting
+ * it must ask for 400. A font-weight of 700 against a family that has no bold
+ * makes the browser smear the outlines into a fake one.
+ */
+const archivoBlack = Archivo_Black({
+  variable: "--font-display",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -49,16 +69,18 @@ export default function RootLayout({
       // Tells Next the smooth scrolling in globals.css is deliberate, so it
       // suppresses it during route transitions rather than animating those too.
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        {/* Reveal starts its children hidden and shows them from JS. Without
-            JS there is no observer to run, so opt out of the motion entirely. */}
+        {/* Reveal starts its children hidden and shows them from JS, and the
+            home page's medal starts parked above its section for the same
+            reason. Without JS there is no observer to run, so opt out of the
+            motion entirely and show both where they were going to end up. */}
         <noscript>
           <style
             dangerouslySetInnerHTML={{
               __html:
-                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}",
+                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}.medal-hang__arm{translate:none}.medal-hang::before{opacity:1}",
             }}
           />
         </noscript>

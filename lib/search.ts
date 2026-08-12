@@ -68,12 +68,42 @@ function buildIndex(): SearchEntry[] {
       title: "Home",
       href: home,
       breadcrumb: "Sophic Automation",
-      summary: "Four solution categories, one automation partner.",
+      summary: "Transforming your business.",
       lower: {
         title: "home",
         breadcrumb: "sophic automation",
+        summary: "transforming your business",
+        // The awards section lives on this page and nowhere else, so the
+        // certifications printed on its medal have to be findable from here or
+        // they are not findable at all.
+        keywords:
+          "start landing index main page front sophic automation " +
+          "awards certifications certified accreditation recognition " +
+          "iso 9001 2015 quality management system " +
+          "iso iec 27001 2022 information security management system " +
+          "dun bradstreet business eminence awards 2024 malaysia " +
+          "intel partner gold",
+      },
+    },
+    {
+      // Its own entry since the overview moved off the root. It keeps the
+      // "four categories" line, which is what somebody typing "solutions" or
+      // "overview" is actually looking for — and which used to be filed under
+      // Home purely because that is where the page happened to live.
+      id: "solutions",
+      kind: "category",
+      title: "Solutions",
+      href: "/solutions",
+      breadcrumb: "Sophic Automation",
+      summary: "Four solution categories, one automation partner.",
+      lower: {
+        title: "solutions",
+        breadcrumb: "sophic automation",
         summary: "four solution categories, one automation partner",
-        keywords: "overview start landing index main page",
+        keywords: lower(
+          "overview all solutions capabilities what we do services catalogue",
+          ...SOLUTIONS.map((solution) => solution.title),
+        ),
       },
     },
     {

@@ -1,0 +1,22 @@
+/* Styles for DarkVeil, from React Bits.
+
+   The canvas inside is OGL's, appended by the component rather than rendered by
+   React — see the note in DarkVeil.tsx — so it is styled by descendant rather
+   than by a class on a JSX element.
+
+   Both fill whatever box the wrapper is given. The drawing buffer is a separate
+   matter: resolutionScale deliberately renders the field smaller than it is
+   displayed, and the component resets these two dimensions after every resize
+   to keep that from shrinking the element itself. */
+
+.dark-veil {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dark-veil__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,29 @@
+/* Styles for ParticleText, from React Bits.
+
+   Two changes from upstream:
+
+     - No min-height. The box is the sampling area as well as the drawing area,
+       so the caller has to size it deliberately — a default that quietly wins
+       against whatever height it is given is worse than no default at all.
+
+     - No `touch-action: none`. Upstream turns off touch gestures so the pointer
+       repel can track a finger. On a heading that spans the top of a page, the
+       gesture a finger is making is a scroll, and swallowing it strands the
+       reader. */
+
+.particle-text {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.particle-text__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}

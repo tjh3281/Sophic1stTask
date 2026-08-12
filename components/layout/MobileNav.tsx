@@ -82,6 +82,17 @@ export function MobileNav({
                       {item.label}
                     </p>
                     <ul className="space-y-1">
+                      {/* Matches the desktop menu: the overview sits above the
+                          four categories it covers, since the "Solution"
+                          heading here is a label rather than a link. */}
+                      <li>
+                        <Link
+                          href="/solutions"
+                          className="block rounded-md px-1 py-2 text-sm font-medium text-brand"
+                        >
+                          All solutions
+                        </Link>
+                      </li>
                       {SOLUTIONS.map((solution) => {
                         const isExpanded = expanded === solution.slug;
                         return (

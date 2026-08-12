@@ -9,7 +9,13 @@ import type { Route } from "next";
  */
 export type HeaderNavItem = {
   label: string;
-  /** Opens the solutions mega menu instead of acting as a plain button. */
+  /**
+   * Expands into the category list inside the mobile drawer.
+   *
+   * Only the drawer reads this. On the bar the item is an ordinary link like
+   * every other one: it used to open a mega menu on hover, which put a panel
+   * between the reader and a page they were already pointing at.
+   */
   hasMenu?: boolean;
   /** Rendered as the filled call-to-action at the end of the bar. */
   cta?: boolean;
@@ -22,7 +28,7 @@ export type HeaderNavItem = {
 
 export const HEADER_NAV: HeaderNavItem[] = [
   { label: "Company" },
-  { label: "Solution", hasMenu: true },
+  { label: "Solution", hasMenu: true, href: "/solutions" },
   { label: "Partners" },
   { label: "Careers", href: "/careers" },
   { label: "Community" },

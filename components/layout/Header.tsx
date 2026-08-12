@@ -13,7 +13,6 @@ import { MobileNav } from "./MobileNav";
 import { NavButton } from "./NavButton";
 import { SearchDialog } from "./SearchDialog";
 import { SearchTrigger } from "./SearchTrigger";
-import { SolutionsMenu } from "./SolutionsMenu";
 
 /**
  * Pages whose cover runs underneath the header.
@@ -34,6 +33,7 @@ import { SolutionsMenu } from "./SolutionsMenu";
  */
 const COVER_ROUTES = new Set<string>([
   ...SOLUTIONS.filter((s) => s.coverImage).map((s) => s.href),
+  "/",
   "/careers",
   "/careers/openings",
 ]);
@@ -144,16 +144,16 @@ export function Header() {
                     </li>
                   )}
                   <li>
-                    {item.hasMenu ? (
-                      <SolutionsMenu overlay={overlay} blocked={searchOpen} />
-                    ) : (
-                      <NavButton
-                        label={item.label}
-                        href={item.href}
-                        cta={item.cta}
-                        overlay={overlay}
-                      />
-                    )}
+                    {/* Every item on the bar is the same thing now, including
+                        Solution. It used to open a mega menu on hover, which
+                        meant the one nav item that had somewhere to go was the
+                        one you could not simply click. */}
+                    <NavButton
+                      label={item.label}
+                      href={item.href}
+                      cta={item.cta}
+                      overlay={overlay}
+                    />
                   </li>
                 </Fragment>
               ))}

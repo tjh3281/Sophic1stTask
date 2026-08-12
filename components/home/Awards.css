@@ -1,0 +1,21 @@
+/* --- Awards section ------------------------------------------------------
+   The medal and its motion live in MedalDrop.css. This is only the ground it
+   hangs against.
+-------------------------------------------------------------------------- */
+
+.awards {
+  /* The join with the hero.
+
+     The hero ends on a lit shader under a scrim; this section is a flat
+     colour. Both are nominally #04101c, but a field with a shader in it is
+     never quite the colour it was given, so butting the two together leaves a
+     step in value running the full width of the page — directly across the
+     part of the ribbon that is supposed to be arriving from somewhere above.
+
+     Opening a shade darker than the section and resolving into it turns that
+     step into a place where the light simply runs out. It cannot match the
+     hero exactly, since what is above the line moves and this does not, but
+     an approximate match spread over three hundred pixels is invisible where
+     an exact edge is not. */
+  background-image: linear-gradient(to bottom, #020a13 0, #04101c 300px);
+}
