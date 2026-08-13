@@ -1,0 +1,25 @@
+/* Styles for ClickSpark, from React Bits.
+
+   Upstream sets these inline and forces the wrapper to 100% by 100%, which
+   only resolves inside a parent that already has a height. This one is a plain
+   block that takes the height of what it wraps, so it can go around a section
+   of ordinary flowing content. */
+
+.click-spark {
+  position: relative;
+}
+
+.click-spark__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* The canvas covers everything the wrapper holds, so without this it would
+     swallow every press meant for the page underneath — including the one that
+     was supposed to strike the spark. */
+  pointer-events: none;
+  /* Nothing here is text, but a canvas laid over a paragraph still ends up
+     inside a drag selection. */
+  user-select: none;
+}

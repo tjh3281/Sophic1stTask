@@ -37,6 +37,17 @@ export type Office = {
    *  a break belongs. */
   lines: string[];
   phones?: string[];
+  /**
+   * What to type into Google Maps to land on this exact pin, where the printed
+   * address does not find it on its own.
+   *
+   * Kept apart from `lines` rather than folded into it, because the two are
+   * answering different questions. `lines` is what Sophic prints on its own
+   * material and is the address as the company writes it; this is whatever
+   * string Google happens to index the place under. They are allowed to differ
+   * and here they do — see the headquarters below.
+   */
+  mapsQuery?: string;
 };
 
 export const OFFICES: Office[] = [
@@ -48,6 +59,13 @@ export const OFFICES: Office[] = [
       "14000 Bukit Mertajam, Penang.",
     ],
     phones: ["(604) 202 3305", "(604) 508 9737"],
+    // The printed address alone lands on the wrong place. The listing name and
+    // the state are both taken verbatim from the Google entry — note "Pulau
+    // Pinang" where the line above says "Penang", which is the same state in
+    // the other language and is what Google indexes it under.
+    mapsQuery:
+      "Sophic Automation Sdn Bhd (Headquarter | BM -Tangkas), 9, Jln Industri" +
+      " Tangkas 1, Taman Industri Tangkas, 14000 Bukit Mertajam, Pulau Pinang",
   },
   {
     name: "Penang Branch",
@@ -73,6 +91,39 @@ export const OFFICES: Office[] = [
     lines: ["28 Sin Ming Lane, #03-146,", "Midview City, Singapore 573972."],
   },
 ];
+
+/**
+ * A Google Maps link for one office.
+ *
+ * Built from the office above rather than a pasted map URL, so an office that
+ * moves takes its pin with it — a hard-coded place ID or a set of coordinates
+ * is a second copy of the address that nothing on the page can keep honest.
+ *
+ * The default is the address alone, with the company name deliberately left
+ * out: Google resolves a business name to its primary listing, so "Sophic
+ * Automation" plus a branch address can land every pin on the headquarters,
+ * which is exactly the distinction these links exist to make. A full street
+ * address usually resolves to itself.
+ *
+ * Usually. The headquarters is the case where it does not, and `mapsQuery` is
+ * the escape hatch for it — a verified string that finds the right place,
+ * used verbatim. Anything set there should be read off Google's own entry
+ * rather than composed here, because the whole reason it exists is that what
+ * Google indexes and what the company prints are not the same words.
+ *
+ * `search/?api=1` rather than a maps.google.com path: it is Google's supported
+ * URL contract, and it opens the app rather than the website where one is
+ * installed.
+ */
+export function officeMapsUrl(office: Office): string {
+  const query = office.mapsQuery ?? office.lines.join(" ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+/** The office with this internal building name, or undefined. */
+export function officeByAlias(alias: string): Office | undefined {
+  return OFFICES.find((office) => office.alias === alias);
+}
 
 export type EnquiryOption = { value: string; label: string };
 export type EnquiryGroup = { label: string; options: EnquiryOption[] };

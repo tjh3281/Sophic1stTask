@@ -36,6 +36,7 @@ const COVER_ROUTES = new Set<string>([
   "/",
   "/careers",
   "/careers/openings",
+  "/company",
 ]);
 
 export function Header() {

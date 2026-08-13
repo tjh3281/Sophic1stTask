@@ -1,0 +1,51 @@
+/* --- Anniversary band ----------------------------------------------------
+   The sky the fireworks go off in. The bursts themselves are in
+   Fireworks.css; this is only the ground behind them.
+
+   Written here rather than as utilities because it is three layers of one
+   property, and the whole point of the composition is how they sit on top of
+   each other. A stack of arbitrary-value background utilities would say the
+   same thing in a form nobody can read.
+-------------------------------------------------------------------------- */
+
+.anniversary {
+  /* The hero's own dark, to the digit. The page opens on this colour and
+     closes on it, and anything near-but-not-quite would read as a mistake to
+     anyone who scrolled between the two quickly. */
+  background-color: #04101c;
+
+  /* Both stops end on the layer's own colour at zero alpha rather than on the
+     keyword `transparent`. They are not the same thing: `transparent` is
+     transparent *black*, so a gradient running to it passes through a grey
+     haze on the way — visible as a dirty ring around a wide, soft glow like
+     these two. */
+  background-image:
+    /* High and central: the light the bursts are going off in, which is also
+       what lifts the wordmark and the heading off the ground behind them. */
+    radial-gradient(
+      75% 55% at 50% 6%,
+      rgb(14 76 132 / 0.5),
+      rgb(14 76 132 / 0) 70%
+    ),
+    /* And a horizon under the closing line, in the accent teal, so the band
+       does not simply run out into flat black at the bottom of the page. */
+    radial-gradient(
+      120% 55% at 50% 112%,
+      rgb(41 168 184 / 0.2),
+      rgb(41 168 184 / 0) 72%
+    );
+}
+
+/* The rays' box. The component fills whatever it is given and knows nothing
+   about where it sits, so the placing is here.
+
+   Screen, for the same reason the fireworks blend that way: this is light, and
+   light adds. Laid over the sky normally, the fan's own dark half would sit on
+   the gradient as a grey film — the falloff would be painting *shadow* into a
+   night sky, which is the one thing it cannot mean. */
+.anniversary__rays {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}

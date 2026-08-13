@@ -1,0 +1,263 @@
+/* --- The company scene ---------------------------------------------------
+   Placing and motion for the five pieces, and the label each building shows
+   when you point at it. What decides *when* the build runs is in
+   CompanyScene.tsx; everything about where things stand and how they grow is
+   here.
+
+   The whole scene is one box with a fixed aspect ratio, and every piece is
+   positioned as a percentage of it. That is what lets it scale from a phone to
+   a wide column without a single breakpoint: the buildings cannot drift off
+   the grass, because none of these numbers is a length.
+
+   The numbers come from the reference artwork, 927 x 497, read as hundredths
+   of its width:
+
+     ground line (where both buildings stand)   49.9
+     scene height                               53.6
+
+   which is where the aspect ratio below and the 6.9% bottom offset come from.
+   Both buildings share that one baseline, so they stand on the same ground
+   rather than each on its own.
+-------------------------------------------------------------------------- */
+
+.company-scene {
+  position: relative;
+  width: 100%;
+  /* 927 / 497, the reference. Stated rather than implied by the contents,
+     because every child is absolutely positioned and would otherwise leave
+     this box with no height at all. */
+  aspect-ratio: 927 / 497;
+  /* The bushes at either end run off the edge of the scene by design, the way
+     they do in the reference — grass that stops neatly inside the frame reads
+     as a rug rather than as ground.
+
+     It also clips the labels, which is why neither of them is placed anywhere
+     near the top edge. See --label-y in CompanyScene.tsx. */
+  overflow: hidden;
+  /* So the labels can size themselves against the scene rather than the
+     viewport: this drawing is a third of a wide page and the whole of a narrow
+     one, and a label set in rem is either too big at one end or unreadable at
+     the other. */
+  container-type: inline-size;
+}
+
+/* --- The pieces ----------------------------------------------------------
+   `__piece` is only ever the animated artwork. Where a thing sits is on its
+   own placement rule below — for the bushes that is the image itself, and for
+   the buildings it is the link wrapped around one.
+-------------------------------------------------------------------------- */
+
+.company-scene__piece {
+  /* The resting state before the build, and the state a piece is left in if
+     the observer never fires: not there yet. Repeated by the keyframes, so
+     these two can never disagree about where the animation starts. */
+  clip-path: inset(100% 0 0 0);
+  translate: 0 5%;
+  opacity: 0;
+}
+
+.company-scene__decor {
+  position: absolute;
+  height: auto;
+  /* Tailwind's Preflight caps images at `max-width: 100%`, which here is the
+     width of a containing block that these are positioned against — and would
+     quietly refuse the widths set below. */
+  max-width: none;
+  /* The bushes are painted over the foot of both buildings. Without this they
+     would swallow every click aimed at the doorstep of either. */
+  pointer-events: none;
+}
+
+.company-scene__site {
+  position: absolute;
+  display: block;
+}
+
+.company-scene__site img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+
+/* Answering the pointer. A filter rather than a transform: the artwork is
+   mid-animation-fill for the first two seconds, and an animation's fill beats
+   a plain declaration — a hover transform would simply be ignored until the
+   build finished. Nothing touches `filter`, so it is always free. */
+.company-scene__site img {
+  transition: filter 200ms var(--ease-gentle);
+}
+
+.company-scene__site:hover img,
+.company-scene__site:focus-visible img {
+  filter: drop-shadow(0 6px 14px rgb(15 23 42 / 0.28));
+}
+
+/* --- Where each piece stands ---------------------------------------------
+   Buildings are given a width and a bottom offset; their height follows from
+   the artwork's own proportions. The bushes all sit on the floor of the scene,
+   which puts their tops a little above and a little below the building
+   baseline — the uneven line that makes it read as planting rather than as a
+   border.
+-------------------------------------------------------------------------- */
+
+.company-scene__building-1 {
+  left: 3.5%;
+  bottom: 6.9%;
+  width: 36.5%;
+}
+
+.company-scene__building-2 {
+  left: 48%;
+  bottom: 6.9%;
+  width: 51.5%;
+}
+
+.company-scene__grass-1 {
+  left: -0.5%;
+  bottom: 0;
+  width: 42%;
+}
+
+.company-scene__grass-2 {
+  left: 30%;
+  bottom: 0;
+  width: 45%;
+}
+
+.company-scene__grass-3 {
+  left: 60%;
+  bottom: 0;
+  width: 41%;
+}
+
+/* --- The label -----------------------------------------------------------
+   A dark chip with a caret under it, centred on its building and shown while
+   the building is hovered or focused.
+
+   Sized in container units, so it tracks the drawing rather than the page.
+   clamp() holds it between something a phone can still read and something a
+   wide column does not blow up into a banner.
+-------------------------------------------------------------------------- */
+
+.company-scene__label {
+  position: absolute;
+  left: 50%;
+  top: var(--label-y, 8%);
+  z-index: 2;
+  display: block;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  background: rgb(15 23 42 / 0.94);
+  padding: 0.45em 0.7em;
+  text-align: center;
+  font-size: clamp(0.5625rem, 1.55cqw, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgb(15 23 42 / 0.6);
+  /* It sits over its own link. Left live it would swallow the click it is
+     inviting, and flicker as the pointer crossed its edge. */
+  pointer-events: none;
+  opacity: 0;
+  translate: -50% 4px;
+  transition:
+    opacity 180ms var(--ease-gentle),
+    translate 180ms var(--ease-gentle);
+}
+
+.company-scene__label-hint {
+  display: block;
+  margin-top: 0.15em;
+  font-size: 0.82em;
+  font-weight: 500;
+  /* Quieter than the name above it: it is an instruction, not the label. */
+  color: rgb(255 255 255 / 0.62);
+}
+
+/* The caret. Drawn as a rotated square rather than a border triangle so it
+   inherits the chip's own colour and shadow in one declaration. */
+.company-scene__label::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0.62em;
+  height: 0.62em;
+  translate: -50% 42%;
+  rotate: 45deg;
+  background: inherit;
+}
+
+.company-scene__site:hover .company-scene__label,
+.company-scene__site:focus-visible .company-scene__label {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+/* Where there is no pointer there is no hover, and a building that says
+   nothing until you touch it — at which point it navigates — is a control with
+   no affordance at all. On a touch screen both labels simply stay up. */
+@media (hover: none) {
+  .company-scene__label {
+    opacity: 1;
+    translate: -50% 0;
+  }
+}
+
+/* --- The build -----------------------------------------------------------
+   One animation for all five. Order and pace come from the two custom
+   properties the component sets on each piece, so the sequence can be retimed
+   without touching this rule.
+
+   Matched on :not([data-state="idle"]) rather than on the built state by name,
+   so that adding a state later cannot strip the animation and drop the whole
+   scene back into the ground — its resting position lives in the animation's
+   fill, and there is nothing else holding it up.
+-------------------------------------------------------------------------- */
+
+.company-scene:not([data-state="idle"]) .company-scene__piece {
+  animation: company-scene-rise var(--duration, 900ms) var(--delay, 0ms)
+    var(--ease-out-quint) both;
+}
+
+@keyframes company-scene-rise {
+  from {
+    /* Insetting the top edge by 100% leaves a box of no height sitting on the
+       bottom edge. Opening it back to zero uncovers the piece from its base
+       upward, which is the whole effect: the walls grow, the doorstep does not
+       move. */
+    clip-path: inset(100% 0 0 0);
+    translate: 0 5%;
+    opacity: 0;
+  }
+  /* Up to full opacity early and then held. Any longer and the fade is still
+     running while a third of the building is already standing, which reads as
+     a ghost rather than as something being built. */
+  30% {
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Both selector shapes. The bare one alone loses on specificity to the
+     rule above and the scene would still build for a reader who asked it
+     not to. */
+  .company-scene__piece,
+  .company-scene:not([data-state="idle"]) .company-scene__piece {
+    animation: none;
+    clip-path: none;
+    translate: none;
+    opacity: 1;
+  }
+
+  .company-scene__label,
+  .company-scene__site img {
+    transition: none;
+  }
+}

@@ -62,8 +62,38 @@ const HOLD_FRAME = 3;
  * Autoplay can be refused, a file can 404, a decoder can fail. None of those
  * are reasons to leave a word permanently invisible, so every path out of this
  * component ends with the sequence built.
+ *
+ * Showing "er" here is all this does. It used to also stop the component
+ * tracking playback, which turned a slow start into a permanent one: scroll
+ * past the hero inside six seconds and the clip was written off before it had
+ * finished its first cycle, so coming back to the top found it frozen. The
+ * clip is allowed to start late and take over whenever it does.
  */
 const FALLBACK_MS = 6000;
+
+/**
+ * How often to check that a clip which ought to be running actually is.
+ *
+ * Nothing in the media API guarantees that a video which was told to play
+ * stays playing. Chrome suspends decoders in background tabs and does not
+ * always resume them, a stalled buffer can leave the element paused with no
+ * event that says so on every engine, and an autoplay attempt made while the
+ * page was still hidden is simply dropped. Rather than enumerate those, this
+ * asks the one question that covers all of them — should it be playing, and is
+ * it? — and restarts it if the answer differs.
+ */
+const WATCHDOG_MS = 1500;
+
+/**
+ * Off screen for longer than this and the clip starts again from the top on
+ * return, instead of resuming wherever it was paused.
+ *
+ * Coming back to five figures already standing is not the picture this is
+ * meant to make — the whole thing is an assembly, and the assembly is the
+ * point. The threshold is what stops a scroll that overshoots the hero by a
+ * few pixels and comes straight back from restarting it mid-stride.
+ */
+const RESTART_AFTER_MS = 1200;
 
 /** requestVideoFrameCallback is not in every TypeScript lib.dom yet. */
 type FrameCallbackVideo = HTMLVideoElement & {
@@ -82,8 +112,19 @@ export function EvolutionSequence({ src }: { src: string }) {
 
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    /** Playback never got going; hold the finished state and stop tracking. */
-    let stalled = false;
+    /**
+     * The file itself is unusable — a 404, or a decoder that gave up on it.
+     *
+     * This is the only condition that stops the component trying, and it is
+     * deliberately the only one: a media error is the single failure that
+     * retrying cannot fix. Everything else — a refused autoplay, a buffer that
+     * ran dry, a play() call cut short by a pause — is temporary, and treating
+     * any of them as final is what used to leave the figures stopped for the
+     * rest of the visit.
+     */
+    let broken = false;
+    /** Autoplay was refused outright. Cleared by the first user gesture. */
+    let refused = false;
     let everBuilt = false;
     let frameHandle: number | null = null;
 
@@ -94,21 +135,27 @@ export function EvolutionSequence({ src }: { src: string }) {
       }
     };
 
-    const giveUp = () => {
-      if (stalled) return;
-      stalled = true;
+    const onMediaError = () => {
+      broken = true;
       setPhase("built");
     };
 
     const fallback = window.setTimeout(() => {
-      if (!everBuilt) giveUp();
+      if (!everBuilt) setPhase("built");
     }, FALLBACK_MS);
 
     // Reduced motion gets the finished picture rather than the assembly, and
     // no loop: park the clip on a frame inside its hold, where all five are
-    // standing, and leave it there.
+    // standing, and leave it there. The pause is not belt and braces — the
+    // element carries `autoplay`, so without it the clip would be running
+    // before this effect ever gets to look at the media query.
     if (still) {
+      // Twice, and both are needed: now, in case the browser has already
+      // started on it, and again inside park() for the case where metadata has
+      // not arrived yet and autoplay is still to come.
+      video.pause();
       const park = () => {
+        video.pause();
         try {
           video.currentTime = Math.min(HOLD_FRAME, video.duration || HOLD_FRAME);
         } catch {
@@ -127,7 +174,7 @@ export function EvolutionSequence({ src }: { src: string }) {
     }
 
     const tick = () => {
-      if (stalled) return;
+      if (broken) return;
       const t = video.currentTime;
       setPhase(t >= SETTLE_AT && t < CLEAR_AT ? "built" : "playing");
     };
@@ -138,7 +185,7 @@ export function EvolutionSequence({ src }: { src: string }) {
     // absorb its coarser resolution.
     const watch = () => {
       frameHandle = null;
-      if (stalled || video.paused) return;
+      if (broken || video.paused) return;
       tick();
       if (video.requestVideoFrameCallback) {
         frameHandle = video.requestVideoFrameCallback(watch);
@@ -146,7 +193,7 @@ export function EvolutionSequence({ src }: { src: string }) {
     };
 
     const startWatching = () => {
-      if (frameHandle === null && video.requestVideoFrameCallback && !stalled) {
+      if (frameHandle === null && video.requestVideoFrameCallback && !broken) {
         frameHandle = video.requestVideoFrameCallback(watch);
       }
     };
@@ -160,21 +207,66 @@ export function EvolutionSequence({ src }: { src: string }) {
 
     video.addEventListener("playing", startWatching);
     video.addEventListener("timeupdate", tick);
-    video.addEventListener("error", giveUp);
+    video.addEventListener("error", onMediaError);
 
     // It loops for as long as the page is open, so it does not get to run while
     // nobody is looking at it — this sits at the top of the page and would
     // otherwise decode video the entire time someone reads the bottom of it.
     let onScreen = true;
+    /** When it went off screen, or 0 while it is on. */
+    let leftAt = 0;
+
     const resume = () => {
-      if (stalled || !onScreen || document.hidden) return;
-      void video.play().catch(giveUp);
+      if (broken || refused || !onScreen || document.hidden) return;
+
+      if (leftAt && performance.now() - leftAt > RESTART_AFTER_MS) {
+        try {
+          video.currentTime = 0;
+        } catch {
+          // Not seekable yet. It will pick up wherever it left off, which is
+          // the old behaviour rather than a failure.
+        }
+      }
+      leftAt = 0;
+
+      void video.play().catch((error: unknown) => {
+        // Two quite different things arrive here and only one is a problem.
+        //
+        // AbortError is the ordinary one: play() returns a promise that
+        // settles a frame or two later, and pausing before then rejects it.
+        // Every scroll that carries the hero off screen mid-start does
+        // exactly that, so this is a routine event and not a fault. It used
+        // to be treated as one, which is what stopped the clip for good.
+        //
+        // NotAllowedError means the browser refused autoplay outright, and
+        // hammering play() at it will not change its mind — only a gesture
+        // will, so stand down until there is one.
+        if ((error as DOMException)?.name === "NotAllowedError") {
+          refused = true;
+          setPhase("built");
+          window.addEventListener("pointerdown", onGesture, { once: true });
+        }
+      });
+
       startWatching();
     };
+
     const suspend = () => {
+      leftAt = performance.now();
       video.pause();
       stopWatching();
     };
+
+    const onGesture = () => {
+      refused = false;
+      resume();
+    };
+
+    // An unexpected pause: a background tab that suspended the decoder, or an
+    // engine that stopped on a dry buffer. Ours always come from suspend(),
+    // where the guards in resume() decline to undo them.
+    const onPause = () => resume();
+    video.addEventListener("pause", onPause);
 
     let io: IntersectionObserver | undefined;
     if (typeof IntersectionObserver === "undefined") {
@@ -199,14 +291,27 @@ export function EvolutionSequence({ src }: { src: string }) {
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
 
+    // The backstop. Everything above reacts to an event that says something
+    // went wrong; this one needs no such event, which is the point — the
+    // failures that leave a clip stopped are exactly the ones that arrive
+    // quietly.
+    const watchdog = window.setInterval(() => {
+      if (broken || refused || !onScreen || document.hidden) return;
+      if (video.paused) resume();
+      else startWatching();
+    }, WATCHDOG_MS);
+
     return () => {
       window.clearTimeout(fallback);
+      window.clearInterval(watchdog);
       stopWatching();
       io?.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pointerdown", onGesture);
       video.removeEventListener("playing", startWatching);
       video.removeEventListener("timeupdate", tick);
-      video.removeEventListener("error", giveUp);
+      video.removeEventListener("pause", onPause);
+      video.removeEventListener("error", onMediaError);
     };
   }, []);
 
@@ -233,6 +338,11 @@ export function EvolutionSequence({ src }: { src: string }) {
             src={src}
             muted
             loop
+            // Starts without waiting for hydration, and gives the browser its
+            // own reason to keep it running. The effect above still owns when
+            // it plays — it pauses this immediately under reduced motion, and
+            // whenever the hero is off screen.
+            autoPlay
             playsInline
             preload="auto"
             disablePictureInPicture

@@ -1,101 +1,79 @@
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { MedalDrop } from "./MedalDrop";
 import "./Awards.css";
 
-/**
- * What is stamped on the face of the medal, set again as text.
- *
- * The disc is 268px of artwork carrying four credentials in type a couple of
- * pixels tall. It is a picture of the awards, not a statement of them — so the
- * statement lives here, where it can be read, indexed, translated and heard.
- */
-const CREDENTIALS = [
-  {
-    name: "ISO 9001:2015",
-    detail: "Quality Management System — certified",
-  },
-  {
-    name: "ISO/IEC 27001:2022",
-    detail: "Information Security Management System",
-  },
-  {
-    name: "Business Eminence Awards 2024",
-    detail: "Dun & Bradstreet Malaysia",
-  },
-  {
-    name: "Intel Partner",
-    detail: "Gold tier",
-  },
-];
+/** The commemorative certificate, at its native proportions. */
+const CERTIFICATE = {
+  src: "/images/latest-sophic-certificate.png",
+  width: 1054,
+  height: 1492,
+};
 
 /**
- * The second screen of the home page: the awards, hanging.
+ * The second screen of the home page: the medal, and the certificate it
+ * belongs to.
  *
- * Dark, and the same dark the hero ends on, so the two read as one stage
- * rather than as a dark page followed by another one. That is not only mood —
- * the medal is lowered from above the section's top edge, and a seam there
- * would turn "arriving from off-screen" into "sliding out from behind a line".
- * It also gives the silver something to be silver against; on white the disc
- * and the ribbon's white stripe both wash out.
+ * White, against the hero's dark. The two are meant to read as separate
+ * things, and here that break does real work: the medal is lowered from above
+ * this section's top edge, so the colour change is what the ribbon appears to
+ * come out from behind. On a shared background the same clip is an invisible
+ * line the ribbon simply stops at.
  *
- * The clip is load-bearing. `overflow-hidden` is what holds the rig off-screen
- * before it drops, and it is the only thing doing so — the rig's own box sits
- * at the top of this section with the pieces translated up out of it.
+ * The clip that hides the medal before it drops is in Awards.css rather than
+ * on the element, because which kind of clip it is decides whether the medal
+ * can stick at all. See the note there.
  */
 export function Awards() {
   return (
-    <section className="awards relative isolate overflow-hidden bg-[#04101c] pb-20 text-white sm:pb-28">
+    <section className="awards relative isolate bg-white pb-20 sm:pb-28">
       <Container>
-        {/* Two columns from lg, and the medal's column is deliberately the
-            narrow one: it hangs from the top of the section, so it sets where
-            the section starts rather than how wide it is. The copy is centred
-            against it rather than pinned to the top, which keeps the whole
-            composition inside one screen — stacked, the rig alone is most of a
-            viewport tall and the heading ends up below the fold. */}
-        <div className="grid items-start gap-x-14 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+        {/* The section's picture is a medal and a certificate, and neither is
+            a heading. This is here so the page still has an outline to
+            navigate by; what it says is on the certificate below. */}
+        <h2 className="sr-only">Awards and certifications</h2>
+
+        {/* The medal's column is left to stretch to the row while the rig
+            inside it sticks. Sticking the grid item itself would do nothing:
+            a `self-start` item is only as tall as its contents, and a sticky
+            element with no room left to travel in its parent never moves. */}
+        <div className="grid gap-x-14 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+          {/* Flex at every width, including where it only holds one thing.
+              A block parent would collapse the rig's negative top margin out
+              into itself and the grid item above it, which moves the clip the
+              margin exists to create; a flex container does not collapse its
+              items' margins, so the offset stays where it was measured. */}
+          {/* items-start is not decoration. A flex container stretches its
+              items to its own height by default, and this one is a grid item
+              stretched to the full row — so the sticky child would be as tall
+              as the space it is meant to move around in, and stick to
+              nothing. */}
           <div className="flex items-start justify-center lg:justify-start">
-            <MedalDrop />
+            {/* The offset is negative so that the ribbon's cut top edge is
+                held above the window rather than stopping in clear white a
+                little below the header — which is the same gap this is all
+                about, just in the pinned state instead of the parked one.
+                Below lg the two stack, so there is no second column for the
+                medal to stay beside: it simply leads the section. */}
+            <div className="lg:sticky lg:-top-8">
+              <MedalDrop />
+            </div>
           </div>
 
-          <Reveal className="lg:self-center">
-            <div className="mx-auto mt-12 max-w-2xl text-center lg:mx-0 lg:mt-0 lg:text-left">
-              <div className="flex items-center justify-center gap-3 lg:justify-start">
-                <span
-                  aria-hidden="true"
-                  className="h-px w-9 shrink-0 bg-[#5ec8e0]"
-                />
-                <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-[#5ec8e0]">
-                  Recognition
-                </p>
-              </div>
-
-              <h2 className="mt-4 text-[2rem] font-bold leading-[1.12] tracking-[-0.03em] sm:text-[2.75rem]">
-                Awards &amp; Certifications
-              </h2>
-
-              <p className="mt-5 text-base leading-relaxed text-white/65 sm:text-lg">
-                Quality and security you can check rather than take on trust.
-                Every line below is an independent audit or a partner programme,
-                each held current and re-examined on its own schedule.
-              </p>
-
-              <ul className="mt-8 grid gap-3 text-left sm:grid-cols-2">
-                {CREDENTIALS.map((credential) => (
-                  <li
-                    key={credential.name}
-                    className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3.5"
-                  >
-                    <p className="text-sm font-semibold tracking-tight">
-                      {credential.name}
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-white/55">
-                      {credential.detail}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <Reveal className="mt-14 lg:mt-24">
+            {/* The page under it is white and so is most of the certificate,
+                so it needs an edge of its own or it dissolves into the page.
+                A hairline and a low, wide shadow — the document sitting on the
+                page rather than a framed picture of one. */}
+            <Image
+              src={CERTIFICATE.src}
+              alt="Commemorative certificate: Sophic Automation Sdn. Bhd., industrial automation solutions, established 2007, Penang, Malaysia. Celebrating 20 years of innovation and excellence. For twenty years Sophic Automation has been driving industrial progress through innovative automation solutions, engineering expertise, and a steadfast commitment to excellence — from manufacturing and assembly to smart factory integration."
+              width={CERTIFICATE.width}
+              height={CERTIFICATE.height}
+              sizes="(min-width: 1024px) 46rem, 100vw"
+              className="mx-auto h-auto w-full max-w-[46rem] rounded-sm shadow-[0_22px_60px_-24px_rgb(15_23_42/0.4)] ring-1 ring-slate-900/10"
+            />
           </Reveal>
         </div>
       </Container>

@@ -72,15 +72,17 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        {/* Reveal starts its children hidden and shows them from JS, and the
-            home page's medal starts parked above its section for the same
+        {/* Reveal starts its children hidden and shows them from JS; the home
+            page's medal starts parked above its section and the company
+            page's buildings start clipped into the ground for the same
             reason. Without JS there is no observer to run, so opt out of the
-            motion entirely and show both where they were going to end up. */}
+            motion entirely and show all three where they were going to end
+            up. */}
         <noscript>
           <style
             dangerouslySetInnerHTML={{
               __html:
-                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}.medal-hang__arm{translate:none}.medal-hang::before{opacity:1}",
+                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}.medal-hang__arm{translate:none}.company-scene__piece{clip-path:none;translate:none;opacity:1}",
             }}
           />
         </noscript>

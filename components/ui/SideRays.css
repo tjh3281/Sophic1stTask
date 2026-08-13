@@ -1,0 +1,26 @@
+/* Styles for SideRays, from React Bits.
+
+   The canvas inside is OGL's, appended by the component rather than rendered by
+   React — see the note in SideRays.tsx — so it is styled by descendant rather
+   than by a class on a JSX element.
+
+   Upstream ships this with `z-index: 3` and `position: relative`, which is a
+   guess about what it will be layered against; here the placement is the
+   caller's business and this only says how big it is. */
+
+.side-rays {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* It is a light source, not a surface: nothing here should ever be the
+     target of a click, least of all in a section that now answers them. */
+  pointer-events: none;
+  /* The fan runs off the corner it is thrown from. */
+  overflow: hidden;
+}
+
+.side-rays__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

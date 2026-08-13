@@ -1,0 +1,53 @@
+/* --- Fireworks -----------------------------------------------------------
+   The layer the bursts are placed on. Where each one sits comes from the
+   component as custom properties; what a burst *is* is here.
+
+   Nothing in this file animates. The movement is all inside the Lottie, and
+   the player writes it onto elements it owns — so there is no keyframe here to
+   fall out of step with it, and no prefers-reduced-motion rule either: at that
+   setting the component never loads the player, and these boxes stay empty.
+-------------------------------------------------------------------------- */
+
+.fireworks {
+  position: absolute;
+  inset: 0;
+  /* Bursts are placed by their centres and are wider than the margins they sit
+     in, so the outer two hang off the side of the band by design. */
+  overflow: hidden;
+  /* It covers the whole section, heading and all. */
+  pointer-events: none;
+}
+
+.fireworks__burst {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  /* The artboard is 900×900, so one number places and sizes a burst: the
+     height follows the width and the frame never distorts. */
+  width: calc(var(--w) * var(--burst-scale, 1));
+  aspect-ratio: 1;
+  /* Hung from its centre rather than its top-left corner, which is what makes
+     the coordinates above mean the middle of the explosion. */
+  translate: -50% -50%;
+  opacity: var(--o);
+  /* Screen rather than normal. Sparks should add light to the sky the way real
+     ones do, and screen against a dark ground does exactly that — it also
+     leaves everything transparent in the frame (which is most of it) with no
+     effect at all, so the empty half of each artboard costs nothing visually.
+
+     This makes each burst its own stacking context, which is fine. What it
+     must not do is isolate the parent: an `isolation: isolate` on .fireworks
+     would cut the bursts off from the background they are meant to blend with
+     and they would go back to sitting on it as flat shapes. */
+  mix-blend-mode: screen;
+}
+
+/* On a phone the band is one narrow column and the bursts are placed in what
+   little margin there is, so at their measured size they read as sparks rather
+   than fireworks. Scaling them up puts more of each one off the edge of the
+   screen, which is the right way round — a firework seen from underneath. */
+@media (max-width: 39.99rem) {
+  .fireworks {
+    --burst-scale: 1.6;
+  }
+}

@@ -92,16 +92,15 @@ export function MedalDrop() {
   }, []);
 
   return (
-    // Decorative. Every credential on the disc is set as real text beside it,
-    // and the face is too small to read at the size it hangs at — announcing
-    // the image as well would only read the list out twice.
-    <div
-      ref={rootRef}
-      aria-hidden="true"
-      data-state="idle"
-      className="medal-hang"
-    >
+    <div ref={rootRef} data-state="idle" className="medal-hang">
       <div className="medal-hang__arm">
+        {/* The ribbon and the clasp are decorative — they are how the medal
+            hangs, not what it says. The disc carries the alt text for all
+            three, because the credentials stamped on its face are now the
+            only place they are stated: the list that used to sit beside it
+            has been replaced by the certificate. Its own type is a couple of
+            pixels tall at this size, so nobody is reading it off the picture
+            either way. */}
         <Image
           className="medal-hang__ribbon"
           src="/images/medal-ribbon.png"
@@ -110,19 +109,14 @@ export function MedalDrop() {
           height={330}
         />
         {/* The clasp's own anchor, at the point the ribbon's two straps
-            converge. The disc hangs inside it, and is written first so the
-            clasp paints over the top of it — the medal's top edge belongs
-            behind the loop it is threaded onto, not in front of it. */}
+            converge. Both the clasp and the disc hang off it. */}
         <div className="medal-hang__joint">
-          <div className="medal-hang__swivel">
-            <Image
-              className="medal-hang__disc"
-              src="/images/medal-disc.png"
-              alt=""
-              width={268}
-              height={271}
-            />
-          </div>
+          {/* Written before the disc so it paints behind it. A clasp is a
+              loop the ribbon is threaded through and the medal hangs off; the
+              medal's top edge covers its lower part, not the other way round.
+              Painted over the disc it read as a bar laid across the face of
+              the medal — the one part of the rig that looked stuck on rather
+              than assembled. */}
           <Image
             className="medal-hang__clasp"
             src="/images/medal-clasp.png"
@@ -130,6 +124,15 @@ export function MedalDrop() {
             width={142}
             height={43}
           />
+          <div className="medal-hang__swivel">
+            <Image
+              className="medal-hang__disc"
+              src="/images/medal-disc.png"
+              alt="Sophic Automation awards and certifications: ISO 9001:2015 Quality Management System, ISO/IEC 27001:2022 Information Security Management System, Dun & Bradstreet Business Eminence Awards 2024 Malaysia, and Intel Partner Gold."
+              width={268}
+              height={271}
+            />
+          </div>
         </div>
       </div>
     </div>

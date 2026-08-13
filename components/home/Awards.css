@@ -1,21 +1,43 @@
 /* --- Awards section ------------------------------------------------------
    The medal and its motion live in MedalDrop.css. This is only the ground it
    hangs against.
+
+   Almost nothing left: the section is plain white, which the utility on the
+   element says on its own. What is here is the one thing utilities cannot
+   express — the edge where this meets the hero.
+
+   The medal's sticky offset is a utility too (lg:top-24), and it is not
+   arbitrary: the header is fixed and 4rem tall, so anything less parks the
+   ribbon behind it.
 -------------------------------------------------------------------------- */
 
 .awards {
-  /* The join with the hero.
+  /* Two declarations of the same property, and both are load-bearing.
+     Written here rather than as a utility because a utility can only emit
+     one of them.
 
-     The hero ends on a lit shader under a scrim; this section is a flat
-     colour. Both are nominally #04101c, but a field with a shader in it is
-     never quite the colour it was given, so butting the two together leaves a
-     step in value running the full width of the page — directly across the
-     part of the ribbon that is supposed to be arriving from somewhere above.
+     `clip` is what this wants: it clips the medal while it is parked above
+     the section, without making this element a scroll container — and a
+     sticky descendant sticks to its nearest scrolling ancestor, so a scroll
+     container here would pin the medal to a box that never scrolls and it
+     would never move again.
 
-     Opening a shade darker than the section and resolving into it turns that
-     step into a place where the light simply runs out. It cannot match the
-     hero exactly, since what is above the line moves and this does not, but
-     an approximate match spread over three hundred pixels is invisible where
-     an exact edge is not. */
-  background-image: linear-gradient(to bottom, #020a13 0, #04101c 300px);
+     `hidden` is the fallback for engines that do not know `clip` (Safari
+     before 16), where the declaration is dropped and this one stands. Those
+     browsers lose the sticky medal and keep the clip, which is the right way
+     round to fail: an unclipped rig is a medal hanging over the hero. */
+  overflow: hidden;
+  overflow: clip;
+
+  /* A hairline of the hero's own dark along the top.
+
+     The hero ends on a lit shader under a scrim, and a shader is never quite
+     the flat colour it was given, so the boundary between it and this white
+     lands on whatever the field happened to be doing at that pixel. That
+     leaves a soft, slightly mottled edge running the width of the page —
+     directly across the point the ribbon is meant to be coming through.
+
+     A drawn line makes the edge deliberate instead. It is the only thing
+     telling the reader the ribbon continues past it rather than ending. */
+  border-top: 1px solid rgb(2 8 18 / 0.55);
 }

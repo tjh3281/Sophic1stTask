@@ -15,7 +15,7 @@ import { SOLUTIONS } from "./solutions";
  * The whole index is a dozen entries, so it is built once at module scope and
  * matched synchronously on every keystroke — no async, no network, no worker.
  *
- * Only real routes are indexed. The remaining header items (Company, Partners,
+ * Only real routes are indexed. The remaining header items (Partners,
  * Community) are inert prototype buttons with nowhere to go, and a result that
  * lands on nothing is worse than no result at all.
  *
@@ -73,16 +73,22 @@ function buildIndex(): SearchEntry[] {
         title: "home",
         breadcrumb: "sophic automation",
         summary: "transforming your business",
-        // The awards section lives on this page and nowhere else, so the
-        // certifications printed on its medal have to be findable from here or
-        // they are not findable at all.
+        // The awards and the company statement both live on this page and
+        // nowhere else, so what they say has to be findable from here or it is
+        // not findable at all.
         keywords:
           "start landing index main page front sophic automation " +
           "awards certifications certified accreditation recognition " +
           "iso 9001 2015 quality management system " +
           "iso iec 27001 2022 information security management system " +
           "dun bradstreet business eminence awards 2024 malaysia " +
-          "intel partner gold",
+          "intel partner gold " +
+          "why choose sophic single destination for success about us " +
+          "founded 2007 mission industrial automation solutions " +
+          "outsourcing mechanism develop supply manage customized " +
+          "engineering services 20th anniversary ebook book " +
+          "20 years one team one vision celebration milestone people " +
+          "powered by its people honor our journey future of automation",
       },
     },
     {
@@ -104,6 +110,26 @@ function buildIndex(): SearchEntry[] {
           "overview all solutions capabilities what we do services catalogue",
           ...SOLUTIONS.map((solution) => solution.title),
         ),
+      },
+    },
+    {
+      id: "company",
+      kind: "page",
+      title: "Company",
+      href: "/company",
+      breadcrumb: "Sophic Automation",
+      summary: "Founded in 2007, in Penang, Malaysia.",
+      lower: {
+        title: "company",
+        breadcrumb: "sophic automation",
+        summary: "founded in 2007 in penang malaysia",
+        keywords:
+          "about us who we are background history story profile " +
+          "sophic automation sdn bhd founded 2007 mission innovative " +
+          "effective industrial automation solutions cutting edge " +
+          "technology technical competency growth business solutions " +
+          "outsourcing mechanism develop supply manage customized " +
+          "automation projects office offices building headquarters",
       },
     },
     {

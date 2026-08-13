@@ -54,53 +54,31 @@
   --vertex-y: calc(var(--ribbon-h) * 0.997);
 
   /* Ribbon top to the bottom of the disc:
-     ribbon 1.2313 x 0.997, plus disc 1.0112, less the 0.35 of a clasp the
-     disc is tucked up behind. */
-  --rig-h: calc(var(--disc-w) * 2.1827);
+     ribbon 1.2313 x 0.997, plus disc 1.0112, less the 0.2 of a clasp the disc
+     rides up over. */
+  --rig-h: calc(var(--disc-w) * 2.2067);
 
   position: relative;
   width: var(--ribbon-w);
   height: var(--rig-h);
 
-  /* Lifts the ribbon's squarely cut top edge just above the section's own top,
-     where the section's overflow clip disposes of it.
+  /* Lifts the top of the ribbon above the section's own top, where the
+     overflow clip disposes of it.
 
-     Deliberately a sliver rather than a real offset. The fade on the ribbon
-     starts from nothing at its top edge, so the further this pushes that edge
-     up, the further into the fade the clip line falls and the stronger the
-     ribbon is at the moment it first appears — which puts back the hard edge
-     both of them exist to remove. This is only enough to absorb subpixel
-     rounding between the two boxes; the fade does the rest. */
-  margin-top: calc(var(--rig-h) * -0.02);
-}
+     Sized to the artwork, not chosen by eye. The ribbon is not cut square at
+     the top — it is cut on a diagonal, and the trimmed PNG's bounding box
+     starts at the first pixel of the leading corner. Measured down that edge,
+     row 0 carries three pixels of ink, and the straps only reach their full
+     width and full opacity around row 27 of 330. Anything clipping less than
+     that leaves a wedge of half-transparent ribbon sitting against the edge,
+     which is exactly the sliver of daylight it is meant to remove.
 
-/* The light the medal is hanging in. Fades up behind it as it arrives, so the
-   silver has something to be silver against — on a flat dark field it reads
-   as grey. */
-.medal-hang::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: var(--vertex-x);
-  bottom: 0;
-  width: calc(var(--disc-w) * 1.9);
-  height: calc(var(--disc-w) * 1.45);
-  translate: -50% 20%;
-  border-radius: 50%;
-  background: radial-gradient(
-    closest-side,
-    rgb(56 138 200 / 0.32),
-    rgb(14 62 110 / 0.14) 54%,
-    transparent 78%
-  );
-  opacity: 0;
-  /* Held back until the medal is most of the way down — the glow is the thing
-     landing, so it must not arrive before the thing that lands. */
-  transition: opacity 900ms var(--ease-out-quart) 750ms;
-}
-
-.medal-hang:not([data-state="idle"])::before {
-  opacity: 1;
+     The wedge ends at 8.2% of the ribbon's height. This clips 12%, which puts
+     the edge at row 40 with a dozen rows in hand — enough that subpixel
+     rounding between two boxes cannot open the gap back up at any size. It is
+     expressed against the ribbon rather than against the whole rig so the
+     number can be read against the measurement it came from. */
+  margin-top: calc(var(--ribbon-h) * -0.12);
 }
 
 /* --- The three links -----------------------------------------------------
@@ -126,10 +104,18 @@
      the long, slow arc of something suspended from much further up. */
   transform-origin: var(--vertex-x) -12%;
   --swing: 2.4deg;
-  /* Parked above the section until the reader gets here. The JS only ever
-     adds the animation; this is what holds the rig off-screen until it does,
-     and what the reduced-motion and no-JS rules below cancel. */
-  translate: 0 -104%;
+  /* Parked out of sight until the reader gets here. The JS only ever adds the
+     animation; this is what holds the rig away until it does, and what the
+     reduced-motion and no-JS rules below cancel.
+
+     More than the rig's own height, which looks like slack and is not. The
+     rig sticks once its column starts scrolling, and a pinned rig is no
+     longer measured from the section's top edge — it is measured from
+     wherever it is pinned, a little way down the screen. Parked at its own
+     height it would hang that much of itself back into view at the top of the
+     window. This is the pinned offset and the rig both, so it is clear of the
+     window in either state. */
+  translate: 0 -120%;
 }
 
 .medal-hang__ribbon {
@@ -141,19 +127,15 @@
      positioned inside zero-width anchors, where 100% of the containing block
      is nothing at all. Stated on all three so the rule travels with them. */
   max-width: none;
-  /* Dissolves the top of the ribbon into the dark above it.
+  /* No fade on the top edge, deliberately.
 
-     The section's clip already disposes of the squarely cut edge, but the two
-     sections either side of that clip are the same colour, so on its own it
-     just moves the problem: the ribbon reaches full strength on an invisible
-     line. The fade runs well past where the clip falls, so what is actually
-     on screen is a ribbon coming out of shadow.
-
-     A third of the ribbon's length, which sounds like a lot and is not: the
-     top tenth of it is behind the clip before any of this applies, and the
-     straps are at their widest up there, so a short fade on that much blue
-     still ends on something that reads as an edge. */
-  mask-image: linear-gradient(to bottom, transparent 0, #000 34%);
+     It used to carry one, back when this section shared the hero's dark: the
+     clip line fell in the middle of an unbroken field, so the ribbon had to
+     dissolve or it ended on a horizontal cut in mid-air. Against white, that
+     line is now the boundary between two obviously different things, and a
+     ribbon cut squarely along it reads as a ribbon passing behind the band
+     above. Fading it out just short of the edge would undo that and leave it
+     evaporating for no visible reason. */
 }
 
 /* Both joints are zero-sized anchors rather than boxes: they exist only to
@@ -181,16 +163,22 @@
 .medal-hang__swivel {
   left: 0;
   top: 0;
-  --trail: calc(var(--clasp-h) * 0.16);
+  /* Trimmed a little now that the disc paints in front of the clasp rather
+     than behind it. This is the only trail that moves the medal against the
+     thing it hangs from — the joint's moves both — so it is also the only one
+     that can pull the medal's edge down off the clasp's underside. */
+  --trail: calc(var(--clasp-h) * 0.13);
   --swing: 0.85deg;
 }
 
 .medal-hang__clasp {
   position: absolute;
   left: calc(var(--clasp-w) / -2);
-  /* Slightly more of it above the vertex than below, so the ribbon's end
-     stops inside the slot rather than hanging out of the bottom of it. */
-  top: calc(var(--clasp-h) * -0.6);
+  /* Centred on the ribbon's vertex, because the slot is centred in the clasp:
+     the hole runs across the middle third of the artwork, so putting the
+     clasp's midline on the point where the straps converge is what threads
+     the ribbon through it rather than laying it against it. */
+  top: calc(var(--clasp-h) * -0.5);
   width: var(--clasp-w);
   height: auto;
   max-width: none;
@@ -199,19 +187,36 @@
 .medal-hang__disc {
   position: absolute;
   left: calc(var(--disc-w) / -2);
-  /* Tucked up behind the clasp by about a third of its height. Two things
-     depend on this overlap: the medal's shoulders meet the underside of the
-     clasp instead of leaving daylight either side of it, and there is enough
-     slack for the medal to trail and overshoot on the way down without ever
-     visibly parting company with the thing it hangs from. */
-  top: calc(var(--clasp-h) * -0.35);
+  /* How far the medal's top point rides up over the clasp, now that it paints
+     in front of it. This is the number the join lives or dies on, and it is
+     bounded from both sides.
+
+     Too high and the clasp all but disappears behind the medal. Too low and
+     daylight opens at the clasp's ends: the medal's top is a curve and the
+     clasp's underside is a straight line, so the two are furthest apart at
+     the clasp's outer corners — about 20px lower there than at the middle,
+     nearer 22 where the scalloped edge dips into a valley. The medal has to
+     still be covering that line at those corners, and it has to hold while
+     the disc trails a few pixels below the clasp during the bounce.
+
+     A fifth of the clasp clears it: at full trail the medal's edge is still
+     a couple of pixels above the clasp's underside, while a good third of the
+     loop shows above the medal at rest and more of it at either end — which
+     is a ring emerging from behind a medal rather than a bar sitting on it. */
+  top: calc(var(--clasp-h) * -0.2);
   width: var(--disc-w);
   height: auto;
   max-width: none;
   /* Weight. Offset downward rather than centred, so it reads as an object
-     above the page catching light from in front. */
+     above the page catching light from in front.
+
+     Much lighter than it wants to be on a dark ground: the same shadow that
+     reads as depth against near-black reads as dirt on white. Tinted toward
+     the page's own ink rather than pure black, which is what keeps it a
+     shadow instead of a grey halo. */
   filter: drop-shadow(
-    0 calc(var(--disc-w) * 0.05) calc(var(--disc-w) * 0.07) rgb(1 8 18 / 0.6)
+    0 calc(var(--disc-w) * 0.045) calc(var(--disc-w) * 0.065)
+      rgb(15 23 42 / 0.24)
   );
 }
 
@@ -257,9 +262,10 @@
 /**
  * The rig coming down.
  *
- * Percentages, so the travel scales with the rig: -104% puts the whole thing
- * clear above its own box, and the section's overflow clip is what turns that
- * into "off the top of the screen".
+ * Percentages, so the travel scales with the rig: -120% puts the whole thing
+ * clear above its own box with room to spare for the sticky offset, and the
+ * section's overflow clip is what turns that into "off the top of the
+ * screen". See the note on the resting value in .medal-hang__arm.
  *
  * The curve is the point, and it is a lowering rather than a fall. Only a
  * gentle ease-in at the start — enough that it does not begin at full speed —
@@ -279,7 +285,7 @@
  */
 @keyframes medal-lower {
   0% {
-    translate: 0 -104%;
+    translate: 0 -120%;
     animation-timing-function: cubic-bezier(0.32, 0.06, 0.5, 0.72);
   }
   62% {
@@ -410,10 +416,5 @@
     translate: none;
     rotate: none;
     will-change: auto;
-  }
-
-  .medal-hang::before {
-    transition: none;
-    opacity: 1;
   }
 }
