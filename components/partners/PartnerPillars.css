@@ -1,0 +1,366 @@
+/* --- Partner with Sophic -------------------------------------------------
+   The five pillars, hung on a curve.
+
+   Two layouts, one set of markup. Below lg the pillars are an ordinary grid,
+   because a garland needs width and a phone has none. From lg they are placed
+   absolutely inside a stage of fixed proportion, at coordinates each item
+   carries as --x and --y.
+
+   Those same coordinates are what the curve behind them is drawn through, and
+   that is the whole reason it is done this way: both the discs and the path are
+   positioned as percentages of the same box, so they cannot drift apart at some
+   width nobody tested. Moving a pillar means editing one pair of numbers in
+   PartnerPillars.tsx and the curve follows it.
+-------------------------------------------------------------------------- */
+
+.partner-pillars {
+  /* The same mint the company page's dark half uses. One hex for the site. */
+  --mint: #45e0bd;
+  --disc: #123a63;
+  --icon: #8ed4ee;
+}
+
+/* --- The statement -------------------------------------------------------
+   The words sit on the white of the comet, in black.
+
+   The comet is a diagonal wedge: bright at the lower left, falling away to
+   dark sky at the top and to the right. There is no horizontal band across the
+   whole picture that is white the whole way, so a crop of the full frame will
+   always put part of a line of type on near-black however it is positioned.
+
+   The asset is therefore cropped to the core rather than the frame. The
+   rectangle was found by scanning the source for the one with the highest
+   *minimum* luminance — the darkest pixel is what black type has to clear, and
+   an average would hide exactly the corner that fails. At 100x50 of its 225 it
+   holds 6.14:1 against black at its worst point, which is why there is no
+   scrim over it: none is needed, at any panel shape, and one would only wash
+   out the picture that was asked for.
+
+   That crop is 100px wide and arrives here 1400px wide. The upscale is
+   enormous and it does not matter — the region is a smooth glow, so there is
+   no detail in it to lose.
+-------------------------------------------------------------------------- */
+
+.partner-pillars__statement {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 0.875rem;
+  padding: clamp(2rem, 5vw, 3.25rem) clamp(1.5rem, 4vw, 3rem);
+  background-image: url("/images/partner-star-background.webp");
+  background-size: cover;
+  background-position: center;
+  /* Lifts a bright panel off the dark section behind it. The panel is lighter
+     than its ground now, so it needs a shadow under it rather than an edge
+     around it. */
+  box-shadow: 0 24px 60px -28px rgb(0 0 0 / 0.75);
+}
+
+.partner-pillars__statement-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #04070d;
+}
+
+@media (min-width: 40rem) {
+  .partner-pillars__statement-title {
+    font-size: 2.25rem;
+  }
+}
+
+.partner-pillars__statement-rule {
+  display: block;
+  width: 5rem;
+  height: 0.25rem;
+  margin-top: 0.75rem;
+  /* The section's mint is a colour for near-black and vanishes on this. The
+     site's accent teal is the same hue that holds on a light ground. */
+  background: #29a8b8;
+}
+
+.partner-pillars__statement-text {
+  margin-top: 1.75rem;
+  max-width: 58rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  /* Full opacity, not a tint. Anything faded here spends the contrast the
+     crop was chosen to provide. */
+  color: #101820;
+}
+
+.partner-pillars__statement-text + .partner-pillars__statement-text {
+  margin-top: 1.25rem;
+}
+
+/* --- The row ------------------------------------------------------------- */
+
+.partner-pillars__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.75rem 1.5rem;
+  justify-items: center;
+}
+
+@media (min-width: 32rem) {
+  .partner-pillars__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 48rem) {
+  .partner-pillars__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* A button, so it is reset to look like nothing before it is styled as a
+   pillar. It has to be a real control: this is what carries hover, focus and
+   tap, and hover alone would leave the detail unreachable on a phone. */
+.partner-pillars__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  /* So the discs cannot be caught behind the curve's stroke. */
+  position: relative;
+  z-index: 1;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+
+.partner-pillars__item:focus-visible {
+  outline: none;
+}
+
+/* The ring is drawn on the disc rather than around the button, which is a box
+   wide enough to hold the label and would put a rectangle round both. */
+.partner-pillars__item:focus-visible .partner-pillars__disc {
+  outline: 2px solid var(--mint);
+  outline-offset: 4px;
+}
+
+/* --- The disc ------------------------------------------------------------ */
+
+.partner-pillars__disc {
+  display: grid;
+  place-items: center;
+  width: clamp(5.5rem, 13vw, 7.5rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  /* Opaque, not translucent: it has to cover the curve running underneath it
+     so the line reads as threading the discs rather than crossing them. */
+  background: var(--disc);
+  box-shadow: inset 0 0 0 2px var(--mint);
+  color: var(--icon);
+}
+
+.partner-pillars__disc svg {
+  width: 52%;
+  height: 52%;
+}
+
+.partner-pillars__label {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--mint);
+}
+
+/* --- The open pillar ----------------------------------------------------- */
+
+.partner-pillars__disc,
+.partner-pillars__disc svg,
+.partner-pillars__label {
+  transition:
+    transform 220ms ease-out,
+    box-shadow 220ms ease-out,
+    opacity 220ms ease-out,
+    color 220ms ease-out;
+}
+
+/* Dimmed rather than greyed. The unselected four still have to read as part of
+   the same row — this is a set of five with one open, not one live item and
+   four disabled ones.
+
+   The dimming is on the ring and the icon, never on the disc. Opacity on the
+   disc fades its background along with everything else, and the garland runs
+   straight underneath it — a translucent disc has the line drawn across its
+   face instead of threading behind it. The disc stays opaque at all times;
+   only what is on it changes. */
+.partner-pillars__item[data-active="false"] .partner-pillars__disc {
+  box-shadow: inset 0 0 0 2px rgb(69 224 189 / 0.5);
+}
+
+.partner-pillars__item[data-active="false"] .partner-pillars__disc svg {
+  opacity: 0.7;
+}
+
+.partner-pillars__item[data-active="false"] .partner-pillars__label {
+  opacity: 0.62;
+}
+
+.partner-pillars__item[data-active="true"] .partner-pillars__disc {
+  transform: scale(1.07);
+  box-shadow:
+    inset 0 0 0 2px var(--mint),
+    0 0 0 5px rgb(69 224 189 / 0.14),
+    0 0 26px rgb(69 224 189 / 0.3);
+}
+
+.partner-pillars__item[data-active="true"] .partner-pillars__label {
+  color: #eafff8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-pillars__disc,
+  .partner-pillars__label {
+    transition: none;
+  }
+
+  .partner-pillars__item[data-active="true"] .partner-pillars__disc {
+    transform: none;
+  }
+}
+
+/* --- The panel ----------------------------------------------------------- */
+
+.partner-pillars__panels {
+  margin-top: 3rem;
+}
+
+.partner-pillars__panel {
+  margin-inline: auto;
+  max-width: 46rem;
+  text-align: center;
+  animation: partner-pillars-in 320ms ease-out both;
+}
+
+/* Stated rather than left to the user agent. `hidden` is only a default style,
+   and one `display` declaration matching this element anywhere would silently
+   turn all five panels on at once. */
+.partner-pillars__panel[hidden] {
+  display: none;
+}
+
+.partner-pillars__panel:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 8px;
+  border-radius: 0.5rem;
+}
+
+.partner-pillars__panel-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--mint);
+}
+
+.partner-pillars__panel-text {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: rgb(255 255 255 / 0.82);
+}
+
+@media (min-width: 40rem) {
+  .partner-pillars__panel-text {
+    font-size: 1rem;
+  }
+}
+
+/* The five paragraphs run from 250 to nearly 400 characters, so the panel is
+   held at the height of the longest. Without it, moving along the row pumps
+   everything below the board up and down by two lines. Only from md: on a
+   phone the same reservation is most of a screen of empty space, and there is
+   nothing below it to protect. */
+@media (min-width: 48rem) {
+  .partner-pillars__panels {
+    min-height: 10.5rem;
+  }
+}
+
+@keyframes partner-pillars-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-pillars__panel {
+    animation: none;
+  }
+}
+
+/* --- The garland --------------------------------------------------------- */
+
+.partner-pillars__curve {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .partner-pillars__list {
+    display: block;
+    position: relative;
+    /* Proportional rather than fixed, so the curve keeps its shape and the
+       discs keep their spacing across every width above this breakpoint. */
+    aspect-ratio: 1600 / 470;
+    gap: 0;
+  }
+
+  .partner-pillars__item {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    /* The item box is the disc alone — the label is taken out of flow below it
+       — so this centres the disc exactly on the curve's own coordinate. */
+    transform: translate(-50%, -50%);
+    gap: 0;
+  }
+
+  .partner-pillars__label {
+    position: absolute;
+    top: calc(100% + 0.85rem);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    /* "Agile & Adaptive Approach" is the longest label and sits on the
+       outermost hook, so at the narrow end of this breakpoint it is the one
+       thing here that can reach past the frame. It wraps until there is room
+       for it not to. Two lines cost nothing: the garland separates the pillars
+       vertically, so no two labels are ever side by side. */
+    max-width: 11rem;
+  }
+
+  .partner-pillars__curve {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+}
+
+@media (min-width: 80rem) {
+  .partner-pillars__label {
+    font-size: 1.0625rem;
+    /* Wide enough now for every label on one line, which is how the row was
+       drawn to read. */
+    white-space: nowrap;
+    max-width: none;
+  }
+}

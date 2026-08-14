@@ -4,9 +4,15 @@ import { Reveal } from "@/components/ui/Reveal";
 import { MedalDrop } from "./MedalDrop";
 import "./Awards.css";
 
-/** The commemorative certificate, at its native proportions. */
+/**
+ * The commemorative certificate, at its native proportions.
+ *
+ * Named for what it is rather than for how recent it is — the file it replaced
+ * was "latest", the one before that "new", and a third adjective would not have
+ * helped anyone find it. A revised certificate overwrites this path.
+ */
 const CERTIFICATE = {
-  src: "/images/latest-sophic-certificate.png",
+  src: "/images/sophic-20th-anniversary-certificate.png",
   width: 1054,
   height: 1492,
 };

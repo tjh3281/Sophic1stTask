@@ -1,0 +1,26 @@
+/* Styles for Galaxy, from React Bits.
+
+   The canvas inside is OGL's, appended by the component rather than rendered by
+   React — see the note in Galaxy.tsx — so it is styled by descendant rather
+   than by a class on a JSX element.
+
+   Upstream ships this as `.galaxy-container` with `position: relative`, which
+   is a guess about what it will be layered against; here the placement is the
+   caller's business and this only says how big it is. */
+
+.galaxy {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* It is a backdrop, not a surface. The pointer is still tracked — on the
+     window, not here — so the stars answer the cursor without this element
+     standing between the reader and anything underneath it. */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.galaxy__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,405 @@
+/* --- The partner network -------------------------------------------------
+   Three groups of hexagonal tiles around Sophic's own.
+
+   The hexagons are pointy-top: a vertex at the top and bottom, vertical sides.
+   That orientation is what makes the honeycomb from rows — pointy-top tiles
+   tessellate with each row offset half a tile and set three quarters of a
+   height apart, where flat-top ones tessellate by column instead. The tile is
+   therefore taller than it is wide, by 2/root-3.
+
+   Nothing here computes an offset. Every group's rows alternate in length by
+   one, so centring them staggers them by exactly half a tile on its own. The
+   shape of the comb lives in lib/partners, in how long each row is.
+-------------------------------------------------------------------------- */
+
+.partner-net {
+  /* A very pale wash rather than flat white: it separates the wall from the
+     footer under it without drawing a line, and gives the white hexagons
+     something to be lighter than. */
+  background:
+    radial-gradient(
+      70% 55% at 50% 0%,
+      rgb(41 168 184 / 0.07) 0%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
+  --mint: #29a8b8;
+  /* The rounded hexagon, as a mask. Drawn once here so the tile and Sophic's
+     own larger tile cut the same shape.
+
+     Built on a 100 x 115.47 box — a pointy-top hexagon's exact proportion — with
+     each of the six vertices cut back 10 units along both of its edges and the
+     corner closed with a quadratic through the original point. Every edge is
+     the same length in a regular hexagon, so one cutback rounds all six evenly.
+
+     The '#' in the fill has to be percent-encoded; a raw one ends the data URI
+     at that character and the mask silently becomes nothing. */
+  --hex-mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 115.47" preserveAspectRatio="none"><path d="M58.66,5 L91.34,23.87 Q100,28.87 100,38.87 L100,76.6 Q100,86.6 91.34,91.6 L58.66,110.47 Q50,115.47 41.34,110.47 L8.66,91.6 Q0,86.6 0,76.6 L0,38.87 Q0,28.87 8.66,23.87 L41.34,5 Q50,0 58.66,5 Z" fill="%23000"/></svg>');
+  /* Stepped rather than fluid, and deliberately not a clamp on vw. Every tile
+     has to be exactly the same width as every other one — the comb is built
+     out of rows that must line up across three groups laid out in separate
+     grid areas, and a viewport-relative width leaves that at the mercy of how
+     each area happens to be sized. Fixed steps are the same number everywhere.
+     The largest is chosen so five tiles and their gaps fit the container. */
+  --hex-w: 5rem;
+  --hex-gap: 0.5rem;
+  /* 2 / sqrt(3). A pointy-top hexagon is this much taller than it is wide. */
+  --hex-h: calc(var(--hex-w) * 1.1547);
+}
+
+@media (min-width: 48rem) {
+  .partner-net {
+    --hex-w: 6rem;
+  }
+}
+
+/* From here the three groups sit side by side, and the map's width becomes a
+   fixed multiple of the tile: the flanks, Sophic and the two gaps come to
+   9.5 tiles and 5.5 gaps. So each step is chosen against the container it has
+   to fit — 9.5w + 5.5g must stay inside it, or the row overflows and the page
+   scrolls sideways. Going up a step early is what pushed it over at the bottom
+   of this range before. */
+@media (min-width: 64rem) {
+  .partner-net {
+    --hex-w: 5.5rem;
+  }
+}
+
+@media (min-width: 72rem) {
+  .partner-net {
+    --hex-w: 6.25rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  .partner-net {
+    --hex-w: 7.25rem;
+  }
+}
+
+/* --- A tile --------------------------------------------------------------
+   Two elements, and it has to be two. The hexagon is cut with a mask, and a
+   mask clips a box-shadow away with everything else outside the shape — so the
+   shadow that makes these float is a drop-shadow filter on the cell around it,
+   which reads the alpha of what it contains and traces the hexagon instead of
+   the box. Filters also apply before clipping on the same element, so the two
+   cannot share one.
+-------------------------------------------------------------------------- */
+
+.partner-net__cell {
+  width: var(--hex-w);
+  height: var(--hex-h);
+  flex: none;
+  /* A flex item's automatic minimum size is its content's min-content size,
+     and for a tile holding a logo that is the image's intrinsic width — so the
+     cell refuses to shrink to --hex-w and every logo tile comes out wider than
+     its neighbours. This is what lets the declared width win. */
+  min-width: 0;
+  min-height: 0;
+  filter: drop-shadow(0 5px 10px rgb(15 23 42 / 0.1))
+    drop-shadow(0 1px 2px rgb(15 23 42 / 0.06));
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 260ms ease-out;
+}
+
+.partner-net__cell:hover {
+  transform: translateY(-5px);
+  filter: drop-shadow(0 14px 20px rgb(15 23 42 / 0.16))
+    drop-shadow(0 3px 5px rgb(15 23 42 / 0.08));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-net__cell,
+  .partner-net__cell:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
+.partner-net__tile {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  /* A hexagon with its six points taken off, drawn as an SVG mask rather than
+     a clip-path: clip-path: polygon() can only join edges at a sharp vertex,
+     and the brief asks for the tips to be rounded. The viewBox is the tile's
+     own proportion and the mask is stretched to 100% of it, so the shape
+     scales without ever being distorted.
+
+     The vertices are at 0% and 100% of the height; the sides run straight
+     between 25% and 75%, so that middle half is the only part of the box that
+     is full width. Everything inside is kept inside it. */
+  -webkit-mask-image: var(--hex-mask);
+  mask-image: var(--hex-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  /* Derived from the tile, never a percentage of the row. Percentage padding
+     resolves against the containing block's width, and when that was the row
+     rather than the tile, `11%` came to more than a whole tile on the
+     five-wide row — a border-box cannot be narrower than its own padding, so
+     those tiles inflated to twice their width. */
+  padding-inline: calc(var(--hex-w) * 0.07);
+}
+
+.partner-net__tile > * {
+  max-width: 100%;
+  /* Under the 50% the straight sides allow, so a logo cannot reach the slopes
+     where the tile starts narrowing. */
+  max-height: 46%;
+  object-fit: contain;
+}
+
+/* Every logo file is the same canvas, so every one of these is the same box —
+   which is the point. The artwork was trimmed to its ink and fitted inside
+   that canvas when it was built, so the sizing here is a single rule rather
+   than a table of per-logo exceptions. */
+.partner-net__logo {
+  width: 100%;
+  height: auto;
+}
+
+/* Tinted a shade off white, which is the only difference between a partner
+   whose logo is in the repository and one whose is not. Enough to pick out
+   when scanning the wall, not enough to look broken. */
+.partner-net__tile--pending {
+  background: #eef2f7;
+}
+
+.partner-net__name {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  letter-spacing: 0.01em;
+  color: #33465c;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 64rem) {
+  .partner-net__name {
+    font-size: 0.75rem;
+  }
+}
+
+/* Sophic's own, at the middle of the map: the one dark tile, and the only one
+   that is not a partner. Sized to two tiles and a gap across, so it sits on the
+   same lattice as everything around it rather than at an arbitrary scale. */
+.partner-net__cell--centre {
+  width: calc(var(--hex-w) * 2 + var(--hex-gap));
+  height: calc((var(--hex-w) * 2 + var(--hex-gap)) * 1.1547);
+  filter: drop-shadow(0 10px 18px rgb(15 23 42 / 0.18))
+    drop-shadow(0 2px 4px rgb(15 23 42 / 0.1));
+}
+
+.partner-net__tile--centre {
+  background: linear-gradient(155deg, #14406c 0%, #071c33 72%);
+  padding-inline: 14%;
+}
+
+.partner-net__tile--centre > * {
+  max-height: 38%;
+}
+
+/* --- A group ------------------------------------------------------------- */
+
+.partner-net__row {
+  display: flex;
+  justify-content: center;
+  gap: var(--hex-gap);
+}
+
+/* Pulls each row up into the one above by a quarter of a tile, which is what
+   leaves three quarters between their centres — the vertical pitch of a
+   pointy-top comb. The gap is added back so the tiles sit apart rather than
+   interlocking, the way the reference draws them. */
+.partner-net__row + .partner-net__row {
+  margin-top: calc(var(--hex-h) * -0.25 + var(--hex-gap));
+}
+
+.partner-net__label {
+  margin-bottom: 1.25rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: #0b3a63;
+}
+
+.partner-net__label::after {
+  content: "";
+  display: block;
+  width: 3.25rem;
+  height: 0.1875rem;
+  margin: 0.5rem auto 0;
+  background: var(--mint);
+}
+
+/* --- The map ------------------------------------------------------------- */
+
+.partner-net__map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+/* Sophic leads on a phone. In the stacked order it would otherwise sit between
+   two groups, which reads as a fourth category rather than as the middle of
+   the map it is on a wide screen. */
+@media (max-width: 63.99rem) {
+  .partner-net__centre {
+    order: -1;
+  }
+
+  /* The comb is up to five tiles wide and a phone is not. Rows become
+     `display: contents` so their tiles fall into one wrapping flex line —
+     the stagger is lost, which is the right thing to lose, because the
+     alternative is a row that runs off the screen. */
+  .partner-net__row {
+    display: contents;
+  }
+
+  .partner-net__group-tiles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--hex-gap);
+  }
+}
+
+@media (min-width: 64rem) {
+  .partner-net__map {
+    display: grid;
+    grid-template-areas:
+      "left centre right"
+      ". below .";
+    /* Content-sized, and the whole grid centred in the container.
+
+       Equal (1fr) flanks would put Sophic on the container's centre line — but
+       the two groups are different widths, so the map's own edges then sit at
+       different distances from it and the shorter side leaves a gap. The
+       pyramid no longer needs that symmetry: it hangs off Sophic's column
+       directly, so nothing depends on Sophic being at the container's midpoint.
+       Sizing each track to its group and centring the result instead balances
+       the map's visible edges, which is what a reader actually sees. */
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    align-items: center;
+    /* Half a tile, so the three blocks read as one comb with a seam rather
+       than as three separate diagrams parked next to each other. */
+    column-gap: calc(var(--hex-w) * 0.5);
+    /* Nothing: the pyramid's own offset below does this row's spacing, because
+       it has to be measured from Sophic's tile rather than from the row. */
+    row-gap: 0;
+  }
+
+  /* Both flanks hug the middle track, so the row that reaches furthest — each
+     group's apex — is the one that lands against Sophic. */
+  .partner-net__group[data-slug="ecosystem-liaisons"] {
+    justify-self: end;
+  }
+
+  .partner-net__group[data-slug="ot2it-cloud-and-apps"] {
+    justify-self: start;
+  }
+
+  /* The two groups that lie on their side place their rows rather than centring
+     them, because centring can only ever produce a shape symmetric about the
+     vertical axis — no amount of row lengths will make a centred group point
+     left or right. --shift is the row's left edge in half-tiles; a half-tile is
+     also exactly the offset a honeycomb row needs, which is why the shifts can
+     be whole numbers and still tessellate. */
+  .partner-net__group[data-shifted] .partner-net__row {
+    justify-content: flex-start;
+    margin-left: calc(
+      var(--shift, 0) * (var(--hex-w) + var(--hex-gap)) / 2
+    );
+  }
+
+  /* Taken out of flow so the group's box is its tiles and nothing else. In
+     flow, the label's height sits inside the box that `align-items: center`
+     is centring — so the two side combs hung half a heading lower than
+     Sophic's tile and the row never quite lined up. Now the tiles centre on
+     the tile, and the labels ride above them. */
+  .partner-net__group {
+    position: relative;
+  }
+
+  .partner-net__label {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .partner-net__group[data-slug="ecosystem-liaisons"] {
+    grid-area: left;
+  }
+
+  .partner-net__centre {
+    grid-area: centre;
+    justify-self: center;
+  }
+
+  .partner-net__group[data-slug="ot2it-cloud-and-apps"] {
+    grid-area: right;
+  }
+
+  /* The pyramid. It hangs from Sophic's tile rather than from the row above
+     it, so its offset is measured against that tile and not against the grid.
+
+     The flanks are three rows and are what set the first row's height; Sophic
+     is shorter than they are and sits centred in it. So the tile's bottom is
+     half the difference above the row's bottom, and the pyramid has to come up
+     by that much, plus the quarter-tile overlap every other row in this comb
+     uses, less the gap. Written out rather than guessed at, so it holds at
+     every breakpoint --hex-w steps through.
+
+     It assumes the flanks are the taller of the two, which they are at three
+     rows against Sophic's one. Give either flank a fourth row and this needs
+     re-deriving. */
+  .partner-net__group[data-slug="things-of-internet"] {
+    --sophic-h: calc((var(--hex-w) * 2 + var(--hex-gap)) * 1.1547);
+    --flank-h: calc(var(--hex-h) * 2.5 + var(--hex-gap) * 2);
+    grid-area: below;
+    /* Placed in the middle column and given no width of its own, so its centre
+       is Sophic's centre and cannot be anything else.
+
+       Spanning all three columns instead would centre it on the *grid*, and
+       the grid's centre is not Sophic's: the flanks are different widths, so
+       the middle track does not sit halfway across. That is what had the
+       pyramid hanging left of the tile it is supposed to hang from. A
+       zero-width box centred in Sophic's own column has nothing to drift
+       against — the rows inside are centred flex lines, so the tiles simply
+       overflow it evenly on both sides. */
+    justify-self: center;
+    width: 0;
+    margin-top: calc(
+      (var(--sophic-h) - var(--flank-h)) / 2 - var(--hex-h) * 0.25 +
+        var(--hex-gap)
+    );
+  }
+
+  /* Below its pyramid, not above it. Above, it would sit in the one place the
+     shape needs to stay clear — between Sophic's tile and the two hexagons
+     hanging off it — and break the line the whole arrangement is about. */
+  .partner-net__group[data-slug="things-of-internet"] .partner-net__label {
+    top: 100%;
+    bottom: auto;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+    /* Its group is zero-width, so stretching to both edges would give it no
+       room at all. Centred on that single point instead, and kept on one line
+       so the centring is the only thing deciding where it sits. */
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+}

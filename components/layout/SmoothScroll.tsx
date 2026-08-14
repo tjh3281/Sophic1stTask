@@ -4,6 +4,7 @@ import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { registerSmoothScroll } from "@/lib/smoothScroll";
 
 /**
  * useLayoutEffect, minus the server warning.
@@ -58,7 +59,13 @@ export function SmoothScroll() {
     });
 
     lenisRef.current = lenis;
+    // Published for anything on a page that needs to scroll the reader
+    // somewhere. See lib/smoothScroll — a plain window.scrollTo cannot do it
+    // while this is running.
+    registerSmoothScroll(lenis);
+
     return () => {
+      registerSmoothScroll(null);
       lenis.destroy();
       lenisRef.current = null;
     };

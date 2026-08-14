@@ -1,0 +1,630 @@
+/* --- The values board ----------------------------------------------------
+   Colour, placement, and the entrance each of the six icons makes. What
+   decides *when* a value is on the stage is in CompanyValues.tsx; this file
+   never asks about scroll position, only about `data-active`.
+
+   The ground and the palette come from .company-dark, which the vision band
+   above shares — see CompanyDark.css. What is here is what this section does
+   with them.
+-------------------------------------------------------------------------- */
+
+.company-values {
+  /* Two soft lights over the flat ground, so a screen-tall band of one colour
+     has somewhere to look. Both end on their own colour at zero alpha, not on
+     `transparent` - that is transparent *black*, and a wide gradient running
+     to it greys out on the way. */
+  background-image:
+    radial-gradient(
+      70% 55% at 50% 0%,
+      rgb(69 224 189 / 0.14),
+      rgb(69 224 189 / 0) 70%
+    ),
+    radial-gradient(
+      90% 60% at 50% 100%,
+      rgb(11 95 165 / 0.34),
+      rgb(11 95 165 / 0) 72%
+    );
+}
+
+/* Nothing in the frame may leak out of it: the cards are stacked and the ones
+   off-stage are held below and above their resting place. */
+.company-values__stage {
+  overflow: clip;
+}
+
+/* --- The stage -----------------------------------------------------------
+   All six cards occupy the same box. It is a grid rather than absolute
+   positioning so the box measures itself against the tallest statement and
+   stops changing height as the values change - the rail underneath would
+   otherwise walk up and down the screen six times.
+-------------------------------------------------------------------------- */
+
+/* --- The frame -----------------------------------------------------------
+   How close anything is allowed to get to either end of the stage.
+
+   The stage is exactly one screen tall and it clips, so everything in it —
+   heading, icon, name, statement, counter, rail — has to fit inside whatever
+   height the reader's screen happens to be. A wide laptop is often only 700 or
+   800 pixels tall, and at that size the content very nearly fills the stage:
+   centring it leaves a few dozen pixels at each end, and a heading that size
+   with 30px above it reads as though it has been shoved against the edge.
+
+   So the padding is asymmetric, and in vh. More above than below, because the
+   two ends are not carrying the same weight: the top of this stage is a large
+   heading arriving out of a colour change, and the bottom is a row of 10px
+   labels. The same gap at both ends looks short at the top and loose at the
+   bottom.
+-------------------------------------------------------------------------- */
+
+.company-values__frame {
+  padding-top: clamp(3rem, 9vh, 6.5rem);
+  padding-bottom: clamp(1.75rem, 5vh, 4rem);
+}
+
+/* --- The stage ----------------------------------------------------------- */
+
+.company-values__deck {
+  display: grid;
+  margin-top: 2.25rem;
+  /* One cell. Every child is placed in it, so they stack. */
+  grid-template-areas: "stage";
+  align-items: start;
+  justify-items: center;
+}
+
+.company-values__card {
+  grid-area: stage;
+  display: flex;
+  max-width: 34rem;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  /* Written per frame from the driver; these are the resting values, and what
+     a card is left at if the driver never runs. */
+  transform: translate3d(0, 0, 0) scale(1);
+  /* The blur is on this card but only ever reaches the icon - see the rule on
+     the ring. A card is a column of type, and blurring type every frame is a
+     repaint of the whole column. */
+  --card-blur: 0px;
+  /* Off-stage cards are transparent, and a transparent card still catches a
+     click meant for whatever is behind it. */
+  pointer-events: none;
+}
+
+/* Hinted only while it is one of the two cards actually moving. Left on all
+   six, this promotes four layers that will not change for the length of the
+   runway - and a permanent `will-change: opacity` also makes the element a
+   backdrop root, which is how it would quietly break anything filtered
+   inside it. */
+.company-values__card[data-shown="1"] {
+  pointer-events: auto;
+  will-change: transform, opacity;
+}
+
+@media (min-width: 40rem) {
+  .company-values__deck {
+    margin-top: 3rem;
+  }
+}
+
+/* A short screen is the case this layout is tightest in — a wide laptop is
+   often only 700 or 800 pixels tall, and every one of those pixels is spoken
+   for. The gaps close before the type does, and the type before the heading:
+   what is being protected here is the air around the title, because that is
+   the thing a reader notices missing. */
+@media (max-height: 860px) {
+  .company-values__deck,
+  .company-values__deck + * {
+    margin-top: 1.5rem;
+  }
+
+  .company-values__name {
+    margin-top: 1rem;
+  }
+
+  .company-values__statement {
+    margin-top: 0.625rem;
+  }
+}
+
+@media (max-height: 720px) {
+  /* Scoped to this section. The vision band above shares the heading style but
+     not the problem — it is as tall as its contents and has nothing to fit
+     inside a screen. */
+  .company-values .company-dark__title {
+    font-size: clamp(1.5rem, 4vw, 1.875rem);
+  }
+
+  .company-values__name {
+    font-size: clamp(1.25rem, 3.6vw, 1.625rem);
+  }
+
+  .company-values__statement {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+  }
+
+  .company-values__deck,
+  .company-values__deck + * {
+    margin-top: 1.125rem;
+  }
+}
+
+/* The floor. Below about 640 the six values genuinely do not fit a screen at
+   any comfortable size, and something has to give — so the icon gives, being
+   the one element here that says nothing a reader needs to read. */
+@media (max-height: 640px) {
+  .company-values__ring {
+    width: min(clamp(4.75rem, 14vw, 7rem), 16vh);
+  }
+
+  .company-values__deck,
+  .company-values__deck + * {
+    margin-top: 0.875rem;
+  }
+
+  .company-values__frame {
+    padding-top: clamp(2.25rem, 7vh, 3rem);
+  }
+}
+
+/* --- The icon ------------------------------------------------------------ */
+
+.company-values__ring {
+  display: grid;
+  place-items: center;
+  /* Sized against both axes, and the height is the one that bites. This has to
+     fit a fixed-height stage together with a heading, a statement, a counter
+     and a rail — on a short laptop the width-based size alone is bigger than
+     the room left for it, and the stage clips. Whichever measure is smaller
+     wins, and the vh figure is what buys the heading its air back on a screen
+     that has none to spare. */
+  width: min(clamp(5.5rem, 16vw, 9rem), 18vh);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  border: 1.5px solid rgb(69 224 189 / 0.55);
+  color: var(--mint);
+  /* Lit from inside, so the disc reads as a lamp rather than a hole. */
+  background: radial-gradient(
+    closest-side,
+    rgb(69 224 189 / 0.14),
+    rgb(69 224 189 / 0) 78%
+  );
+  filter: blur(var(--card-blur, 0px));
+}
+
+/* The static reading has six of these side by side rather than one at a time,
+   so they are drawn at the size six of them can be. */
+.company-values__ring--sm {
+  width: 5.5rem;
+  filter: none;
+}
+
+.company-values__glyph {
+  width: 58%;
+  height: 58%;
+}
+
+/* --- The words ----------------------------------------------------------- */
+
+.company-values__name {
+  margin-top: 1.75rem;
+  font-size: clamp(1.375rem, 4.4vw, 2.125rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--mint);
+}
+
+.company-values__statement {
+  margin-top: 1rem;
+  max-width: 30rem;
+  font-size: clamp(0.9375rem, 2.4vw, 1.125rem);
+  line-height: 1.65;
+  color: rgb(255 255 255 / 0.86);
+}
+
+/* --- The count ----------------------------------------------------------- */
+
+/* Keyed on the active number, so React replaces the element and the animation
+   runs again. A transition would not: the value changes, but from one static
+   number to another with nothing in between to interpolate. */
+.company-values__count {
+  display: inline-block;
+  animation: values-count-in 420ms var(--ease-out-quint) both;
+}
+
+@keyframes values-count-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+}
+
+/* --- The rail ------------------------------------------------------------ */
+
+.company-values__rail {
+  display: flex;
+  margin-top: 0.875rem;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.company-values__rail-item {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+  max-width: 9rem;
+}
+
+.company-values__step {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  cursor: pointer;
+  transition:
+    background-color 200ms var(--ease-gentle),
+    transform 200ms var(--ease-gentle);
+}
+
+.company-values__step:hover {
+  background-color: rgb(255 255 255 / 0.06);
+  transform: translateY(-2px);
+}
+
+/* The site's focus ring is brand blue, which is the right colour on every
+   other page and nearly invisible on this one — #0b5fa5 against a #0a2748
+   ground is one dark blue on another. Mint is the only thing in this section
+   that reads at a glance, so the ring is mint here. */
+.company-values__step:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+  background-color: rgb(255 255 255 / 0.06);
+}
+
+.company-values__step:active {
+  transform: translateY(0);
+}
+
+/* The line through the dot, which is what makes six dots a rail rather than
+   six dots. Drawn on the button so it stops at the button's edges and the two
+   ends of the row are open. */
+.company-values__dot {
+  position: relative;
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.28);
+  transition:
+    background-color 300ms var(--ease-gentle),
+    box-shadow 300ms var(--ease-gentle),
+    scale 300ms var(--ease-gentle);
+}
+
+.company-values__dot::before,
+.company-values__dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 50vw;
+  max-width: 4.25rem;
+  height: 1px;
+  background: rgb(255 255 255 / 0.16);
+  translate: 0 -50%;
+}
+
+.company-values__dot::before {
+  right: 100%;
+  margin-right: 0.35rem;
+}
+
+.company-values__dot::after {
+  left: 100%;
+  margin-left: 0.35rem;
+}
+
+/* Both ends of the row are open, so the rail reads as six stops rather than a
+   line that has been cut. */
+.company-values__rail-item:first-child .company-values__dot::before,
+.company-values__rail-item:last-child .company-values__dot::after {
+  content: none;
+}
+
+.company-values__step[data-active="true"] .company-values__dot {
+  background: var(--mint);
+  scale: 1.35;
+  box-shadow: 0 0 0 4px rgb(69 224 189 / 0.18);
+}
+
+.company-values__step:hover .company-values__dot {
+  background: rgb(255 255 255 / 0.55);
+}
+
+.company-values__step[data-active="true"]:hover .company-values__dot {
+  background: var(--mint);
+}
+
+.company-values__num {
+  font-size: 0.625rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.18em;
+  color: rgb(255 255 255 / 0.4);
+  transition: color 300ms var(--ease-gentle);
+}
+
+.company-values__short {
+  display: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.4);
+  transition: color 300ms var(--ease-gentle);
+}
+
+.company-values__step[data-active="true"] .company-values__num,
+.company-values__step[data-active="true"] .company-values__short {
+  color: var(--mint);
+}
+
+.company-values__step:hover .company-values__num,
+.company-values__step:hover .company-values__short {
+  color: rgb(255 255 255 / 0.8);
+}
+
+/* Six names only where six names fit. Below this the dots and the "03 / 06"
+   above them carry it, and every button is a full sixth of the row wide -
+   which is the part that matters on a touch screen. */
+@media (min-width: 40rem) {
+  .company-values__rail {
+    gap: 0.5rem;
+  }
+
+  .company-values__short {
+    display: block;
+  }
+}
+
+/* --- Each icon's entrance ------------------------------------------------
+   Every glyph arrives the same way - the ring draws itself, the drawing
+   settles - and then one part of each does something that belongs only to
+   that value. The shared move is what makes them a set; the second one is
+   what stops them being six of the same animation.
+
+   All of it is keyed on [data-active="true"]. A CSS animation restarts when an
+   element starts matching its selector, so scrolling back to a value plays it
+   again, and scrolling past it and back plays it again - which is what makes
+   the whole section reversible without a line of JavaScript to reverse.
+-------------------------------------------------------------------------- */
+
+.company-values__card[data-active="true"] .company-values__ring {
+  animation: values-ring-in 700ms var(--ease-out-quint) both;
+}
+
+@keyframes values-ring-in {
+  from {
+    opacity: 0;
+    scale: 0.82;
+  }
+}
+
+.company-values__card[data-active="true"] .company-values__glyph {
+  animation: values-glyph-in 620ms 60ms var(--ease-out-quint) both;
+}
+
+@keyframes values-glyph-in {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+/* Every staggered part carries `--i`, its place in its own queue, so the delays
+   below are arithmetic rather than a rule per child.
+
+   The distances are in SVG user units, not device pixels. The grid is 48 wide
+   and the drawing is rendered around 150, so one unit is roughly three pixels
+   on screen and these numbers are a third of what they look like they should
+   be. Written any larger, "subtle" becomes a lurch. */
+
+/* WIN WIN WIN - the three of them stand up in front of the building. */
+.company-values__card[data-active="true"] .vg-rise {
+  animation: values-rise 620ms calc(200ms + var(--i) * 90ms)
+    var(--ease-out-quint) both;
+}
+
+@keyframes values-rise {
+  from {
+    opacity: 0;
+    translate: 0 2.5px;
+  }
+}
+
+/* DIVERSITY - the two outer figures open away from the middle one.
+   INTEGRITY - the two hands come the other way, in to meet. Same pair of
+   classes, opposite signs, which is the whole difference between the two
+   gestures. */
+.company-values__card[data-active="true"] .vg-centre {
+  animation: values-pop 500ms 220ms var(--ease-out-quint) both;
+}
+
+.company-values__card[data-active="true"] [data-icon="diversity"] .vg-left {
+  animation: values-open-left 620ms 300ms var(--ease-out-quint) both;
+}
+
+.company-values__card[data-active="true"] [data-icon="diversity"] .vg-right {
+  animation: values-open-right 620ms 300ms var(--ease-out-quint) both;
+}
+
+@keyframes values-open-left {
+  from {
+    opacity: 0;
+    translate: 2px 0;
+  }
+}
+
+@keyframes values-open-right {
+  from {
+    opacity: 0;
+    translate: -2px 0;
+  }
+}
+
+.company-values__card[data-active="true"] [data-icon="integrity"] .vg-left {
+  animation: values-clasp-left 700ms 240ms var(--ease-out-quint) both;
+}
+
+.company-values__card[data-active="true"] [data-icon="integrity"] .vg-right {
+  animation: values-clasp-right 700ms 240ms var(--ease-out-quint) both;
+}
+
+/* Further out than the diversity pair moves, and slower: this is two people
+   reaching for each other rather than a group opening up. */
+@keyframes values-clasp-left {
+  from {
+    opacity: 0;
+    translate: -3.5px 0;
+  }
+}
+
+@keyframes values-clasp-right {
+  from {
+    opacity: 0;
+    translate: 3.5px 0;
+  }
+}
+
+/* The grip only exists once the hands have arrived. */
+.company-values__card[data-active="true"] .vg-grip {
+  animation: values-fade 380ms 760ms var(--ease-gentle) both;
+}
+
+/* INNOVATION - the lamp comes on, and the sparks catch after it. */
+.company-values__card[data-active="true"] .vg-glow {
+  animation: values-lamp 2600ms 260ms var(--ease-gentle) both;
+}
+
+@keyframes values-lamp {
+  0% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.2;
+  }
+  55% {
+    opacity: 0.1;
+  }
+  100% {
+    opacity: 0.16;
+  }
+}
+
+.company-values__card[data-active="true"] .vg-spark {
+  animation: values-pop 520ms calc(420ms + var(--i) * 140ms) var(--ease-pop)
+    both;
+}
+
+/* Without these, `scale` on anything inside an <svg> is measured from the
+   viewBox's origin rather than the shape's own middle - so a spark in the top
+   corner does not grow, it flies in from 0,0. */
+.vg-spark,
+.vg-centre,
+.vg-spread {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes values-pop {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+/* QUALITY & EXCELLENCE - the ticks are made one after another, drawn rather
+   than faded, because a tick is a stroke somebody puts there. */
+.company-values__card[data-active="true"] .vg-tick {
+  stroke-dasharray: 12;
+  animation: values-tick 420ms calc(300ms + var(--i) * 155ms)
+    var(--ease-out-quart) both;
+}
+
+@keyframes values-tick {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* SOCIAL RESPONSIBILITY - the group opens out over the hand, and the reach
+   over it is drawn last. */
+.company-values__card[data-active="true"] .vg-spread {
+  animation: values-pop 560ms calc(240ms + var(--i) * 95ms)
+    var(--ease-out-quint) both;
+}
+
+.company-values__card[data-active="true"] .vg-arc {
+  stroke-dasharray: 46;
+  animation: values-arc 900ms 420ms var(--ease-out-quart) both;
+}
+
+@keyframes values-arc {
+  from {
+    stroke-dashoffset: 46;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes values-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The runway is never built under prefers-reduced-motion - the component
+   returns the plain grid instead - but the count and the rail are rendered in
+   both, and the ring animation would still find a card marked active. */
+@media (prefers-reduced-motion: reduce) {
+  .company-values__count,
+  .company-values__card[data-active="true"] .company-values__ring,
+  .company-values__card[data-active="true"] .company-values__glyph,
+  .company-values__card[data-active="true"] .vg-rise,
+  .company-values__card[data-active="true"] .vg-centre,
+  .company-values__card[data-active="true"] .vg-left,
+  .company-values__card[data-active="true"] .vg-right,
+  .company-values__card[data-active="true"] .vg-grip,
+  .company-values__card[data-active="true"] .vg-glow,
+  .company-values__card[data-active="true"] .vg-spark,
+  .company-values__card[data-active="true"] .vg-tick,
+  .company-values__card[data-active="true"] .vg-spread,
+  .company-values__card[data-active="true"] .vg-arc {
+    animation: none;
+  }
+
+  .company-values__card[data-active="true"] .vg-glow {
+    opacity: 0.16;
+  }
+
+  .company-values__step,
+  .company-values__dot,
+  .company-values__num,
+  .company-values__short {
+    transition: none;
+  }
+}

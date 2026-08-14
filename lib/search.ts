@@ -5,6 +5,11 @@ import {
   OPENINGS_HREF,
   PILLARS,
 } from "./careers";
+import {
+  PARTNER_NETWORK,
+  PARTNER_WITH_SOPHIC,
+  PARTNERS_HERO,
+} from "./partners";
 import { SOLUTIONS } from "./solutions";
 
 /**
@@ -15,9 +20,9 @@ import { SOLUTIONS } from "./solutions";
  * The whole index is a dozen entries, so it is built once at module scope and
  * matched synchronously on every keystroke — no async, no network, no worker.
  *
- * Only real routes are indexed. The remaining header items (Partners,
- * Community) are inert prototype buttons with nowhere to go, and a result that
- * lands on nothing is worse than no result at all.
+ * Only real routes are indexed. The one remaining header item (Community) is an
+ * inert prototype button with nowhere to go, and a result that lands on nothing
+ * is worse than no result at all.
  *
  * The individual vacancies under /careers/openings are deliberately left out,
  * real though they now are. Five of the nine carry the word "engineer" and
@@ -129,7 +134,53 @@ function buildIndex(): SearchEntry[] {
           "effective industrial automation solutions cutting edge " +
           "technology technical competency growth business solutions " +
           "outsourcing mechanism develop supply manage customized " +
-          "automation projects office offices building headquarters",
+          "automation projects office offices building headquarters " +
+          // The values board lives on this page and nowhere else, so what it
+          // says has to be findable from here or it is not findable at all.
+          "our leadership founders dim kuan dk ceo co-founder " +
+          "lee chee hoo cdo management team who runs sophic " +
+          "our vision and mission global specialist smart manufacturing " +
+          "implementations factories worldwide integrated digitalization " +
+          "world class solutions services products satisfying customers " +
+          "employees partners suppliers " +
+          "our values win win win diversity innovation integrity " +
+          "quality excellence social responsibility inclusive collaborative " +
+          "fearless of failures doing what is right take ownership " +
+          "communities we serve",
+      },
+    },
+    {
+      id: "partners",
+      kind: "page",
+      title: "Partners",
+      href: "/partners",
+      breadcrumb: "Sophic Automation",
+      summary: PARTNERS_HERO.headline,
+      lower: {
+        title: "partners",
+        breadcrumb: "sophic automation",
+        summary: PARTNERS_HERO.headline.toLowerCase(),
+        // "Principals" earns its place in the hand-written list: it is the
+        // word a supplier would search for and it appears nowhere else on the
+        // site. The rest of the page's own copy is folded in after it, so the
+        // five pillars are findable by name.
+        keywords: lower(
+          "partner partnership alliance ecosystem collaborate collaboration" +
+            " principals suppliers distributors customers work with us" +
+            " industry 4.0 i4.0 industrial revolution smart manufacturing" +
+            " journey together digital transformation trusted",
+          PARTNERS_HERO.lead,
+          PARTNER_WITH_SOPHIC.heading,
+          ...PARTNER_WITH_SOPHIC.paragraphs,
+          ...PARTNER_WITH_SOPHIC.pillars.map((pillar) => pillar.name),
+          // Every partner by name, and the group each sits in. Somebody
+          // typing "Beckhoff" or "Keyence" is looking for this page and it is
+          // the only place either word appears.
+          ...PARTNER_NETWORK.groups.flatMap((group) => [
+            group.label,
+            ...group.rows.flat().map((partner) => partner.name),
+          ]),
+        ),
       },
     },
     {

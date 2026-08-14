@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { CompanyCover } from "@/components/company/CompanyCover";
+import { CompanyLeaders } from "@/components/company/CompanyLeaders";
 import { CompanyScene } from "@/components/company/CompanyScene";
+import { CompanyValues } from "@/components/company/CompanyValues";
+import { CompanyVision } from "@/components/company/CompanyVision";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 
@@ -84,6 +87,30 @@ export default function CompanyPage() {
           </div>
         </Container>
       </section>
+
+      {/* Still white, and deliberately on this side of the turn: the founders
+          belong with who the company is rather than with what it believes, and
+          putting them here leaves the dark chapter below as the page's close.
+          It is on its own background, so it moves without consequence. */}
+      <CompanyLeaders />
+
+      {/* --- The dark half -------------------------------------------------
+          Where the company page turns. Both sections below share one ground so
+          the change of colour happens once, at the top of the first, and they
+          read as a single chapter rather than as two bands that happen to
+          match.
+
+          The values board goes first and takes the turn with it: it opens with
+          a light at the top of its stage, which is what the change from white
+          reads against. The vision and mission then close the page still, after
+          the one section that asked the reader to work for it. */}
+      <CompanyValues />
+      {/* -mb-24 cancels the footer's own top margin. That margin is right
+          everywhere else — it is the air between a white page and a near-white
+          footer — but under a dark band it opens a strip of bare page between
+          two grounds, which reads as a seam rather than as space. It belongs to
+          whichever section ends up last here, not to the section itself. */}
+      <CompanyVision className="-mb-24" />
     </>
   );
 }

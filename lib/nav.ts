@@ -3,9 +3,8 @@ import type { Route } from "next";
 /**
  * Header navigation config.
  *
- * "Company", "Solution", "Careers" and "Contact" have pages. "Partners" and
- * "Community" are inert prototype buttons — styled like a link, but they
- * deliberately go nowhere.
+ * Everything here has a page except "Community", which is an inert prototype
+ * button — styled like a link, but it deliberately goes nowhere.
  */
 export type HeaderNavItem = {
   label: string;
@@ -29,7 +28,7 @@ export type HeaderNavItem = {
 export const HEADER_NAV: HeaderNavItem[] = [
   { label: "Company", href: "/company" },
   { label: "Solution", hasMenu: true, href: "/solutions" },
-  { label: "Partners" },
+  { label: "Partners", href: "/partners" },
   { label: "Careers", href: "/careers" },
   { label: "Community" },
   { label: "Contact", cta: true, href: "/contact" },

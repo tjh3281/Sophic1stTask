@@ -1,0 +1,45 @@
+/* --- The dark passage ----------------------------------------------------
+   The company page runs white from the cover down to the end of the company
+   background, and then turns. Two sections share that turn — the vision and
+   mission, and the values board — and they share this ground so the change of
+   colour happens once, at the top of the first one, rather than twice with a
+   seam between them.
+
+   The palette is the values board's own rather than the site's: navy behind,
+   mint in front, white body copy. The mint is a deliberate cousin of the
+   site's --accent (#29a8b8) rather than a fourth brand colour — the same hue
+   pushed up in lightness and chroma until it reads on navy the way the board's
+   does, so these sections belong to Sophic and to this site at once.
+
+   Only the tokens and the flat ground are here. What each section does with
+   them — the values stage lights itself from both ends, the vision band does
+   not — belongs to that section.
+-------------------------------------------------------------------------- */
+
+/* The palette, owned here and borrowed by the leadership board, which is on
+   white and wants the same mint for its rings and rules. One definition, so
+   the two halves of the page cannot drift apart by a hex digit. */
+.company-dark,
+.company-leaders {
+  --mint: #45e0bd;
+  --navy: #0a2748;
+}
+
+.company-dark {
+  position: relative;
+  isolation: isolate;
+  color: #fff;
+  background-color: var(--navy);
+}
+
+/* Both sections in the passage are titled the same way, because they are a
+   pair and a reader should see one hand behind both. Shared from here rather
+   than from either section's own stylesheet: a heading that borrows its type
+   from a sibling loses it the day the sibling is removed. */
+.company-dark__title {
+  font-size: clamp(1.625rem, 4.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: #fff;
+}

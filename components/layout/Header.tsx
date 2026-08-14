@@ -18,10 +18,10 @@ import { SearchTrigger } from "./SearchTrigger";
  * Pages whose cover runs underneath the header.
  *
  * The solution categories derive theirs from the tree — a category has a cover
- * exactly when it has a cover image. The careers routes are listed by hand
- * because their covers are components rather than rows of data, so there is
- * nothing to derive it from; the alternative is a route that looks like every
- * other cover page and wears an opaque bar over the top of its artwork.
+ * exactly when it has a cover image. The rest are listed by hand because their
+ * covers are components rather than rows of data, so there is nothing to derive
+ * it from; the alternative is a route that looks like every other cover page
+ * and wears an opaque bar over the top of its artwork.
  *
  * Matched exactly, which is what keeps the individual role pages out: they open
  * on a flat band rather than a cover, and a transparent bar over that would be
@@ -37,6 +37,7 @@ const COVER_ROUTES = new Set<string>([
   "/careers",
   "/careers/openings",
   "/company",
+  "/partners",
 ]);
 
 export function Header() {
