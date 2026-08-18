@@ -23,9 +23,9 @@
     /* High and central: the light the bursts are going off in, which is also
        what lifts the wordmark and the heading off the ground behind them. */
     radial-gradient(
-      75% 55% at 50% 6%,
-      rgb(14 76 132 / 0.5),
-      rgb(14 76 132 / 0) 70%
+      78% 58% at 50% 4%,
+      rgb(18 92 158 / 0.66),
+      rgb(18 92 158 / 0) 70%
     ),
     /* And a horizon under the closing line, in the accent teal, so the band
        does not simply run out into flat black at the bottom of the page. */

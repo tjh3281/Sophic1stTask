@@ -16,6 +16,7 @@ export function NavButton({
   href,
   cta = false,
   overlay = false,
+  current = false,
   className,
 }: {
   label: string;
@@ -23,8 +24,17 @@ export function NavButton({
   cta?: boolean;
   /** Sitting on a dark cover rather than the solid bar. */
   overlay?: boolean;
+  /** The section the reader is currently in. */
+  current?: boolean;
   className?: string;
 }) {
+  // Colour only, and the weight is deliberately left alone: the bar is a row of
+  // items sized by their own text, and swapping one to semibold on navigation
+  // would nudge every item after it sideways.
+  //
+  // Two colours because there are two backgrounds. Brand blue is invisible on a
+  // dark cover, so the overlay marks the current section in the accent teal
+  // instead — the same highlight those covers already use for their eyebrows.
   const classes = cn(
     "inline-block rounded-md text-sm font-medium transition-[color,transform] duration-200 ease-gentle",
     cta
@@ -32,14 +42,24 @@ export function NavButton({
       : cn(
           "px-3 py-2",
           overlay
-            ? "text-white/90 hover:text-white"
-            : "text-foreground hover:text-brand",
+            ? current
+              ? "text-accent"
+              : "text-white/90 hover:text-white"
+            : current
+              ? "text-brand"
+              : "text-foreground hover:text-brand",
         ),
     className,
   );
 
+  // Set even on the call to action, which has no room to look any different
+  // from the filled button it already is — the state is still worth announcing.
   const control = href ? (
-    <Link href={href} className={classes}>
+    <Link
+      href={href}
+      aria-current={current ? "page" : undefined}
+      className={classes}
+    >
       {label}
     </Link>
   ) : (

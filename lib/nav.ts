@@ -3,8 +3,9 @@ import type { Route } from "next";
 /**
  * Header navigation config.
  *
- * Everything here has a page except "Community", which is an inert prototype
- * button — styled like a link, but it deliberately goes nowhere.
+ * Every item here now has a page. The type keeps `href` optional all the same:
+ * it is what NavButton reads to decide between a link and an inert button, and
+ * the next item added to this bar will very likely arrive before its page does.
  */
 export type HeaderNavItem = {
   label: string;
@@ -30,6 +31,25 @@ export const HEADER_NAV: HeaderNavItem[] = [
   { label: "Solution", hasMenu: true, href: "/solutions" },
   { label: "Partners", href: "/partners" },
   { label: "Careers", href: "/careers" },
-  { label: "Community" },
+  { label: "Community", href: "/community" },
   { label: "Contact", cta: true, href: "/contact" },
 ];
+
+/**
+ * Whether a bar item is the page the reader is on.
+ *
+ * Prefix match, not equality: /solutions/inspection-testing/machine-vision is
+ * three levels below the item that led there, and a reader four clicks into a
+ * section still wants the bar to tell them which section it is. The same rule
+ * puts /careers/openings and every role page under Careers.
+ *
+ * Nothing in HEADER_NAV points at "/", which is what makes the prefix safe —
+ * an item for the home page would match every route on the site.
+ */
+export function isCurrentSection(
+  item: HeaderNavItem,
+  pathname: string,
+): boolean {
+  if (!item.href) return false;
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}

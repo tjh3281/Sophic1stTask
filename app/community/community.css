@@ -1,0 +1,213 @@
+/* --- The sky -------------------------------------------------------------
+   The whole page is in space, because the artwork already was.
+
+   All four drawings are cut-outs — transparent PNGs of a globe with nothing
+   behind it — and on a white page that reads as a sticker of a planet rather
+   than as a planet. The illustration they came from puts them on this: a violet
+   field with the arm of a galaxy sweeping through the lower half of it, stars
+   and rocks scattered over the top. Putting it back is what makes the globe
+   look photographed rather than pasted.
+
+   One layer for the whole page rather than a background per section, and that
+   is the point of it being fixed: the section below is four screens tall and
+   the reader is meant to be travelling *toward* the world through the set
+   piece, not past a starfield scrolling by. A sky that moves with the page
+   would give the camera move a parallax it does not want. Fixed, the frame
+   stays where it is and only the world in it comes closer.
+
+   Fixed rather than `background-attachment: fixed`, which paints on scroll and
+   over a runway this tall is a repaint of the whole window every frame. This is
+   one composited layer that never moves.
+
+   Behind everything on the page: `z-index: -1` puts it under the content but
+   still over the canvas, and the layout has no transformed ancestor between
+   here and the viewport to trap it. Lenis drives the real scroll offset rather
+   than translating a wrapper, so `position: fixed` means what it says.
+-------------------------------------------------------------------------- */
+
+.community-page {
+  position: relative;
+  /* Keeps the negative z-index below inside this page. Without it the layer is
+     free to slide under a background painted anywhere else in the document. */
+  isolation: isolate;
+}
+
+.community-page__sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  /* The deepest violet in the file. Shows for one paint before the image
+     arrives and behind any letterboxing, and both of those are the difference
+     between a page that loads dark and one that flashes white. */
+  background-color: #221657;
+  background-image: url("/images/5471985.jpg");
+  /* One copy filling the window. The file is 3000×2000 — wider than tall — so
+     on a portrait window `cover` crops the sides, which is the right thing to
+     lose: the composition is banded top to bottom, dark sky over galaxy arm,
+     and it survives being narrowed far better than being cut short. */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* The header goes transparent over the cover on this route and its links are
+   white, and past the cover it sits on the darkest part of the sky. Nothing to
+   do there. What does need help is the foot of the window, where the galaxy arm
+   is at its brightest and the notepad's white paper and the placeholder marks
+   have to hold against it. A shallow darkening, only in the bottom third. */
+.community-page__sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgb(20 12 48 / 0.55),
+    rgb(20 12 48 / 0) 38%
+  );
+}
+
+/* --- The cover's light ---------------------------------------------------
+   A band cut out of the same illustration, softened until the ribbons drawn in
+   it stop being shapes and start being light.
+
+   Three layers, and each is doing one job:
+
+     wash   the crop itself, blurred. The source is flat vector art — hard
+            edges, discrete bands of colour — and blurring it is the whole
+            treatment. At this radius the ribbons bleed into one another, the
+            scattered stars become soft points rather than dots, and what is
+            left reads as light through liquid instead of as an illustration
+            that has been shrunk.
+     glow   the light, laid on top and drifting. Screened rather than painted,
+            so it brightens what is under it instead of covering it.
+     shade  the dark the light is read against, and what keeps white type on
+            top of a moving field legible at every frame of the drift.
+
+   The whole stack belongs to this section, not to the window, so it travels up
+   with the copy when the page scrolls.
+-------------------------------------------------------------------------- */
+
+.community-cover__light {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+
+  /* Dissolves into the page's own sky rather than ending on a line.
+     This layer scrolls and the sky behind it is fixed, so the two are in
+     register only at the very top of the page — anywhere else, an edge here
+     would be a seam travelling up the screen. Fading out before the section
+     ends means there is never an edge to see. Everything inside is masked
+     together, the shade included, which is why a scrim is safe here and was
+     not when the cover was a plain hole onto the sky. */
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+
+.community-cover__wash {
+  position: absolute;
+  /* Overhangs by more than the blur radius. A blur samples what is outside the
+     element as transparent, so a layer blurred at its own edges fades out at
+     them — the overhang keeps the fade outside the cover, where the parent
+     clips it. */
+  inset: -4rem;
+
+  background-image: url("/images/5471985.jpg");
+  /* Not `cover`, and the difference only shows on a phone. `cover` scales to
+     whichever axis needs it, and on a narrow window that is the *height* — the
+     artwork then fits the band exactly, there is no spare height, and the
+     position below has nothing left to choose from: the whole file gets
+     squeezed into a strip, dead top and all. Sizing by width with a floor of
+     150vh guarantees a rendered height of at least one screen at every window
+     shape, which is always taller than this section, so there is always a band
+     to pick. */
+  background-size: max(100%, 150vh) auto;
+  /* And this is the pick. Not the middle of the file and not the top: 78% down
+     lands on the crossing arms of the galaxy, which is the only part of the
+     image with light in it. The top is empty sky. */
+  background-position: 50% 78%;
+  background-repeat: no-repeat;
+
+  filter: blur(11px) saturate(1.08);
+}
+
+.community-cover__glow {
+  position: absolute;
+  /* Room to move without its own edges ever entering the frame. */
+  inset: -25%;
+
+  background:
+    radial-gradient(
+      36% 58% at 24% 44%,
+      rgb(206 184 255 / 0.5),
+      rgb(206 184 255 / 0) 70%
+    ),
+    radial-gradient(
+      30% 50% at 72% 62%,
+      rgb(255 206 236 / 0.34),
+      rgb(255 206 236 / 0) 72%
+    ),
+    radial-gradient(
+      44% 40% at 54% 12%,
+      rgb(150 208 255 / 0.22),
+      rgb(150 208 255 / 0) 74%
+    );
+  mix-blend-mode: screen;
+
+  /* Slow enough that nobody watches it and long enough that it never repeats
+     while anyone is looking. Transform only, so it is compositor work. */
+  animation: community-cover-drift 34s ease-in-out infinite;
+}
+
+@keyframes community-cover-drift {
+  0% {
+    transform: translate3d(-1.6%, 0.8%, 0) scale(1.04);
+  }
+  50% {
+    transform: translate3d(1.8%, -1.4%, 0) scale(1.12);
+  }
+  100% {
+    transform: translate3d(-1.6%, 0.8%, 0) scale(1.04);
+  }
+}
+
+/* Drifting light is exactly the kind of thing that was asked not to happen. */
+@media (prefers-reduced-motion: reduce) {
+  .community-cover__glow {
+    animation: none;
+  }
+}
+
+.community-cover__shade {
+  position: absolute;
+  inset: 0;
+  /* Heaviest across the top, where the header's white links sit on it, and
+     heavy again at the foot behind the headline. Lightest across the middle,
+     which is where the band has its best light and nothing is written. */
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(14 7 38 / 0.62),
+      rgb(14 7 38 / 0.16) 34%,
+      rgb(14 7 38 / 0.1) 52%,
+      rgb(14 7 38 / 0.5)
+    ),
+    linear-gradient(to right, rgb(14 7 38 / 0.45), rgb(14 7 38 / 0) 68%);
+}
+
+/* The type's own shadow, on top of the shade above.
+   Two of them: a tight one that puts an edge back on the strokes, and a wide
+   soft one that darkens the ground the word sits on without being visible as
+   anything. It travels with the letters, which is what the moving light under
+   them needs — a scrim can be tuned for one frame of the drift, this holds for
+   all of them. */
+.community-cover__type {
+  text-shadow:
+    0 1px 2px rgb(12 6 34 / 0.55),
+    0 4px 24px rgb(12 6 34 / 0.7);
+}
+
+/* The page used to close on a band of type under the sequence, with a scrim to
+   lift it off the galaxy. It is gone: the page ends on the last drawing. */

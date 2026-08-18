@@ -125,12 +125,23 @@ export function MedalDrop() {
             height={43}
           />
           <div className="medal-hang__swivel">
+            {/* Cropped from the supplied `latest medal.png`, which is the disc
+                sitting in the middle of a 1366x768 transparent sheet. The crop
+                is the opaque box read off its alpha channel — 705x708 at
+                (329, 23) — so the disc fills this file edge to edge exactly as
+                the old one did. That is what keeps it where it was: the
+                stylesheet hangs it by the top edge and the horizontal centre of
+                the file, and the crop leaves both unchanged.
+
+                It is also 2.6x the resolution of the drawing it replaces, which
+                is the point — the old face was a 268px file drawn at 268px, so
+                every retina screen was looking at an upscale. */}
             <Image
               className="medal-hang__disc"
-              src="/images/medal-disc.png"
+              src="/images/medal-disc.webp"
               alt="Sophic Automation awards and certifications: ISO 9001:2015 Quality Management System, ISO/IEC 27001:2022 Information Security Management System, Dun & Bradstreet Business Eminence Awards 2024 Malaysia, and Intel Partner Gold."
-              width={268}
-              height={271}
+              width={705}
+              height={708}
             />
           </div>
         </div>

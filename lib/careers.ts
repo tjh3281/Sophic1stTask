@@ -10,8 +10,6 @@ import type { Route } from "next";
 
 /* --- Hero ----------------------------------------------------------------- */
 
-export const CAREERS_COVER = "/images/careers hero image.webp";
-
 export const CAREERS_HERO = {
   eyebrow: "Careers",
   title: "Talent as catalyst for digital innovation",
@@ -299,6 +297,18 @@ export type JobOpening = {
   /** Verbatim, several sites and all: which office you would sit at is part of
    *  what the ad is telling you, and shortening it to one city drops that. */
   location: string;
+  /**
+   * The photograph behind the role's own cover.
+   *
+   * Required rather than optional, so a role added without one fails the build
+   * instead of shipping a cover that is a rectangle of near-black — which is
+   * what an optional field here would eventually produce, on the one page a
+   * candidate reaches from a link somebody sent them.
+   *
+   * Filenames are the uploads' own, spaces and mixed case and all. They are
+   * only ever written here, and Next encodes them on the way into the URL.
+   */
+  image: string;
   /** Quoted on one role only, so absent everywhere else rather than blank. */
   salary?: string;
   description: string[];
@@ -350,6 +360,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Software Validation Engineer",
     hiringType: "Contract & Permanent",
     location: PENANG_KEDAH,
+    image: "/images/software-validation-engineer.webp",
     description: [
       "Setting up Demo station and automation environment for remote debug.",
       "Create a GUI/Dashboard that provide one stop Intel validation tools service for customers.",
@@ -370,6 +381,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Software Engineer (Web Division)",
     hiringType: "Permanent",
     location: PENANG_KEDAH,
+    image: "/images/software-engineer (web division).jpg",
     description: [
       ...SOFTWARE_ENGINEER_CORE,
       "Provides information by collecting, analyzing, and summarizing development and service issues.",
@@ -391,6 +403,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Software Engineer (Machine Division)",
     hiringType: "Permanent",
     location: PENANG_KEDAH,
+    image: "/images/software-engineer (machine division).jpg",
     description: [
       ...SOFTWARE_ENGINEER_CORE,
       "Improves operations by conducting systems analysis and recommending changes in policies and procedures.",
@@ -415,6 +428,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Software Engineer (IoT Division)",
     hiringType: "Permanent",
     location: PENANG_KEDAH,
+    image: "/images/software-engineer (iot division).jfif",
     description: [
       ...SOFTWARE_ENGINEER_CORE,
       "Provides information by collecting, analyzing, and summarizing development and service issues.",
@@ -438,6 +452,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Validation Engineer (Linux)",
     hiringType: "Contract & Permanent",
     location: "Bayan Lepas, Pulau Pinang",
+    image: "/images/linux-validation-engineer.jpg",
     description: [
       "Install, configure, deploy and monitor Linux OS.",
       "Troubleshoot applications and operating systems.",
@@ -465,6 +480,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Technical Sales Engineer (BD)",
     hiringType: "Permanent",
     location: HQ,
+    image: "/images/technical-sales-engineer.jpg",
     description: [
       "Effectively manage multiple orders or projects, ensuring high-quality execution and timely delivery to meet customer expectations.",
       "Provide comprehensive sales and service support to existing customers within industry clusters such as distribution channels, engineering, OEMs, and end-users.",
@@ -493,6 +509,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     hiringType: "Contract & Permanent",
     salary: "RM1800",
     location: "Bayan Lepas, Pulau Pinang",
+    image: "/images/test-technician.jfif",
     description: [
       "Diploma in Electronics/ Electrical/ Telecommunication Engineering with Debug/ ICT experience.",
       "Knowledge in circuit analysis of schematic diagrams (Digital and Analog).",
@@ -524,6 +541,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Sales Executive (BD)",
     hiringType: "Permanent",
     location: HQ,
+    image: "/images/sales-executive.jfif",
     description: [
       "Ability to handle multiple Order or Projects.",
       "Provide sales and service support to existing customers in related industry cluster (distribution channel, engineering, OEM, end-users)",
@@ -549,6 +567,7 @@ export const JOB_OPENINGS: JobOpening[] = [
     title: "Finance Executive",
     hiringType: "Permanent",
     location: HQ,
+    image: "/images/Finance-Executive.avif",
     description: [
       "Oversee the accurate and timely preparation of monthly management accounts, ensuring all key aspects, including the general ledger, accounts receivables, and accounts payables, are properly managed.",
       "Perform and monitor daily account recording activities, including data entry and financial transactions.",

@@ -1,0 +1,82 @@
+/* --- The contact page's ground -------------------------------------------
+   A circuit board behind the whole section, faded almost to nothing where the
+   blocks, the part and the cards sit.
+
+   It is the page's texture rather than the board's: the artwork inside the
+   Container is drawn copper, and this is the material it is drawn on. The two
+   are meant to be read at different distances, which is the whole reason for
+   the fade — a board at full strength directly under a form is a page nobody
+   can fill in.
+-------------------------------------------------------------------------- */
+
+.contact-page {
+  position: relative;
+  /* Holds the layer's negative z-index and its blend mode inside the section,
+     so neither reaches the page behind it. */
+  isolation: isolate;
+  /* What actually crops the layer below. See the overhang on it. */
+  overflow: hidden;
+}
+
+.contact-page::before {
+  content: "";
+  position: absolute;
+  /* Hung 18% below the section and clipped by it.
+     The source has an identifier burned into its bottom-right corner, and
+     that corner is the one place on this page the artwork is at full
+     strength — the fade takes out the middle, not the edges. Overhanging the
+     layer and letting the section clip it puts the whole of that bottom strip
+     outside the visible area at every window shape, which shifting the
+     background alone does not: with `cover`, which axis gets cropped depends
+     on whether the section is wider or taller than the artwork, and it is
+     both at different breakpoints. Sized against the layer, so 18% here hides
+     the bottom 15% of the image. */
+  inset: 0 0 -18% 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background-image: url("/images/contact-background.webp");
+  /* One copy, scaled to fill, rather than a tile.
+     The source is 463x280 — a banner with a part in the middle of it and
+     tracks running out to its edges, so it does not meet itself: tiled, every
+     repeat shows as a row of tracks stopping dead against the next copy. The
+     section is about the same shape as the artwork, so `cover` crops very
+     little; what it costs is a four-times upscale, which is invisible on flat
+     vector shapes at this opacity and would not be on a photograph. */
+  background-size: cover;
+  /* Anchored to the top, so the strip the overhang above pushes out of view is
+     always the bottom of the artwork and never the top of it. */
+  background-position: center top;
+  background-repeat: no-repeat;
+
+  /* The artwork is a light grey field with the tracks raised on it in white,
+     and multiply is what keeps that relief. Multiplying by white leaves the
+     page underneath exactly as it was, so the tracks stay the surface colour
+     and only the field around them darkens — which is the same light-on-dark
+     reading the source has. Laid on flat instead, the whole section takes an
+     even grey wash and the relief goes out of it. */
+  mix-blend-mode: multiply;
+  opacity: 0.6;
+
+  /* The fade. Strong out at the margins, and down to a twelfth of itself
+     across the middle of the page, which is exactly where the two blocks, the
+     part and the three cards live.
+
+     Not taken to zero: the glass cards refract what is behind them, and a hole
+     cut in the background leaves them refracting nothing. A trace of the board
+     still passing under them is what keeps them reading as glass.
+
+     One gradient rather than a horizontal and a radial composited together —
+     `mask-composite` disagrees across engines, and this says enough on its
+     own.
+
+     Centred at 42% rather than half way, because the layer this is painted on
+     hangs below the section — half of it is a little under the middle of what
+     the reader can actually see. */
+  mask-image: radial-gradient(
+    ellipse 58% 60% at 50% 42%,
+    rgb(0 0 0 / 0.08) 34%,
+    rgb(0 0 0 / 0.45) 62%,
+    #000 92%
+  );
+}

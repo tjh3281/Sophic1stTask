@@ -7,14 +7,25 @@ import "./Awards.css";
 /**
  * The commemorative certificate, at its native proportions.
  *
- * Named for what it is rather than for how recent it is — the file it replaced
- * was "latest", the one before that "new", and a third adjective would not have
- * helped anyone find it. A revised certificate overwrites this path.
+ * Named for what it is rather than for how recent it is — the files it has
+ * replaced were called "latest", "new" and "last final", and a fourth adjective
+ * would not have helped anyone find it. A revised certificate overwrites this
+ * path.
+ *
+ * Cropped from the supplied artwork, which arrives as the document floating in
+ * the middle of a 1414x2000 transparent sheet: the size below is the opaque box
+ * read off its alpha channel — 998x1413 at (220, 459) — flattened onto white,
+ * since the section it sits in is white and the ring and shadow the component
+ * draws want a real edge to sit against rather than a soft one.
  */
 const CERTIFICATE = {
-  src: "/images/sophic-20th-anniversary-certificate.png",
-  width: 1054,
-  height: 1492,
+  // WebP rather than PNG: the same crop is 146KB here against 1.24MB as a PNG,
+  // and this is a document — flat paper, fine type — which is the case that
+  // survives it. Delivery goes through next/image either way, so what this
+  // decides is what the repository carries.
+  src: "/images/sophic-20th-anniversary-certificate.webp",
+  width: 998,
+  height: 1413,
 };
 
 /**
@@ -44,7 +55,16 @@ export function Awards() {
             inside it sticks. Sticking the grid item itself would do nothing:
             a `self-start` item is only as tall as its contents, and a sticky
             element with no room left to travel in its parent never moves. */}
-        <div className="grid gap-x-14 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+        {/* The medal's column is sized by the medal, not by a number kept in
+            step with it. It used to be a fixed 20rem, which the rig had very
+            nearly outgrown — and widening it to a fixed 24rem instead took 64px
+            off the certificate at 1024px whether the medal was using them or
+            not, because at that width the medal is capped by 28vw and is
+            narrower than its own ceiling. `auto` hands the certificate back
+            everything the medal is not actually occupying, at every width, and
+            leaves one number to tune instead of two. See --disc-w in
+            MedalDrop.css. */}
+        <div className="grid gap-x-14 lg:grid-cols-[auto_minmax(0,1fr)]">
           {/* Flex at every width, including where it only holds one thing.
               A block parent would collapse the rig's negative top margin out
               into itself and the grid item above it, which moves the clip the

@@ -1,0 +1,123 @@
+/* --- The anniversary band ------------------------------------------------
+   A full-bleed strip of the site's dark under the awards section, carrying the
+   year counting from 2007 to 2027 on a loop.
+
+   It sits between two white screens — the certificate above it and the company
+   statement below — so the strip is the one change of ground in the middle of
+   the page. That is why it needs no border and no shadow: the colour change is
+   the edge, and the band is the only thing on it.
+-------------------------------------------------------------------------- */
+
+.year-band {
+  /* The strip's own height, and the one number the rest of this is measured
+     off.
+
+     The numerals come out at 62% of this, and this is set so that lands on the
+     size they were drawn at: the clip carries them 244px tall, and 44svh of a
+     900px-tall laptop is 396px, of which 62% is 245. So on an ordinary screen
+     the year is at the clip's own resolution, neither shrunk into a caption nor
+     blown up past what the source can carry. Wider screens do upscale it, which
+     is the right way for a video of soft gradient type to fail.
+
+     The ceiling is what stops a band between two white screens from becoming a
+     screen of its own: 44svh is under half the window at any height. Small
+     viewport units, so a phone's address bar sliding away cannot resize it
+     mid-scroll. */
+  --year-band-h: clamp(14rem, min(40vw, 44svh), 36rem);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--year-band-h);
+  background-color: #04101c;
+}
+
+/* --- The clip ------------------------------------------------------------
+   The source is a white page with a black band across its lower two thirds
+   and the year rolling in the middle of it: 1046x950, with everything above
+   row 334 empty. So the stage is a window onto the part that has the numerals
+   in it, and the video is scaled up and pushed off its own top-left corner to
+   suit — the arrangement Hero.css uses for the evolution figures, and the
+   notes there apply here too.
+
+   The four crop values are that window as a fraction of the frame, and they
+   come from the source's own odometer. Sampled across every frame of the clip,
+   anything lit at all falls inside x 239..804, y 499..793 — the year at rest
+   is smaller than that, and the extra is the roll between two of them. The
+   window is 620x320 about the same centre, which holds all of it with about a
+   dozen pixels of black to spare on each edge.
+
+   Do not read the slice across the digits during a roll as this crop cutting
+   them: the clip is masked at those two rows in the source, which is what
+   makes it an odometer rather than numbers sliding over each other. Tightening
+   the window would clip them; widening it only adds black.
+
+   Two of the frame's edges are unusable and the crop is what keeps them out:
+   the encoder left a grey column down x=1045 and a grey pixel in the bottom
+   corner, and at lum 128 on a strip this dark they would both read as ink.
+
+   --year-aspect is the window's own aspect ratio, which is what keeps the
+   video's undistorted: stage 1.9375:1, video scaled by 1/0.59273 across and
+   1/0.33684 down, comes back to the source's 1046:950 exactly.
+-------------------------------------------------------------------------- */
+
+.year-band__stage {
+  --year-crop-x: 0.20363;
+  --year-crop-y: 0.51158;
+  --year-crop-w: 0.59273;
+  --year-crop-h: 0.33684;
+  --year-aspect: 1.9375;
+
+  position: relative;
+  overflow: hidden;
+
+  /* Normally 0.81 of the strip: as much of it as the year can have and still
+     sit in it rather than against its edges. The numerals are 76% of this
+     window, so 0.81 puts them at 62% of the strip with a margin of about a
+     fifth of it above and below.
+
+     The second term is a ceiling the first one has to stay under on a narrow
+     screen. This window is nearly twice as wide as it is tall, so a height
+     taken from the strip alone becomes a width that can exceed the page — at
+     the 14rem minimum the stage wants 351px across, which is wider than a
+     small phone and would push a horizontal scrollbar onto the whole document.
+     Taking the smaller of the two keeps the aspect exactly right and simply
+     gives the year more air above and below when the page runs out of width. */
+  --year-stage-h: min(
+    calc(var(--year-band-h) * 0.81),
+    calc(92vw / var(--year-aspect))
+  );
+
+  height: var(--year-stage-h);
+  width: calc(var(--year-stage-h) * var(--year-aspect));
+}
+
+.year-band__video {
+  position: absolute;
+  width: calc(100% / var(--year-crop-w));
+  height: calc(100% / var(--year-crop-h));
+  left: calc(-100% * var(--year-crop-x) / var(--year-crop-w));
+  top: calc(-100% * var(--year-crop-y) / var(--year-crop-h));
+
+  /* Both are here to get out of the way of a default, and the crop above is
+     wrong without them: preflight's `max-width: 100%` on every video clamps
+     the width back to the stage, and a <video> defaults to `object-fit:
+     contain`, which then letterboxes the frame inside the mismatched box.
+     `fill` distorts nothing — the stage is sized to the source's own ratio. */
+  max-width: none;
+  object-fit: fill;
+
+  /* Blue numerals on black, and screen is what makes the black disappear:
+     screening black leaves the backdrop exactly as it was, so what reaches the
+     strip is the year and the strip's own #04101c. It is also the cheapest
+     repair available for a compressed source — the grey fringing around the
+     digits and along the crop's edges all screens away to nothing, where an
+     opaque video would have laid the clip's flat #000 over the strip as a
+     visibly different black. */
+  mix-blend-mode: screen;
+}
+
+/* No reduced-motion rule, and not by omission. The only motion here is the
+   count itself, and it is held in the component rather than in CSS: the clip is
+   parked on its last frame instead of being looped, which leaves the strip
+   showing 2027. The band's own arrival is the reader scrolling the page. */

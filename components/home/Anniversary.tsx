@@ -3,6 +3,7 @@ import { ClickSpark } from "@/components/ui/ClickSpark";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { SideRays } from "@/components/ui/SideRays";
+import { BEAT } from "./anniversarySequence";
 import { Fireworks } from "./Fireworks";
 import "./Anniversary.css";
 
@@ -22,6 +23,17 @@ const BODY = [
 ];
 
 const CLOSING = "20 Years. One Team. One Vision.";
+
+/**
+ * The invitation, and the only line on the band that is about the page rather
+ * than about the company.
+ *
+ * It earns its place because the whole section is clickable and nothing else
+ * says so — the sparks struck by a press are pretty and entirely undiscoverable
+ * without it. Last in the sequence and quietest on the screen, which is the
+ * right order for a footnote about a flourish.
+ */
+const HINT = "*Click anywhere to celebrate with us";
 
 /**
  * The fourth screen: twenty years, and the people behind them.
@@ -68,23 +80,32 @@ export function Anniversary() {
           // belong to nothing here.
           rayColor1="#ffba3b"
           rayColor2="#5ec8e0"
-          // Slow. This is weather, not an event: anything quicker competes
-          // with the bursts for attention and the reader ends up watching the
-          // background instead of reading.
-          speed={0.55}
-          // Wide fan, shallow falloff, held well down in opacity. Falloff is
-          // the one to be careful with: it is an inverse power of distance, so
-          // upstream's default of 2 spends the whole of the light within a
-          // couple of hundred pixels of the corner and leaves a bright smudge
-          // there rather than rays. Low enough to cross the band, and the
-          // opacity — not the falloff — is what keeps it off the text.
+          // Weather rather than an event, but awake. It was half this, on the
+          // reasoning that anything quicker would compete with the bursts —
+          // which was true of the bursts and not of the light, and the result
+          // was a fan that moved so little you had to be told it was moving.
+          speed={0.95}
+          // Wide fan, shallow falloff. Falloff is the one to be careful with:
+          // it is an inverse power of distance, so upstream's default of 2
+          // spends the whole of the light within a couple of hundred pixels of
+          // the corner and leaves a bright smudge there rather than rays. Low
+          // enough to cross the band, and the opacity — not the falloff — is
+          // what keeps it off the text.
           spread={2.2}
-          intensity={3.4}
-          falloff={1.35}
-          saturation={1.15}
-          blend={0.62}
+          intensity={4.4}
+          falloff={1.3}
+          saturation={1.2}
+          // Was 0.62, which leans on the teal. That was the right balance while
+          // the fan was held at 0.6 opacity and barely there; brought up to be
+          // obvious, the same balance washed the whole band green and pulled it
+          // off the hero's dark blue. Nearer the middle, so what gets brighter
+          // is the fireworks' own gold.
+          blend={0.46}
           tilt={-8}
-          opacity={0.6}
+          // Up from 0.6. The type sits in the middle of the band and the fan is
+          // thrown from the top left corner away from it, so this is bounded by
+          // the sky reading as lit rather than by legibility.
+          opacity={0.88}
         />
       </div>
 
@@ -109,7 +130,7 @@ export function Anniversary() {
             {/* Decorative: the wordmark is the company's own name, and the
                 name is in the sentence directly under it. The light cut of the
                 logo, which exists for exactly this ground. */}
-            <Reveal variant="settle">
+            <Reveal variant="settle" delay={BEAT.logo}>
               <Image
                 src="/images/sophic-logo-light.png"
                 alt=""
@@ -120,7 +141,7 @@ export function Anniversary() {
               />
             </Reveal>
 
-            <Reveal delay={80}>
+            <Reveal delay={BEAT.lede}>
               <h2 className="mt-8 text-balance text-[1.5rem] font-semibold leading-[1.3] tracking-[-0.02em] sm:text-[2.25rem]">
                 {LEDE}
               </h2>
@@ -131,7 +152,7 @@ export function Anniversary() {
                 the middle of the page — past about seventy characters that
                 search costs more than the extra words are worth. */}
             <Reveal
-              delay={160}
+              delay={BEAT.body}
               className="mt-8 max-w-[34rem] space-y-5 text-[0.9375rem] leading-relaxed text-white/75 sm:text-[1.0625rem]"
             >
               {BODY.map((paragraph) => (
@@ -139,7 +160,7 @@ export function Anniversary() {
               ))}
             </Reveal>
 
-            <Reveal delay={240} className="mt-12 flex flex-col items-center">
+            <Reveal delay={BEAT.closing} className="mt-12 flex flex-col items-center">
               {/* A rule that fades out at both ends rather than stopping. The
                   band has no boxes and no borders anywhere else in it; a hard
                   100px line would be the only drawn edge on the whole
@@ -155,6 +176,17 @@ export function Anniversary() {
                   the bottom of the page back to the top. */}
               <p className="mt-8 bg-gradient-to-r from-white to-[#5ec8e0] bg-clip-text text-[1.25rem] font-bold tracking-[0.01em] text-transparent sm:text-[1.75rem]">
                 {CLOSING}
+              </p>
+            </Reveal>
+
+            {/* Announced rather than hidden. It describes something only a
+                pointer can do, which is an argument for aria-hidden — but it is
+                visible text, and hiding visible text from a screen reader is
+                the worse of the two, since it leaves someone reading the page
+                aloud with a line on screen that the page denies is there. */}
+            <Reveal delay={BEAT.hint} className="mt-14">
+              <p className="text-[0.8125rem] leading-none tracking-[0.01em] text-white/45">
+                {HINT}
               </p>
             </Reveal>
           </div>

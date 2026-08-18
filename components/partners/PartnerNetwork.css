@@ -103,10 +103,29 @@
     filter 260ms ease-out;
 }
 
-.partner-net__cell:hover {
+/* Only the ones that go somewhere lift, so the hover is telling the truth
+   about which tiles are clickable. */
+a.partner-net__cell {
+  display: block;
+  cursor: pointer;
+}
+
+a.partner-net__cell:hover {
   transform: translateY(-5px);
   filter: drop-shadow(0 14px 20px rgb(15 23 42 / 0.16))
     drop-shadow(0 3px 5px rgb(15 23 42 / 0.08));
+}
+
+/* Drawn as shadows rather than an outline. An outline on the cell would be a
+   rectangle around a hexagon, and one on the tile inside would be clipped away
+   by the mask that cuts the hexagon — so focus is a halo that follows the same
+   silhouette the resting shadow already traces. */
+a.partner-net__cell:focus-visible {
+  outline: none;
+  transform: translateY(-5px);
+  filter: drop-shadow(0 0 1px #0b3a63) drop-shadow(0 0 3px var(--mint))
+    drop-shadow(0 0 9px rgb(41 168 184 / 0.65))
+    drop-shadow(0 10px 16px rgb(15 23 42 / 0.18));
 }
 
 @media (prefers-reduced-motion: reduce) {

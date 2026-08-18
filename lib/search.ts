@@ -5,6 +5,7 @@ import {
   OPENINGS_HREF,
   PILLARS,
 } from "./careers";
+import { COMMUNITY_HERO, COMMUNITY_SCENES } from "./community";
 import {
   PARTNER_NETWORK,
   PARTNER_WITH_SOPHIC,
@@ -20,9 +21,8 @@ import { SOLUTIONS } from "./solutions";
  * The whole index is a dozen entries, so it is built once at module scope and
  * matched synchronously on every keystroke — no async, no network, no worker.
  *
- * Only real routes are indexed. The one remaining header item (Community) is an
- * inert prototype button with nowhere to go, and a result that lands on nothing
- * is worse than no result at all.
+ * Only real routes are indexed — which, now that Community has a page, is every
+ * item on the header bar.
  *
  * The individual vacancies under /careers/openings are deliberately left out,
  * real though they now are. Five of the nine carry the word "engineer" and
@@ -180,6 +180,30 @@ function buildIndex(): SearchEntry[] {
             group.label,
             ...group.rows.flat().map((partner) => partner.name),
           ]),
+        ),
+      },
+    },
+    {
+      id: "community",
+      kind: "page",
+      title: "Community",
+      href: "/community",
+      breadcrumb: "Sophic Automation",
+      summary: COMMUNITY_HERO.headline,
+      lower: {
+        title: "community",
+        breadcrumb: "sophic automation",
+        summary: COMMUNITY_HERO.headline.toLowerCase(),
+        // The hand-written half is the vocabulary this page is filed under
+        // everywhere else — "CSR", "sustainability", "giving back" — none of
+        // which appears in its own copy, which is four captions long.
+        keywords: lower(
+          "community social responsibility csr giving back outreach" +
+            " volunteering charity donation sustainability environment green" +
+            " recycling elderly care welfare health safety first aid cpr" +
+            " neighbours society people planet",
+          COMMUNITY_HERO.description,
+          ...COMMUNITY_SCENES.map((scene) => `${scene.name} ${scene.line}`),
         ),
       },
     },

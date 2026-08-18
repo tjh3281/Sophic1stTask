@@ -108,24 +108,46 @@ export function PartnerNetwork() {
  * trimmed and fitted to that box before it got here.
  */
 function Tile({ partner }: { partner: PartnerLogo }) {
-  return (
-    <div className="partner-net__cell">
-      {partner.logo ? (
-        <div className="partner-net__tile">
-          <Image
-            src={partner.logo}
-            alt={partner.name}
-            width={PARTNER_LOGO_BOX.width}
-            height={PARTNER_LOGO_BOX.height}
-            sizes="(min-width: 64rem) 7rem, 5rem"
-            className="partner-net__logo"
-          />
-        </div>
-      ) : (
-        <div className="partner-net__tile partner-net__tile--pending">
-          <span className="partner-net__name">{partner.name}</span>
-        </div>
-      )}
+  const face = partner.logo ? (
+    <div className="partner-net__tile">
+      <Image
+        src={partner.logo}
+        alt={partner.name}
+        width={PARTNER_LOGO_BOX.width}
+        height={PARTNER_LOGO_BOX.height}
+        sizes="(min-width: 64rem) 7rem, 5rem"
+        className="partner-net__logo"
+      />
     </div>
+  ) : (
+    <div className="partner-net__tile partner-net__tile--pending">
+      <span className="partner-net__name">{partner.name}</span>
+    </div>
+  );
+
+  // A partner without a confirmed address stays a plain tile rather than
+  // becoming a link to a guess — see the note in lib/partners.
+  if (!partner.href) {
+    return <div className="partner-net__cell">{face}</div>;
+  }
+
+  return (
+    // The anchor is the cell itself, not something inside it. The cell is what
+    // carries the drop-shadow that gives these their lift, and a filter applies
+    // before clipping — so a focus ring drawn on the masked tile inside would
+    // be cut away with the hexagon's corners. Here focus lights the whole
+    // shape instead, which the shadow already traces.
+    <a
+      className="partner-net__cell"
+      href={partner.href}
+      target="_blank"
+      rel="noreferrer"
+    >
+      {face}
+      {/* The logo's alt names the company; this adds what the link does, so a
+          screen reader announces "Beckhoff, opens in a new tab" rather than
+          leaving the new window as a surprise. */}
+      <span className="sr-only"> — opens in a new tab</span>
+    </a>
   );
 }

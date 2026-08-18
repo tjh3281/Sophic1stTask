@@ -33,6 +33,26 @@ import { useEffect, useRef } from "react";
  */
 
 /**
+ * How fast the clip runs.
+ *
+ * The figures assemble a shade quicker than the file was cut for, which is all
+ * this is. Nothing else in the component has to move with it: every threshold
+ * below is a position in the clip's own timeline rather than a wall-clock
+ * delay, and `currentTime` still reports media seconds whatever rate it is
+ * played at. That is the dividend of driving the reveal off playback position
+ * instead of a timer — see the note at the top. A fixed delay would have needed
+ * dividing by this, and would have been wrong on the first machine that took a
+ * moment longer to start the video.
+ *
+ * The one number worth re-checking is CLEAR_AT's margin, and it holds: on
+ * engines without requestVideoFrameCallback the check runs on `timeupdate`,
+ * which fires about four times a wall second and so lands every 0.29 media
+ * seconds at this rate rather than every 0.25. CLEAR_AT still sits 0.49 ahead
+ * of the loop point, which absorbs it with room to spare.
+ */
+const RATE = 1.15;
+
+/**
  * Seconds into the clip at which the fifth figure has finished arriving.
  *
  * Measured, not eyeballed: the ink's right-hand extent was sampled frame by
@@ -109,6 +129,14 @@ export function EvolutionSequence({ src }: { src: string }) {
     const root = rootRef.current;
     const video = videoRef.current as FrameCallbackVideo | null;
     if (!root || !video) return;
+
+    // Both, and the second is not redundant. Loading a resource resets
+    // `playbackRate` to `defaultPlaybackRate`, so setting only the live rate
+    // would quietly go back to 1x the moment anything re-ran the load
+    // algorithm; setting only the default would not take effect on a clip the
+    // browser had already started, which `autoPlay` means is the usual case.
+    video.defaultPlaybackRate = RATE;
+    video.playbackRate = RATE;
 
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

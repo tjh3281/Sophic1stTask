@@ -1,0 +1,254 @@
+/* --- The office map -------------------------------------------------------
+   Geometry and choreography are both in lib/officeMap — the dots, the curves,
+   and the second each thing happens at, all arriving here as custom properties
+   on the elements themselves. Nothing below decides when anything happens; it
+   only says what happening looks like.
+
+   Nothing below decides where it goes either. This file is the map's own
+   appearance; its size and placement on the cover are in CareersCover.css,
+   which is the only thing that knows there is a headline to stay clear of.
+
+   It is deliberately the palest artwork on the site. It sits behind a headline
+   drawing itself on, and a map with any real contrast in it would be two
+   things competing for the same glance — but the pins and their labels are
+   not part of that restraint. They are the point, and they are drawn to be
+   read at a distance.
+------------------------------------------------------------------------- */
+
+/* Carries the viewBox's own proportions, so a percentage on a label and a unit
+   inside the SVG mean the same thing. Nothing may pad this box: padding would
+   put the drawing and the labels on two different rectangles and the pins
+   would drift off their cities. */
+.office-map {
+  position: relative;
+  aspect-ratio: var(--om-cols) / var(--om-rows);
+  animation: om-settle 900ms var(--ease-out-quart) both;
+}
+
+.office-map__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Ripples and glows are allowed past the edge of the drawing. */
+  overflow: visible;
+}
+
+@keyframes om-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.93);
+  }
+}
+
+/* --- The land ------------------------------------------------------------- */
+
+.office-map__land {
+  fill: var(--muted);
+}
+
+/* Strong enough to be read as a country from across the page — this is the
+   half of the map somebody is meant to recognise. */
+.office-map__land--home {
+  opacity: 0.62;
+}
+
+/* Faint enough to be a setting rather than a second subject. */
+.office-map__land--near {
+  opacity: 0.2;
+}
+
+/* --- The connections -------------------------------------------------------
+   Drawn by walking a dash the length of the whole path off the end of it, which
+   is the one way to animate a line arriving that follows the curve rather than
+   growing a straight line and then bending it.
+------------------------------------------------------------------------- */
+
+.office-map__link {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 0.12;
+  stroke-opacity: 0.42;
+  stroke-linecap: round;
+  stroke-dasharray: var(--om-len);
+  animation: om-draw 1s var(--ease-out-quart) var(--om-in) both;
+}
+
+@keyframes om-draw {
+  from {
+    stroke-dashoffset: var(--om-len);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Hidden until its own start time rather than held at the first frame: the
+   animation is infinite, so it has no fill mode to hide behind, and a particle
+   parked at the head of the line for the first five seconds would read as a
+   fourth office. Opacity is therefore set inside the keyframes — once the
+   animation starts it never hands the property back. */
+.office-map__particle {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.36;
+  stroke-linecap: round;
+  stroke-dasharray: 0.01 var(--om-len);
+  opacity: 0;
+  animation: om-travel var(--om-travel-time) linear var(--om-in) infinite;
+}
+
+@keyframes om-travel {
+  from {
+    opacity: 0.85;
+    stroke-dashoffset: 0;
+  }
+  to {
+    opacity: 0.85;
+    stroke-dashoffset: var(--om-travel);
+  }
+}
+
+/* --- The pins --------------------------------------------------------------
+   fill-box on every one of these: an SVG element's transform origin is the
+   root's origin by default, so a plain scale() would fling the pin at the
+   top-left corner of the map instead of growing it where it stands.
+------------------------------------------------------------------------- */
+
+.office-map__pin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: om-pin-in 550ms var(--ease-pop) var(--om-in) both;
+}
+
+@keyframes om-pin-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+.office-map__dot {
+  fill: var(--brand);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: om-breathe 3s ease-in-out var(--om-settled) infinite;
+}
+
+/* The halo brightens while the dot swells. Two properties rather than both
+   scaling, so the pair reads as one thing glowing instead of two rings
+   growing. */
+.office-map__halo {
+  fill: var(--brand);
+  opacity: 0.12;
+  animation: om-glow 3s ease-in-out var(--om-settled) infinite;
+}
+
+@keyframes om-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.16);
+  }
+}
+
+@keyframes om-glow {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.24;
+  }
+}
+
+/* Starts the instant the pin lands and repeats forever after, so the ripple
+   that announces a city and the ripple that keeps it alive are one animation
+   and there is no handover to get wrong. */
+.office-map__ripple {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 0.16;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: om-ripple 2.8s var(--ease-out-quart) var(--om-in) infinite;
+}
+
+@keyframes om-ripple {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.45);
+  }
+  /* Gone well before the end, so the gap between rings is part of the rhythm
+     rather than a ring fading out on top of the next one arriving. */
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+/* --- Labels --------------------------------------------------------------- */
+
+.office-map__label {
+  position: absolute;
+  /* Hung off the pin's right, clear of both curves — they leave every city on
+     the seaward side. The -50% centres the line on the dot. */
+  transform: translate(0.7rem, -50%);
+  white-space: nowrap;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  /* Knocks the dots out from behind the word rather than drawing a box around
+     it: a chip here would read as a control on something nothing on this panel
+     is clickable. */
+  text-shadow:
+    0 0 5px var(--background),
+    0 0 5px var(--background),
+    0 0 2px var(--background);
+  animation: om-label-in 500ms var(--ease-out-quart) var(--om-in) both;
+}
+
+@keyframes om-label-in {
+  from {
+    opacity: 0;
+    transform: translate(0.2rem, -50%);
+  }
+}
+
+@media (min-width: 64rem) {
+  .office-map__label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Everything arrives already arrived. The pins keep their halo and their
+   ring — those are how a pin is told from a dot — they simply hold still. */
+@media (prefers-reduced-motion: reduce) {
+  .office-map,
+  .office-map__pin,
+  .office-map__dot,
+  .office-map__halo,
+  .office-map__label {
+    animation: none;
+  }
+
+  .office-map__link {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+
+  .office-map__ripple {
+    animation: none;
+    opacity: 0.3;
+  }
+
+  .office-map__particle {
+    display: none;
+  }
+}

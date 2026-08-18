@@ -1,0 +1,630 @@
+/* --- The globe sequence --------------------------------------------------
+   Where the four drawings sit, how big, and what is arranged around them. What
+   decides *when* each scene is on the stage is in CommunityGlobe.tsx; this file
+   never asks about scroll position — it only reads `--globe-d` and the three
+   numbers each scene carries about its own artwork.
+
+   The whole thing rests on one idea: every drawing is a picture of the same
+   sphere, so every drawing is placed by its sphere rather than by its edges.
+   Each scene is a zero-sized point pinned at the stage's globe centre, and the
+   artwork inside it is pulled back up and left by exactly where its own globe
+   centre sits within the file. Line those up and four files cropped four
+   different ways share one horizon; line them up by their edges instead and the
+   horizon jumps every time the scene changes.
+
+   That is also what makes the movement circular for free. The point is at the
+   centre of the sphere, so a `rotate()` written onto a scene turns its artwork
+   about the globe's axis — the figure standing on top travels along the limb
+   rather than sliding across the frame.
+-------------------------------------------------------------------------- */
+
+/* No ground of its own. This used to carry two soft teal lights so that a
+   screen-tall band of white page had somewhere to look; the page is in space
+   now — see the sky in app/community/community.css — and anything painted here
+   would only be laid over it. */
+.community-globe {
+  background-color: transparent;
+}
+
+/* The held screen. Its height is published as a custom property because the
+   opening globe is sized against it — see --globe-d on the world scene. */
+.community-globe__stage {
+  --stage-h: calc(100svh - 4rem);
+  overflow: clip;
+}
+
+/* --- The window ----------------------------------------------------------
+   Everything happens in here, and it is the whole of the held screen: full
+   width, full height. Both layouts need the edges — the opening globe runs off
+   the bottom of it, and the flanking photographs run off the left and right.
+
+   `clip` rather than `hidden` — the same clipping without turning the box into
+   a scroll port.
+-------------------------------------------------------------------------- */
+
+.community-globe__deck {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: clip;
+}
+
+/* --- The surface ---------------------------------------------------------
+   The moment the camera is inside the globe.
+
+   A disc in the drawing's own colours — the pale green of its land, the deep
+   blue of its water — blooming from the point the camera is aimed at. It is
+   driven entirely from the JavaScript: opacity takes it from nothing to
+   everything as the approach runs out of drawing, and the scale carries it past
+   the viewer, so it reads as something being entered rather than as a colour
+   being faded up.
+
+   It exists because the artwork cannot do this part. The source is 699px wide,
+   and at the fifteen times the approach ends on it is not a planet any more,
+   it is four coloured smudges. So the drawing hands over to this on the way in
+   and the next scene takes it back on the way out.
+-------------------------------------------------------------------------- */
+
+.community-globe__tunnel {
+  position: absolute;
+  /* Wider than the window and centred on it, so that even scaled down at the
+     start it can cover the frame the instant it is called on. */
+  left: 50%;
+  top: 50%;
+  /* Only a little wider than the window. At 190% the scale-up left the frame
+     showing the innermost third of the gradient — a flat pale green with none
+     of the falloff that makes it read as a surface curving away. */
+  width: 132%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  /* Over the globes, under nothing. The next scene swings in beneath it and
+     comes through as it clears, which is what reads as emerging. */
+  z-index: 5;
+  /* Light at the point being entered, deepening hard toward the edges. That
+     falloff is doing the work: an even wash reads as a colour laid over the
+     page, and this reads as being inside something. */
+  background: radial-gradient(
+    circle at 50% 46%,
+    rgb(156 209 142) 0%,
+    rgb(82 162 132) 21%,
+    rgb(32 108 154) 45%,
+    rgb(13 55 108) 71%,
+    rgb(6 24 56) 100%
+  );
+}
+
+/* Promoted only while it is actually on screen. A standing will-change here
+   would hold a compositor layer the size of the window for the whole runway,
+   and this is visible for about a fifth of it. */
+.community-globe__tunnel[data-live="1"] {
+  will-change: transform, opacity;
+}
+
+/* One scene and everything arranged around it. All four stack in the same box
+   and only the opacity says which is on. */
+.community-globe__set {
+  position: absolute;
+  inset: 0;
+}
+
+/* Hinted only while it is one of the two sets actually moving. Left on all four
+   this promotes two layers that will not change for the length of the runway —
+   and a standing `will-change: opacity` also makes the element a backdrop root,
+   which is how it would quietly break anything filtered inside it. */
+.community-globe__set[data-shown="1"] {
+  will-change: opacity;
+}
+
+/* Where each set sits before the driver has run — and, with JavaScript off,
+   where it stays. The world is on the stage; the visits are waiting. */
+.community-globe__set + .community-globe__set {
+  opacity: 0;
+}
+
+/* --- A scene -------------------------------------------------------------
+   A point, not a box. It carries no size of its own so that `left`/`top` place
+   the globe's centre exactly, and `transform-origin: 0 0` then turns everything
+   about that point rather than about the middle of some bounding rectangle.
+
+   The transform is written per frame by the driver: an orbit translation, then
+   a rotation. The artwork's own offset is applied on the child below, so the
+   driver never has to know how big anything is.
+-------------------------------------------------------------------------- */
+
+.community-globe__scene {
+  position: absolute;
+  left: 50%;
+  top: var(--anchor);
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  z-index: 1;
+  /* An invisible scene still catches a click meant for whatever is behind it. */
+  pointer-events: none;
+}
+
+.community-globe__set[data-shown="1"] .community-globe__scene {
+  will-change: transform;
+}
+
+/* The artwork, pulled back so its own globe centre lands on the point above.
+   --art-cx and --art-cy are measured fractions of the globe's diameter; see
+   GLOBE_GEOMETRY in lib/community. */
+.community-globe__art {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--globe-d) * var(--art-w));
+  transform: translate(
+    calc(var(--globe-d) * var(--art-cx) * -1),
+    calc(var(--globe-d) * var(--art-cy) * -1)
+  );
+}
+
+.community-globe__art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* --- The opening scene ---------------------------------------------------
+   The world at the size of the screen.
+
+   Its diameter is the *stage's height*, capped against width so a narrow screen
+   does not get a globe wider than it is. That is what puts the sphere's bottom
+   below the fold: anchored with its top at 18% of the stage, a globe a full
+   stage-height across has to run 18% of itself off the bottom edge. Which is
+   the point — you are close enough to it that it will not fit, and the drawing
+   already carries all its detail in the top half.
+-------------------------------------------------------------------------- */
+
+.community-globe__scene--world {
+  --globe-d: min(var(--stage-h), 72vw);
+  --art-w: 1.375;
+  --art-cx: 0.755164;
+  --art-cy: 0.636125;
+  /* Puts the sphere's crown just under the header. The figures standing on it
+     reach a further 0.136 of a diameter above that, which is the band between
+     18% and the top of the frame. */
+  --anchor: calc(18% + 0.5 * var(--globe-d));
+}
+
+/* --- A visit -------------------------------------------------------------
+   The close-up along the *bottom*, cut edge flush to the floor of the frame,
+   with the clip hanging at the centre above it.
+
+   Flush is not approximate here, and it is the same number for all three
+   drawings, which is the fact that makes this work. Each file is cropped to its
+   own figure's height, so their file heights differ wildly — 559, 232 and 420
+   pixels — but the opaque pixels in every one of them stop at the same place on
+   the sphere: 0.2145, 0.2149 and 0.2142 diameters above its centre, read off
+   the alpha channels. They are three photographs of one horizon. So one offset
+   puts all three exactly on the bottom edge, and 0.2166 is that offset — the
+   apex constant below, subtracted from the radius, which agrees with the alpha
+   measurement to about two pixels at the size this draws at.
+-------------------------------------------------------------------------- */
+
+.community-globe__scene--visit {
+  --globe-d: var(--visit-d);
+  --art-w: 1.191207;
+  --art-cx: 0.605743;
+  /* The sphere's centre sits *below* the frame: the cut edge is 0.2166 of a
+     diameter above the centre, so putting the cut on the bottom edge puts the
+     centre that far under it. */
+  --anchor: calc(100% + 0.2166 * var(--globe-d));
+  /* Over the clip. The figure standing on the horizon crosses in front of the
+     screen; cutting the screen out around it instead would read as a collage. */
+  z-index: 3;
+}
+
+/* --- The field -----------------------------------------------------------
+   The scene's own ground, full bleed behind everything in it.
+
+   It does not travel. Where the globe swings in on an arc because it is a world
+   coming round, this is the room the world arrives in — so it comes in a little
+   large and settles back while the scene's clip drops into it. The driver owns
+   the scale; the fade is the set's, because the field is part of the scene and
+   not a layer over the page.
+-------------------------------------------------------------------------- */
+
+.community-globe__field {
+  position: absolute;
+  inset: 0;
+  /* Behind everything else in the set, and no further: the set is its own
+     stacking context, so this cannot fall through to the page's sky. */
+  z-index: -1;
+  /* Scaling only ever grows it, so there is nothing to overhang for. */
+  transform: scale(1);
+}
+
+.community-globe__set[data-shown="1"] .community-globe__field {
+  will-change: transform;
+}
+
+.community-globe__field-img {
+  object-fit: cover;
+  /* The supplied art is about 850px across and this draws it at twice that or
+     more. It survives because it is flat vector shapes and soft gradients with
+     no fine detail in them — a photograph at this upscale would not. */
+  object-position: center;
+}
+
+/* Only the vertical offset differs between the three close-ups — each file is
+   cropped to its own figure's height. Same circle, same centre, same radius. */
+.community-globe__set:nth-child(2) .community-globe__scene {
+  --art-cy: 0.598755;
+}
+
+.community-globe__set:nth-child(3) .community-globe__scene {
+  --art-cy: 0.610259;
+}
+
+.community-globe__set:nth-child(4) .community-globe__scene {
+  --art-cy: 0.546557;
+}
+
+/* --- The two flanks ------------------------------------------------------
+   Three photographs down each side, pinned up at an angle and running off the
+   edge of the window rather than sitting politely inside it. The cut is the
+   point: it says the wall of them carries on past the frame.
+
+   Each flank is a window with a taller stack inside it, and the driver moves
+   the stack by exactly the difference — measured from the DOM rather than
+   computed here, so the sizes below can change without a number in the
+   JavaScript going stale. What that guarantees is the thing the mechanic is
+   for: the frame cut off at the bottom always ends flush with the bottom of the
+   window, at every screen size.
+-------------------------------------------------------------------------- */
+
+.community-globe__flank {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--flank-w);
+  overflow: clip;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Hard against the window's edges, and cut by them — that cut is what says the
+   wall of frames carries on past the frame.
+
+   They used to be centred on a group measured from the globe, so that on a
+   window too short for the globe to reach them they came inward to meet it.
+   That belonged to the old arrangement, where the globe was the wide thing the
+   frames flanked. It is now the floor of the scene and deliberately much
+   narrower, so the same rule pulled the columns in to about 83% of the window
+   and walked them straight over the screen at the centre.
+
+   What they flank now is the clip, and the clip is capped at 42vw against
+   columns of 21.5vw — so pinning them to the edges leaves 7.5vw of clear field
+   between each column and the screen at every width the columns appear at. */
+.community-globe__flank--left {
+  left: 0;
+}
+
+.community-globe__flank--right {
+  right: 0;
+}
+
+.community-globe__track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flank-gap);
+  /* The resting position, and where a flank stays if the driver never runs. */
+  transform: translate3d(0, 0, 0);
+}
+
+/* The right column sits half a frame lower than the left.
+
+   Three frames have to span more than the window for the bottom one to be cut,
+   which leaves unavoidable air between them — and with both columns in step
+   that air lines up across the screen as one empty band level with the foot of
+   the sheet. Offsetting one column puts a frame opposite every gap instead.
+
+   Padding rather than a transform, because the driver owns the transform. The
+   same half-frame is added to *both* columns — at the foot of the left, at the
+   head of the right — so only the right is displaced while the two tracks stay
+   near enough the same length. That matters: the driver measures each track and
+   moves it by its own overrun, so padding the right alone made it travel 421px
+   against the left's 220 and the two columns visibly scrolled at different
+   speeds.
+
+   Near enough, not exactly: browsers disagree about whether a flex container's
+   trailing padding counts toward scrollHeight, so the left measures a little
+   short — 402 against 421 here, under 5%, which is nothing at this size. If
+   that ever matters, the fix is a spacer element rather than padding. */
+.community-globe__flank--left .community-globe__track {
+  padding-bottom: calc(var(--slot-h) * 0.5);
+}
+
+.community-globe__flank--right .community-globe__track {
+  padding-top: calc(var(--slot-h) * 0.5);
+}
+
+.community-globe__set[data-shown="1"] .community-globe__track {
+  will-change: transform;
+}
+
+/* --- A photograph frame -------------------------------------------------- */
+
+/* Height from the stage rather than from an aspect ratio, and that is what
+   makes the mechanic work at all. Three frames have to be taller than the
+   window between them or there is nothing for the driver to travel and the
+   bottom one is never cut — which on a 16:9 screen is exactly what an aspect
+   ratio gave: a stack 100px shorter than the window it was supposed to overrun.
+   Divided by 2.5, three of them come to 1.2 windows however tall the screen is. */
+.community-slot {
+  position: relative;
+  width: 100%;
+  height: var(--slot-h);
+  flex: none;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+}
+
+.community-slot__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The placeholder mark — see the note in MediaSlot.tsx for why it is this
+   blunt. It was drawn near-black, which is right on a near-white page and
+   invisible on this one: the frames sit directly on the sky, with no plate
+   behind them, so the mark is the only thing there. Off-white rather than pure
+   white, so it reads as a drawn glyph rather than as a light source. */
+/* Held inside the column rather than filling it, so that pinning a frame up at
+   an angle does not send its corners through the clipped edge of the flank. */
+.community-slot__photo {
+  display: block;
+  width: 86%;
+  color: rgb(244 241 255 / 0.94);
+}
+
+.community-slot__glyph {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* --- The screen and the beam ---------------------------------------------
+   The scene's clip, hung at the centre of the stage with light thrown onto it.
+
+   The sheet of paper this used to be taped to is gone. What replaced it is not
+   a frame at all — it is a projection: a plate at the centre, a cone of light
+   arriving on it from above the frame, and the bloom that light leaves around
+   its edges.
+
+   The beam is a separate element from the plate on purpose, and it does not
+   move with it. The light is already in the room; the screen falls into it. Had
+   the two been one element the beam would drop out of the sky with the screen
+   attached to it, which reads as a lamp taped to the back of a picture rather
+   than as anything being projected.
+-------------------------------------------------------------------------- */
+
+.community-globe__feature {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--feature-w);
+  /* The centring is a margin rather than a translate because the driver owns
+     this element's transform — it is the thing that falls. */
+  margin-left: calc(var(--feature-w) / -2);
+  margin-top: calc(var(--feature-h) / -2);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.community-globe__set[data-shown="1"] .community-globe__feature {
+  will-change: transform;
+}
+
+.community-screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+  background: #08060f;
+  /* What being lit looks like from outside the beam: a bright rim, a close
+     bloom, and a wide soft one that reaches into the field behind it. */
+  box-shadow:
+    0 0 0 1px rgb(226 216 255 / 0.28),
+    0 0 4rem rgb(206 190 255 / 0.34),
+    0 0 14rem 2rem rgb(140 108 236 / 0.26);
+}
+
+/* The light landing on the plate itself, brightest where the beam meets it. */
+.community-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(226 216 255 / 0.16),
+    rgb(226 216 255 / 0.03) 55%,
+    rgb(226 216 255 / 0) 82%
+  );
+  pointer-events: none;
+}
+
+.community-globe__beam {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  /* From the top of the frame down to the screen's own top edge, where it
+     stops — the light lands there. */
+  height: calc(50% - var(--feature-h) / 2);
+  /* A shade wider than the screen, so the cone spills round its edges instead
+     of stopping dead on them. */
+  width: calc(var(--feature-w) * 1.08);
+  translate: -50% 0;
+  z-index: 1;
+  pointer-events: none;
+
+  /* The blur lives on this element and the cone on its ::before, because a
+     filter is applied *before* clip-path in the rendering order — blurring the
+     clipped shape directly would leave the cone's sides razor sharp and only
+     soften what is inside them. */
+  filter: blur(9px);
+  mix-blend-mode: screen;
+  animation: community-beam-breathe 11s ease-in-out infinite;
+}
+
+.community-globe__beam::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Narrow at the source, the screen's width where it lands. */
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  /* Faint where it leaves and strongest where it arrives, which is the way a
+     beam reads in air: you see it because of what it is lighting.
+
+     These numbers are higher than they look like they should be. The field
+     behind them is a bright violet illustration, and `screen` against a light
+     backdrop has very little headroom left to lift — the first pass, tuned by
+     eye against a dark background, disappeared completely once the field was
+     put behind it. */
+  background: linear-gradient(
+    to bottom,
+    rgb(232 224 255 / 0.11),
+    rgb(232 224 255 / 0.27) 46%,
+    rgb(240 234 255 / 0.58)
+  );
+}
+
+@keyframes community-beam-breathe {
+  0%,
+  100% {
+    opacity: 0.86;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .community-globe__beam {
+    animation: none;
+  }
+}
+
+/* The clip placeholder: a black plate with VIDEO across it, as drawn. */
+.community-slot__video {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-size: clamp(1.5rem, 5vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #f5c542;
+}
+
+/* --- Sizing --------------------------------------------------------------
+   Below 48rem there is no room for a column of photographs either side of a
+   globe without all three becoming too small to read, so the flanks are simply
+   not there and the globe and its sheet have the width to themselves.
+-------------------------------------------------------------------------- */
+
+/* --- Arranging a visit ---------------------------------------------------
+   The screen is placed first and the horizon is sized to whatever is left under
+   it. That order is deliberate: the clip is the only thing in the scene with
+   fixed proportions and the only thing that has to be a usable size, so it gets
+   the room it needs and the drawing takes the remainder. Sizing the globe first
+   and fitting the clip underneath is what used to push the clip off the bottom
+   of short windows.
+
+   The constants are the artwork's own, measured:
+
+     0.1103  the tallest figure's reach above the apex (the tree)
+     0.2834  apex to the dome's flat chord, which is the visible height of the
+             horizon once the cut edge is on the bottom of the frame
+     0.9035  the chord's width, which is what the horizon actually spans
+
+   The height cap uses 0.35 rather than the full 0.3937 of figure-plus-dome. The
+   difference is deliberate slack: the horizon itself always clears the screen,
+   and only the figure standing on it is allowed to cross the screen's lower
+   edge. That crossing is the depth cue that stops the two reading as two flat
+   pictures stacked on one another — see the z-index on the visit scene.
+-------------------------------------------------------------------------- */
+
+.community-globe__deck {
+  --flank-w: 0;
+  --flank-gap: clamp(1rem, 2.5vh, 2rem);
+  /* Height from the stage rather than from an aspect ratio, and that is what
+     makes the mechanic work at all. Three frames have to be taller than the
+     window between them or there is nothing for the driver to travel and the
+     bottom one is never cut — which on a 16:9 screen is exactly what an aspect
+     ratio gave: a stack 100px shorter than the window it was meant to overrun.
+     Divided by 2.5, three come to 1.2 windows however tall the screen is. */
+  --slot-h: calc((var(--stage-h) - 2 * var(--flank-gap)) / 2.5);
+
+  /* The clip, centred. Capped three ways: against the width so the flanks keep
+     their columns, against the stage height so a short window still leaves
+     ground under it, and absolutely so it does not become a billboard on a very
+     large monitor. */
+  --feature-w: min(42vw, calc(0.8 * var(--stage-h)), 46rem);
+  --feature-h: calc(var(--feature-w) * 9 / 16);
+
+  /* And the horizon, filling what is left below the screen. */
+  --visit-d: min(
+    calc(0.98 * 100vw / 0.9035),
+    calc((0.5 * var(--stage-h) - 0.5 * var(--feature-h) - 1.25rem) / 0.35),
+    76rem
+  );
+}
+
+.community-globe__flank {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .community-globe__deck {
+    /* Small. These are markers for where photographs go, not artwork — at the
+       size they were first drawn at they became black masses down both edges
+       and read as part of the design rather than as gaps in it. */
+    /* 21.5% of the window, from the layout. The frames were never the wrong
+       size — at this width and hard against a globe that reaches them they read
+       as a collage. It was the 400px of air around them that made them look
+       like black masses stranded in the corners. */
+    --flank-w: clamp(8rem, 21.5vw, 26rem);
+  }
+
+  .community-globe__flank {
+    display: block;
+  }
+}
+
+/* --- The plain reading ---------------------------------------------------
+   What anyone who asked for less motion gets, and what stands in for the whole
+   section without JavaScript: the same four drawings with the words the moving
+   stage does not carry. Not a lesser version — it is the only place the scenes
+   are named.
+-------------------------------------------------------------------------- */
+
+.community-globe__still-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Light on the sky, not the site's dark-on-pale pair: this reading stands in
+   the same space the moving stage does. */
+.community-globe__name {
+  font-size: clamp(1.25rem, 3.6vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.community-globe__line {
+  margin-top: 0.625rem;
+  font-size: clamp(0.9375rem, 2.2vw, 1.0625rem);
+  line-height: 1.6;
+  color: rgb(255 255 255 / 0.74);
+}

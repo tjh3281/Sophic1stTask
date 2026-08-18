@@ -3,6 +3,10 @@ import { Anniversary } from "@/components/home/Anniversary";
 import { Awards } from "@/components/home/Awards";
 import { Hero } from "@/components/home/Hero";
 import { WhySophic } from "@/components/home/WhySophic";
+import { YearCounter } from "@/components/home/YearCounter";
+
+/** Silent, and cropped to the rolling year by YearCounter.css. */
+const COUNTER_CLIP = "/images/twenty-years.mp4";
 
 export const metadata: Metadata = {
   // Absolute, so the root of the site is not titled "Home — Sophic
@@ -23,18 +27,24 @@ export const metadata: Metadata = {
  * /solutions, at the head of the four category pages that were already under
  * it.
  *
- * Four screens, and only one change of ground between the first and the last.
- * The hero is dark; the awards section and the company statement under it are
- * both white, so the middle of the page reads as one light body rather than as
- * a stack of alternating bands; and the anniversary band closes on the dark the
- * page opened in. Two bookends around a white centre — which is also why the
- * fireworks can be where they are, since they need a night to go off in.
+ * The hero is dark; the awards section and the company statement are both
+ * white; and the anniversary band closes on the dark the page opened in. Two
+ * bookends around a light centre — which is also why the fireworks can be
+ * where they are, since they need a night to go off in.
+ *
+ * The year counter is the one thing that interrupts that centre, and it is
+ * deliberately the only one: a strip of the same dark, directly under the
+ * certificate, counting 2007 to 2027 on a loop. It is placed here rather than
+ * inside the awards section because it belongs to neither of its neighbours —
+ * it is the hinge between the certificate that says twenty years and the
+ * statement about what the company does with them.
  */
 export default function HomePage() {
   return (
     <>
       <Hero />
       <Awards />
+      <YearCounter src={COUNTER_CLIP} />
       <WhySophic />
       <Anniversary />
     </>

@@ -23,15 +23,22 @@
 .medal-hang {
   /* One number sets the size of the whole rig. Everything else is a ratio of
      it, taken from the trimmed artwork — ribbon 294x330, clasp 142x43, disc
-     268x271 — so the three pieces keep their proportions to each other at
+     705x708 — so the three pieces keep their proportions to each other at
      every width and there is only ever one value to tune.
 
-     The ceiling is the disc's own 268px. There is no detail above 1x to be
-     had: the face carries small type that is already at the edge of legible,
-     which is why the credentials are also set as real text beside it. */
-  --disc-w: clamp(10rem, 24vw, 16.75rem);
+     The ceiling used to be 16.75rem, which was the 268px the old face was
+     drawn at — past that it was upscaling a file it had no more detail in. The
+     face is 705px now, so that ceiling was only ever about the artwork and it
+     went with it. 21rem is still under half the source's own width, so this is
+     comfortably oversampled even at 3x.
 
-  /* The disc's own height is not among these: it is 1.0112 of its width and
+     What bounds it now is the certificate beside it. The rig is 1.097 discs
+     wide, so 21rem of disc is 23.04rem of rig, and every one of those rem
+     comes off the certificate's column — which is content-sized, so this is the
+     only number that decides the split. It is the one to turn. */
+  --disc-w: clamp(12rem, 28vw, 21rem);
+
+  /* The disc's own height is not among these: it is 1.0043 of its width and
      the <img> keeps that itself, so naming it here would only be a second
      place for it to go wrong. It does appear inside --rig-h below. */
   --ribbon-w: calc(var(--disc-w) * 1.097);
@@ -54,9 +61,9 @@
   --vertex-y: calc(var(--ribbon-h) * 0.997);
 
   /* Ribbon top to the bottom of the disc:
-     ribbon 1.2313 x 0.997, plus disc 1.0112, less the 0.2 of a clasp the disc
+     ribbon 1.2313 x 0.997, plus disc 1.0043, less the 0.2 of a clasp the disc
      rides up over. */
-  --rig-h: calc(var(--disc-w) * 2.2067);
+  --rig-h: calc(var(--disc-w) * 2.1998);
 
   position: relative;
   width: var(--ribbon-w);

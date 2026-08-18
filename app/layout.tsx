@@ -77,12 +77,22 @@ export default function RootLayout({
             page's buildings start clipped into the ground for the same
             reason. Without JS there is no observer to run, so opt out of the
             motion entirely and show all three where they were going to end
-            up. */}
+            up.
+
+            The two scroll runways need more than that. Both are a tall section
+            holding a sticky frame that only one thing is visible in at a time,
+            and with nothing to advance them they are several screens of the
+            same picture. The values board collapses in place, into the grid it
+            is underneath; the community globe cannot — its captions are a
+            separate stack from its artwork, so unpicking it here would leave
+            four pictures followed by four unattached labels. That one carries
+            its own <noscript> reading instead, and all this has to do is take
+            the runway away so it can show. */}
         <noscript>
           <style
             dangerouslySetInnerHTML={{
               __html:
-                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}.medal-hang__arm{translate:none}.company-scene__piece{clip-path:none;translate:none;opacity:1}.company-values{height:auto}.company-values__stage{position:static;height:auto;padding:4rem 0}.company-values__deck{grid-template-areas:none;gap:3rem}.company-values__card{grid-area:auto;opacity:1;transform:none}.partner-pillars__panel[hidden]{display:block}.partner-pillars__panel+.partner-pillars__panel{margin-top:2rem}.partner-pillars__panels{min-height:0}",
+                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}.medal-hang__arm{translate:none}.company-scene__piece{clip-path:none;translate:none;opacity:1}.company-values{height:auto}.company-values__stage{position:static;height:auto;padding:4rem 0}.company-values__deck{grid-template-areas:none;gap:3rem}.company-values__card{grid-area:auto;opacity:1;transform:none}.partner-pillars__panel[hidden]{display:block}.partner-pillars__panel+.partner-pillars__panel{margin-top:2rem}.partner-pillars__panels{min-height:0}.community-globe{height:auto}.community-globe__stage{display:none}",
             }}
           />
         </noscript>

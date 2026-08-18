@@ -1,14 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { HEADER_NAV } from "@/lib/nav";
+import { HEADER_NAV, isCurrentSection } from "@/lib/nav";
 import { SOLUTIONS } from "@/lib/solutions";
 import { cn } from "@/lib/cn";
 
 /**
  * Below lg the header collapses into a drawer. "Solution" becomes a two-level
  * accordion; the other items stay inert, matching the desktop behaviour.
+ *
+ * The current page is marked in brand blue here too. The drawer is the bar at
+ * this width, and a reader who opens it to see where they can go should not
+ * have to remember where they already are. It reads the pathname itself rather
+ * than taking one from the header: it is already a client component under the
+ * same router, and a prop would be a second copy of a value that cannot
+ * disagree.
  */
 export function MobileNav({
   overlay = false,
@@ -21,6 +29,11 @@ export function MobileNav({
   onOpenChange: (open: boolean) => void;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const pathname = usePathname();
+
+  /** Same rule the bar uses: a route inside a section counts as that section. */
+  const inSection = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
     if (!open) return;
@@ -100,7 +113,15 @@ export function MobileNav({
                             <div className="flex items-center">
                               <Link
                                 href={solution.href}
-                                className="flex-1 rounded-md px-1 py-2 text-sm font-medium text-foreground"
+                                aria-current={
+                                  inSection(solution.href) ? "page" : undefined
+                                }
+                                className={cn(
+                                  "flex-1 rounded-md px-1 py-2 text-sm font-medium",
+                                  inSection(solution.href)
+                                    ? "text-brand"
+                                    : "text-foreground",
+                                )}
                               >
                                 {solution.title}
                               </Link>
@@ -139,7 +160,17 @@ export function MobileNav({
                                   <li key={sub.slug}>
                                     <Link
                                       href={sub.href}
-                                      className="block rounded-md px-2 py-2 text-sm text-muted hover:text-brand"
+                                      aria-current={
+                                        pathname === sub.href
+                                          ? "page"
+                                          : undefined
+                                      }
+                                      className={cn(
+                                        "block rounded-md px-2 py-2 text-sm hover:text-brand",
+                                        pathname === sub.href
+                                          ? "font-medium text-brand"
+                                          : "text-muted",
+                                      )}
                                     >
                                       {sub.title}
                                     </Link>
@@ -159,7 +190,15 @@ export function MobileNav({
                       // pathname watch in Header.
                       <Link
                         href={item.href}
-                        className="block px-1 py-3.5 text-sm font-medium text-foreground"
+                        aria-current={
+                          isCurrentSection(item, pathname) ? "page" : undefined
+                        }
+                        className={cn(
+                          "block px-1 py-3.5 text-sm font-medium",
+                          isCurrentSection(item, pathname)
+                            ? "text-brand"
+                            : "text-foreground",
+                        )}
                       >
                         {item.label}
                       </Link>

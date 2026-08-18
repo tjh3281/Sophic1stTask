@@ -13,8 +13,11 @@ import "./StrokeText.css";
  * wiping across it. The viewBox is measured from the glyphs themselves, so the
  * result scales to whatever width it is given.
  *
- * Local changes, none of them visible while it runs:
+ * Local changes:
  *
+ *   - The outline is stroked outside the letterform rather than straddling it —
+ *     see the mask below. This is the one change with a visible effect, and it
+ *     is the difference between the effect working and not.
  *   - `trigger="scroll"` uses an IntersectionObserver rather than GSAP's
  *     ScrollTrigger plugin. Behaviour is the same — fire once, when the
  *     wordmark is 82% of the way up the viewport — but ScrollTrigger is a
@@ -83,7 +86,9 @@ export function StrokeText({
   const [box, setBox] = useState<Box | null>(null);
 
   const rawId = useId();
-  const wipeId = `stroke-text-wipe-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const safeId = rawId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const wipeId = `stroke-text-wipe-${safeId}`;
+  const outlineId = `stroke-text-outline-${safeId}`;
 
   // Array.from, not split(""), so an emoji or an accented character stays one
   // glyph rather than being torn into surrogate halves.
@@ -92,6 +97,26 @@ export function StrokeText({
   // The dash has to be at least as long as the longest glyph outline, or the
   // pattern repeats and the letter appears to draw in several places at once.
   const dash = Math.max(fontSize * 7, 200);
+
+  /**
+   * The outline is stroked at twice its nominal width and then masked back to
+   * the half of it that falls outside the letterform, which is the only way to
+   * draw type this way and get the shape you asked for.
+   *
+   * A stroke with no fill does not trace the silhouette of a letter — it traces
+   * every contour the glyph is built from, and in a variable font those pieces
+   * overlap on purpose. The fill rule welds them into one shape when the glyph
+   * is filled; nothing welds them when it is not. Plus Jakarta Sans draws 'e' as
+   * a bowl with a separate bar laid across it, so the unmasked outline puts a
+   * spear through the middle of the letter, and 'a' and 'm' carry the same kind
+   * of seam where a stem meets a shoulder. Every one of those artefacts sits
+   * *inside* the ink, so masking the inside away takes all of them at once and
+   * leaves the silhouette — and the counters, which are not ink — untouched.
+   *
+   * Doubling the width first is what keeps the visible line the thickness the
+   * caller asked for, since only half of it now survives the mask.
+   */
+  const maskPad = strokeWidth * 2;
 
   const fontStyle = useMemo(
     () => ({
@@ -309,17 +334,49 @@ export function StrokeText({
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
-        {fillMode === "wipe" && box && (
+        {box && (
           <defs>
-            <clipPath id={wipeId} clipPathUnits="userSpaceOnUse">
+            {fillMode === "wipe" && (
+              <clipPath id={wipeId} clipPathUnits="userSpaceOnUse">
+                <rect
+                  ref={wipeRectRef}
+                  x={box.x}
+                  y={box.y}
+                  width="0"
+                  height={box.height}
+                />
+              </clipPath>
+            )}
+
+            {/* White everywhere, black over the letterforms: the stroke keeps
+                the half of itself that is outside the ink and loses the half
+                that is inside, along with the glyph's own inner seams. The
+                region is padded by the full stroke width so the outer edge is
+                never clipped by the mask's own bounds. */}
+            <mask
+              id={outlineId}
+              maskUnits="userSpaceOnUse"
+              x={box.x - maskPad}
+              y={box.y - maskPad}
+              width={box.width + maskPad * 2}
+              height={box.height + maskPad * 2}
+            >
               <rect
-                ref={wipeRectRef}
-                x={box.x}
-                y={box.y}
-                width="0"
-                height={box.height}
+                x={box.x - maskPad}
+                y={box.y - maskPad}
+                width={box.width + maskPad * 2}
+                height={box.height + maskPad * 2}
+                fill="#fff"
               />
-            </clipPath>
+              {/* Same tspan-per-character structure as the copies below, so the
+                  browser kerns it into exactly the same positions. One string
+                  would be shaped as one run and could land a fraction off. */}
+              <text x="0" y="0" fill="#000" stroke="none" style={fontStyle}>
+                {characters.map((char, index) => (
+                  <tspan key={`m-${index}`}>{char}</tspan>
+                ))}
+              </text>
+            </mask>
           </defs>
         )}
 
@@ -330,9 +387,13 @@ export function StrokeText({
           y="0"
           fill="none"
           stroke={strokeColor}
-          strokeWidth={strokeWidth}
+          // Doubled and masked back down — see maskPad above. Before the glyphs
+          // have been measured there is no mask to halve it, so it stays at the
+          // width asked for.
+          strokeWidth={box ? strokeWidth * 2 : strokeWidth}
           strokeLinejoin="round"
           strokeLinecap="round"
+          mask={box ? `url(#${outlineId})` : undefined}
           style={fontStyle}
         >
           {characters.map((char, index) => (

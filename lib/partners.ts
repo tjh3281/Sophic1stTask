@@ -98,6 +98,15 @@ export type PartnerLogo = {
    *  when there is no logo file yet. */
   name: string;
   /**
+   * The company's own site. Absent leaves the tile inert rather than guessing.
+   *
+   * Every one of these was checked by fetching it and confirming the page
+   * names the company — a 200 proves nothing on its own, since parked and
+   * squatted domains answer too. Four are deliberately missing: see the note
+   * on PARTNER_NETWORK.
+   */
+  href?: string;
+  /**
    * Path under /images. Absent means the tile falls back to the name.
    *
    * No dimensions here, deliberately. Every file is written to one canvas —
@@ -155,6 +164,27 @@ export type PartnerGroup = {
  * Every logo is normalised onto PARTNER_LOGO_BOX before it reaches this file —
  * trimmed to its own ink, then fitted into one canvas — so no tile is
  * optically larger than its neighbours and none of them carry a size.
+ *
+ * Twenty-two of the twenty-six link to the company's own site. Each was checked
+ * by fetching it and confirming the page names the company, because a 200 on
+ * its own proves nothing — parked domains answer too.
+ *
+ * Four deliberately do not link, and should stay that way until someone who
+ * knows the relationship supplies the address:
+ *
+ *   ADVO       advo.com.my does not resolve. advotech.com.my is a live
+ *              automation distributor, but the mark here reads ADVO, not
+ *              Advotech, and they are not evidently the same company.
+ *   MEX        mex.com.my resolves — to Maju Expressway, a toll road operator.
+ *              Plainly not an automation ecosystem body.
+ *   MiSi 4.0   misi.my answers but serves no readable content, so there is
+ *              nothing to confirm it is this MiSi.
+ *   SafeGuard  safeguard.com.my is "Safeguard Equipment Traders", a safety
+ *              equipment supplier. Possible, but it does not obviously belong
+ *              in a group of IoT device makers.
+ *
+ * A wrong link on a partner page sends a reader to a stranger under the
+ * partner's name, which is worse than a tile that does nothing.
  */
 export const PARTNER_NETWORK = {
   /** Never rendered visibly. The groups carry the headings a reader sees; this
@@ -177,25 +207,29 @@ export const PARTNER_NETWORK = {
       // the whole group with nothing left over and no row half empty.
       rows: [
         [
-          { name: "ADVFIT", logo: "/images/logo-advfit-color.webp" },
-          { name: "Beckhoff", logo: "/images/logo-beckhoff-color.webp" },
+          { name: "ADVFIT", logo: "/images/logo-advfit-color.webp", href: "https://www.advfit.com/" },
+          { name: "Beckhoff", logo: "/images/logo-beckhoff-color.webp", href: "https://www.beckhoff.com/" },
         ],
         [
-          { name: "Han's Laser", logo: "/images/logo-hanslaser-color.webp" },
-          { name: "Monnit", logo: "/images/logo-monnit-color.webp" },
+          { name: "Han's Laser", logo: "/images/logo-hanslaser-color.webp", href: "https://www.hanslaser.com/" },
+          { name: "Monnit", logo: "/images/logo-monnit-color.webp", href: "https://www.monnit.com/" },
+          // No href — could not be identified. See the note on PARTNER_NETWORK.
           { name: "ADVO", logo: "/images/logo-advo-color.webp" },
         ],
         [
-          { name: "Indpro", logo: "/images/logo-indpro-color.webp" },
-          { name: "RealWear", logo: "/images/logo-realwear-color.webp" },
-          { name: "iPlusMobot", logo: "/images/logo-iplusmobot-color.webp" },
-          { name: "JAKA", logo: "/images/logo-jaka-color.webp" },
+          { name: "Indpro", logo: "/images/logo-indpro-color.webp", href: "https://www.indpro.com.my/" },
+          { name: "RealWear", logo: "/images/logo-realwear-color.webp", href: "https://www.realwear.com/" },
+          { name: "iPlusMobot", logo: "/images/logo-iplusmobot-color.webp", href: "https://www.iplusmobot.com/" },
+          { name: "JAKA", logo: "/images/logo-jaka-color.webp", href: "https://www.jaka.com/" },
         ],
         [
-          { name: "SRT", logo: "/images/logo-srt-color.webp" },
-          { name: "Zebra", logo: "/images/logo-zebra-color.webp" },
-          { name: "Doog", logo: "/images/logo-doog-color.webp" },
-          { name: "Keyence", logo: "/images/logo-keyence-color.webp" },
+          // Soft Robot Tech of Beijing, who make the soft grippers — not one of
+          // the several unrelated firms also trading as "SRT".
+          { name: "SRT", logo: "/images/logo-srt-color.webp", href: "https://www.softrobottech.com/web/en/" },
+          { name: "Zebra", logo: "/images/logo-zebra-color.webp", href: "https://www.zebra.com/" },
+          { name: "Doog", logo: "/images/logo-doog-color.webp", href: "https://doog-inc.com/" },
+          { name: "Keyence", logo: "/images/logo-keyence-color.webp", href: "https://www.keyence.com/" },
+          // No href — could not be identified. See the note on PARTNER_NETWORK.
           { name: "SafeGuard", logo: "/images/logo-safeguard-color.webp" },
         ],
       ],
@@ -207,12 +241,12 @@ export const PARTNER_NETWORK = {
       // row reaches a tile and a half further left than the two around it, and
       // the group is pushed up against Sophic so that reach lands on it.
       rows: [
-        [{ name: "Dell Technologies", logo: "/images/logo-dell-color.webp" }],
+        [{ name: "Dell Technologies", logo: "/images/logo-dell-color.webp", href: "https://www.dell.com/" }],
         [
-          { name: "AWS", logo: "/images/logo-aws-color.webp" },
-          { name: "Exiatec Solutions", logo: "/images/logo-exiatec-color.webp" },
+          { name: "AWS", logo: "/images/logo-aws-color.webp", href: "https://aws.amazon.com/" },
+          { name: "Exiatec Solutions", logo: "/images/logo-exiatec-color.webp", href: "https://exiatec.com/" },
         ],
-        [{ name: "Siemens", logo: "/images/logo-siemens-color.webp" }],
+        [{ name: "Siemens", logo: "/images/logo-siemens-color.webp", href: "https://www.siemens.com/" }],
       ],
       shifts: [3, 0, 3],
     },
@@ -230,18 +264,21 @@ export const PARTNER_NETWORK = {
           {
             name: "Intel Partner — Gold, IoT Solutions",
             logo: "/images/logo-intel-color.webp",
+            href: "https://www.intel.com/",
           },
+          // No href — could not be identified. See the note on PARTNER_NETWORK.
           { name: "MiSi 4.0", logo: "/images/logo-misi-color.webp" },
         ],
         [
+          // No href — could not be identified. See the note on PARTNER_NETWORK.
           { name: "MEX", logo: "/images/logo-mex-color.webp" },
-          { name: "PSDC", logo: "/images/logo-psdc-color.webp" },
-          { name: "NSCB Systems", logo: "/images/logo-nscb-color.webp" },
-          { name: "MTDC", logo: "/images/logo-mtdc-color.webp" },
+          { name: "PSDC", logo: "/images/logo-psdc-color.webp", href: "https://psdc.org.my/" },
+          { name: "NSCB Systems", logo: "/images/logo-nscb-color.webp", href: "https://nscb.com.my/" },
+          { name: "MTDC", logo: "/images/logo-mtdc-color.webp", href: "https://www.mtdc.com.my/" },
         ],
         [
-          { name: "MDEC", logo: "/images/logo-mdec-color.webp" },
-          { name: "MSIA", logo: "/images/logo-msia-color.webp" },
+          { name: "MDEC", logo: "/images/logo-mdec-color.webp", href: "https://mdec.my/" },
+          { name: "MSIA", logo: "/images/logo-msia-color.webp", href: "https://msia.org.my/" },
         ],
       ],
       // Normalised so the smallest is zero. Shifts are the row's left edge, so

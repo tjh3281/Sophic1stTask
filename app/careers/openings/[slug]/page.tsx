@@ -5,7 +5,7 @@ import {
   ApplyButton,
   ApplyProvider,
 } from "@/components/careers/ApplyDialog";
-import { CareersPageHeader } from "@/components/careers/CareersPageHeader";
+import { OpeningCover } from "@/components/careers/OpeningCover";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { JOB_OPENINGS, OPENINGS_HREF, findOpening } from "@/lib/careers";
@@ -50,25 +50,7 @@ export default async function OpeningPage({
 
   return (
     <>
-      <CareersPageHeader
-        trail={[
-          { label: "Home", href: "/" },
-          { label: "Careers", href: "/careers" },
-          { label: "Job Openings", href: OPENINGS_HREF },
-          { label: job.title },
-        ]}
-        eyebrow="Job opening"
-        title={job.title}
-      >
-        {/* Boxed here, where they are the first thing a reader checks — unlike
-            the listing, where the same facts repeat down every row and chips
-            would be all you saw. */}
-        <ul className="mt-7 flex flex-wrap gap-2">
-          <Fact>{job.hiringType}</Fact>
-          <Fact>{job.location}</Fact>
-          {job.salary && <Fact>{job.salary}</Fact>}
-        </ul>
-      </CareersPageHeader>
+      <OpeningCover job={job} />
 
       {/* Both apply buttons open one dialog, so it is hoisted to the level
           that contains the pair of them. */}
@@ -197,10 +179,3 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Fact({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="rounded-full border border-line bg-background px-3.5 py-1.5 text-sm text-foreground">
-      {children}
-    </li>
-  );
-}

@@ -27,6 +27,7 @@ function Shell({
   required,
   floated,
   focused,
+  invalid,
   children,
 }: {
   id: string;
@@ -34,6 +35,7 @@ function Shell({
   required?: boolean;
   floated: boolean;
   focused: boolean;
+  invalid?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -46,7 +48,16 @@ function Shell({
           floated
             ? "top-0 text-[0.6875rem] tracking-[0.04em]"
             : "top-5 text-sm",
-          focused ? "text-brand" : floated ? "text-muted" : "text-foreground",
+          // Focus wins over the fault. Somebody who has come back to fix a
+          // field already knows it is wrong, and a red label under a cursor
+          // that is trying to correct it is telling them off while they do.
+          focused
+            ? "text-brand"
+            : invalid
+              ? "text-red-600"
+              : floated
+                ? "text-muted"
+                : "text-foreground",
         )}
       >
         {label}
@@ -62,8 +73,12 @@ function Shell({
       <span
         aria-hidden="true"
         className={cn(
-          "absolute inset-x-0 bottom-0 h-px transition-colors duration-200",
-          focused ? "bg-brand" : "bg-line",
+          "absolute inset-x-0 bottom-0 transition-colors duration-200",
+          // Two pixels rather than one when it is wrong. A hairline in red is
+          // the same weight as the rule under every other field on the page,
+          // and colour alone is not something everyone can read.
+          invalid && !focused ? "h-0.5 bg-red-600" : "h-px",
+          focused ? "bg-brand" : invalid ? "" : "bg-line",
         )}
       />
     </div>
@@ -77,18 +92,27 @@ export function Text({
   label,
   value,
   onChange,
+  onBlur,
   type = "text",
   required = false,
   autoComplete,
+  invalid = false,
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   type?: string;
   required?: boolean;
   autoComplete?: string;
+  /** Answered wrong, and the reader has already left the field. */
+  invalid?: boolean;
+  /** What is wrong with it. Shown only while `invalid`. */
+  hint?: string;
 }) {
   const id = useId();
+  const hintId = `${id}-hint`;
   const [focused, setFocused] = useState(false);
 
   return (
@@ -97,6 +121,7 @@ export function Text({
       label={label}
       required={required}
       focused={focused}
+      invalid={invalid}
       floated={focused || value !== ""}
     >
       <input
@@ -105,11 +130,27 @@ export function Text({
         value={value}
         required={required}
         autoComplete={autoComplete}
+        aria-invalid={invalid || undefined}
+        aria-describedby={invalid && hint ? hintId : undefined}
         onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
+        onBlur={() => {
+          setFocused(false);
+          onBlur?.();
+        }}
         onChange={(event) => onChange(event.target.value)}
         className={CONTROL}
       />
+      {invalid && hint && (
+        // Absolute, so a message appearing does not push the field below it
+        // down the card — which on a form this short moves everything the
+        // reader is still working through.
+        <span
+          id={hintId}
+          className="absolute left-0 top-full mt-1 text-[0.6875rem] text-red-600"
+        >
+          {hint}
+        </span>
+      )}
     </Shell>
   );
 }
@@ -123,6 +164,7 @@ export function Select({
   required = false,
   options,
   groups,
+  invalid = false,
 }: {
   label: string;
   value: string;
@@ -131,6 +173,7 @@ export function Select({
   /** A flat list, or `groups` for one broken up under headings. */
   options?: Option[];
   groups?: { label: string; options: Option[] }[];
+  invalid?: boolean;
 }) {
   const id = useId();
   const [focused, setFocused] = useState(false);
@@ -141,12 +184,14 @@ export function Select({
       label={label}
       required={required}
       focused={focused}
+      invalid={invalid}
       floated={focused || value !== ""}
     >
       <select
         id={id}
         value={value}
         required={required}
+        aria-invalid={invalid || undefined}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onChange={(event) => onChange(event.target.value)}
@@ -200,11 +245,13 @@ export function TextArea({
   value,
   onChange,
   rows = 5,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   rows?: number;
+  placeholder?: string;
 }) {
   return (
     <label className="block">
@@ -213,7 +260,8 @@ export function TextArea({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={rows}
-        className="mt-2 w-full resize-y rounded-sm border border-line bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-colors focus:border-brand"
+        placeholder={placeholder}
+        className="mt-2 w-full resize-y rounded-sm border border-line bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted/60 focus:border-brand"
       />
     </label>
   );

@@ -2,10 +2,13 @@
    The layer the bursts are placed on. Where each one sits comes from the
    component as custom properties; what a burst *is* is here.
 
-   Nothing in this file animates. The movement is all inside the Lottie, and
-   the player writes it onto elements it owns — so there is no keyframe here to
-   fall out of step with it, and no prefers-reduced-motion rule either: at that
-   setting the component never loads the player, and these boxes stay empty.
+   The bursts' own movement is all inside the Lottie, and the player writes it
+   onto elements it owns — so there is no keyframe here that could fall out of
+   step with it. The one thing this file does animate is the sky coming up,
+   which is the opening beat of the band's arrival: everything else in the
+   section is staggered off this. No prefers-reduced-motion rule is needed for
+   either: at that setting the component never loads the player and these boxes
+   stay empty, so there is nothing to fade in.
 -------------------------------------------------------------------------- */
 
 .fireworks {
@@ -16,6 +19,7 @@
   overflow: hidden;
   /* It covers the whole section, heading and all. */
   pointer-events: none;
+
 }
 
 .fireworks__burst {
@@ -29,7 +33,18 @@
   /* Hung from its centre rather than its top-left corner, which is what makes
      the coordinates above mean the middle of the explosion. */
   translate: -50% -50%;
-  opacity: var(--o);
+
+  /* Dark until the band is genuinely on screen, then each burst lights on its
+     own beat. The component sets data-lit from an observer of its own — see the
+     note on `lighter` there — because the one that starts the player runs 300px
+     early and would have the sky already alight before anyone could watch it go
+     up.
+
+     Per burst rather than on the layer, which is what buys the second wave: the
+     delay is the burst's own place in the sequence, so one rule stages a group
+     that arrives at two different times. */
+  opacity: 0;
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) var(--at, 0ms);
   /* Screen rather than normal. Sparks should add light to the sky the way real
      ones do, and screen against a dark ground does exactly that — it also
      leaves everything transparent in the frame (which is most of it) with no
@@ -40,6 +55,23 @@
      would cut the bursts off from the background they are meant to blend with
      and they would go back to sitting on it as flat shapes. */
   mix-blend-mode: screen;
+}
+
+.fireworks[data-lit="1"] .fireworks__burst {
+  opacity: var(--o);
+}
+
+/* The middle wave leaving, cued by the paragraph arriving on top of it.
+   Longer than it came in by, and with the delay dropped — the delay is what
+   staged its entrance and reusing it here would hold the bursts lit under the
+   words for another second. Wins on specificity over the rule above by one
+   attribute, which is deliberate rather than lucky: both are needed, and the
+   exit has to be the one that applies once both match. */
+.fireworks[data-dim="1"] .fireworks__burst[data-transient] {
+  opacity: 0;
+  transition-delay: 0ms;
+  transition-duration: 1200ms;
+  transition-timing-function: ease-in-out;
 }
 
 /* On a phone the band is one narrow column and the bursts are placed in what
