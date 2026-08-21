@@ -65,6 +65,19 @@ const MARK = { x: 0.909, y: 0.834, size: 0.042 } as const;
 const LANDS_AT = 8.5;
 
 /**
+ * When the words arrive under the mark.
+ *
+ * Derived from the landing rather than written as its own number, so the two
+ * cannot drift: the board has to have resolved and the frame has to have turned
+ * light before anything is set over it, and a fixed second and a half would stop
+ * meaning that the moment the clip was re-cut. The delay is the beat between the
+ * mark arriving and the invitation under it — long enough that they read as two
+ * things in sequence rather than one card fading up, short enough that the
+ * closing second is not spent waiting.
+ */
+const GREETS_AT = LANDS_AT + 0.4;
+
+/**
  * How long the film gets to start, in milliseconds.
  *
  * This is the one that matters, and it matters because the page is held. A
@@ -160,8 +173,14 @@ const DISSOLVE_BACKSTOP = 2600;
 export function ContactOpener() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
+  /** Measured in `place`, so the pill is kept on screen by what it really is
+   *  rather than by the minimum it was asked for. */
+  const skipRef = useRef<HTMLButtonElement>(null);
   const [phase, setPhase] = useState<Phase>("playing");
   const [landed, setLanded] = useState(false);
+  /** Whether the invitation under the mark is up. Separate from `landed`
+   *  because they are two beats of the closing shot, not one. */
+  const [greeting, setGreeting] = useState(false);
   const leftRef = useRef(false);
 
   /**
@@ -234,8 +253,29 @@ export function ContactOpener() {
     shell.style.setProperty("--skip-mark", `${Math.round(size)}px`);
     shell.style.setProperty("--skip-w", `${Math.round(width)}px`);
     shell.style.setProperty("--skip-h", `${Math.round(height)}px`);
-    shell.style.setProperty("--skip-right", `${Math.round(clamp(vw - x, width, vw))}px`);
-    shell.style.setProperty("--skip-bottom", `${Math.round(clamp(vh - y, height, vh))}px`);
+
+    /* What the pill actually came out as, which is not what was just asked for.
+       The two numbers above are minimums — the control carries a label and a
+       hint beside it, and text is as wide as text is — so the pill is routinely
+       wider than the figure derived from the mark. Clamping against that figure
+       instead of the real one is how the control ends up hanging over the right
+       edge of the window at the shapes where the mark sits close to it and the
+       clamp is the thing holding the pill on screen.
+
+       Read after the minimums are written and before the offsets are, so the
+       measurement is of the pill as it will actually be drawn. */
+    const box = skipRef.current?.getBoundingClientRect();
+    const realWidth = Math.max(width, box?.width ?? 0);
+    const realHeight = Math.max(height, box?.height ?? 0);
+
+    shell.style.setProperty(
+      "--skip-right",
+      `${Math.round(clamp(vw - x, realWidth, vw))}px`,
+    );
+    shell.style.setProperty(
+      "--skip-bottom",
+      `${Math.round(clamp(vh - y, realHeight, vh))}px`,
+    );
   }, []);
 
   /**
@@ -314,6 +354,7 @@ export function ContactOpener() {
     leftRef.current = false;
     setExit("fade");
     setLanded(false);
+    setGreeting(false);
     setPhase("playing");
     setRun((showing) => showing + 1);
   }, []);
@@ -482,6 +523,7 @@ export function ContactOpener() {
     // cost of the one frame the whole page continues from.
     const onTime = () => {
       if (video.currentTime >= LANDS_AT) setLanded(true);
+      if (video.currentTime >= GREETS_AT) setGreeting(true);
     };
     video.addEventListener("timeupdate", onTime);
 
@@ -567,6 +609,7 @@ export function ContactOpener() {
       data-phase={phase}
       data-exit={exit}
       data-landed={landed}
+      data-greeting={greeting}
       // Not a dialog. A dialog is something the reader is asked to deal with,
       // and this is a title sequence — it wants announcing once and then
       // ignoring, which is what a plain labelled region does.
@@ -591,15 +634,51 @@ export function ContactOpener() {
           where the nav is busiest and the film ends on a near-white board. */}
       <div aria-hidden="true" className="contact-opener__crown" />
 
+      {/* The invitation, under the mark, for the last stretch of the film.
+          The shot has landed and the board has resolved by the time this
+          arrives, so it is the last thing said before the film hands the window
+          to the form — and it says the thing the form is for.
+
+          Set low in the window rather than measured off the mark, and that is a
+          decision rather than an approximation: `cover` crops symmetrically
+          about the centre, so anything the camera has pushed in on sits at the
+          middle of the window at every window shape, and the lower third is
+          therefore below it on all of them without a number that would have to
+          be re-measured every time the clip is re-cut. See the stylesheet for
+          why it is dark rather than white. */}
+      <p className="contact-opener__greeting">Let&rsquo;s Talk</p>
+
       {/* Ten seconds is a long time to hold somebody who came to send a
           message. The film is the greeting; this is the door.
 
           It is also the lid on the watermark, which is why it is sized from
           MARK and placed by `place` rather than pinned to the corner. */}
-      <button type="button" className="contact-opener__skip" onClick={leave}>
-        Skip
-        <span aria-hidden="true" className="contact-opener__skip-arrow">
-          →
+      <button
+        ref={skipRef}
+        type="button"
+        className="contact-opener__skip"
+        onClick={leave}
+      >
+        <span className="contact-opener__skip-label">
+          Skip
+          <span aria-hidden="true" className="contact-opener__skip-arrow">
+            →
+          </span>
+        </span>
+
+        {/* The other way out, said out loud.
+            Scrolling has always dismissed the film — see SCROLL_INTENT — but
+            nothing on screen said so, which makes it a shortcut for people who
+            already knew rather than a way out for people who want one.
+
+            Hidden from the accessibility tree on purpose, and not to hide it:
+            it would otherwise land in this button's accessible name, and the
+            button does not scroll. The name stays "Skip", which is what it
+            does and what a voice-control user would say to press it. A reader
+            on a screen reader is not short of a way out either — the same
+            control, and Escape. */}
+        <span aria-hidden="true" className="contact-opener__skip-hint">
+          or scroll down
         </span>
       </button>
     </div>

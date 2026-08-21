@@ -327,24 +327,50 @@
   fill-opacity: 0.2;
 }
 
-.amr__carton {
+/* --- The carton ------------------------------------------------------------
+   One box in three places — waiting beside the turntable, riding the deck, and
+   landed on a stop — so one set of rules. See the note above CartonShape in
+   CultureFloor.tsx.
+-------------------------------------------------------------------------- */
+
+.amr-carton__body {
   fill: url(#amr-carton);
 }
 
-.amr__seam {
+.amr-carton__seam {
   stroke: #7a5730;
   stroke-opacity: 0.55;
   stroke-width: 1;
 }
 
-.amr__tape {
+.amr-carton__tape {
   fill: #f0ddbb;
   fill-opacity: 0.7;
 }
 
-.amr__label {
+.amr-carton__label {
   fill: #ffffff;
   fill-opacity: 0.75;
+}
+
+/* Nothing to draw and nowhere to draw it: this exists only to hold the carton's
+   fill somewhere the stops can still find it when the plan is not rendered. */
+.amr-floor__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* --- The goods beside the turntable ---------------------------------------
+   Always there. The stack is what the robot comes to the junction for, so it
+   cannot be a thing that appears when the robot does — it is the reason the
+   journey starts, and it is standing there before anybody presses anything.
+-------------------------------------------------------------------------- */
+
+.amr-stack__cast {
+  fill: #0f172a;
+  fill-opacity: 0.16;
 }
 
 /* --- The headings --------------------------------------------------------- */
@@ -450,6 +476,45 @@
   height: 1rem;
   flex: 0 0 auto;
   color: var(--brand);
+}
+
+/* --- Where a delivery lands ------------------------------------------------
+   The leftmost thing on every stop, and the same size on all of them at all
+   times. Reserving the room rather than making it when the box arrives is the
+   whole reason this is a wrapper and not just the carton: a slot that grows
+   would push the heading sideways at the exact moment the reader is watching
+   the robot finish, and every other stop's heading would sit at a different
+   indent from the one that had been delivered to.
+
+   Empty it is invisible, so at rest the stops read as they always did — a
+   heading with a mark beside it, one step further in.
+-------------------------------------------------------------------------- */
+
+.amr-floor__dock-spot {
+  display: flex;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.amr-floor__dock-crate {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  /* Set down rather than faded up: it drops the last few units onto the block,
+     which is the move the robot has just finished making. */
+  transform: translateY(-45%) scale(0.55);
+  transition:
+    opacity 160ms var(--ease-gentle),
+    transform 420ms var(--ease-pop);
+}
+
+.amr-floor__dock[data-open="true"] .amr-floor__dock-crate {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .amr-floor__dock[data-selected="true"] {
@@ -870,6 +935,14 @@
   }
 
   .amr__load {
+    transform: none;
+  }
+
+  .amr-floor__dock-crate {
+    transition: none;
+  }
+
+  .amr-floor__dock[data-open="true"] .amr-floor__dock-crate {
     transform: none;
   }
 

@@ -104,10 +104,19 @@
 }
 
 /* One scene and everything arranged around it. All four stack in the same box
-   and only the opacity says which is on. */
+   and only the opacity says which is on.
+
+   Which is exactly why none of them takes the pointer. Being invisible costs a
+   scene nothing in hit-testing: all four cover the stage at all times, so the
+   last one in the source — its full-bleed field in particular — sits over every
+   scene before it and swallows anything aimed at them. Nothing in here is
+   interactive, so the whole reel is made transparent to the pointer and the one
+   thing that does want it, a captioned frame in the scene actually on screen,
+   asks for it back further down. */
 .community-globe__set {
   position: absolute;
   inset: 0;
+  pointer-events: none;
 }
 
 /* Hinted only while it is one of the two sets actually moving. Left on all four
@@ -371,6 +380,271 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* --- Where and when ------------------------------------------------------
+   The place and the date, over the bottom of a frame, on hover.
+
+   The flank around this is `pointer-events: none` and has to stay that way:
+   the four scenes are four boxes stacked on the same inset, all four present
+   at all times and only their opacity telling them apart, so a flank that
+   takes the pointer takes it whether or not its scene is the one on screen.
+   The exception is narrow on both counts — the frame has to be in the scene
+   currently shown, and it has to have a caption to reveal — which leaves the
+   three invisible scenes as untouchable as they were before.
+
+   Nothing here moves the frame. No lift, no zoom, no change of angle: the
+   photographs are pinned at measured tilts and the stack they sit in is being
+   driven by scroll, so a frame that grows under the pointer fights both. What
+   arrives is the panel, and only the panel.
+-------------------------------------------------------------------------- */
+
+.community-globe__set[data-shown="1"] .community-slot--captioned {
+  pointer-events: auto;
+}
+
+/* Across the middle of the frame rather than along the bottom of it, and that
+   is geometry rather than taste.
+
+   Every frame is pinned at a tilt of up to 12 degrees and turns about its own
+   centre, so how far a point swings sideways is set by how far it sits from the
+   centre vertically: about `sin(12°)` of it, which along the bottom edge is a
+   tenth of the frame's *height*. The flank clips at the window's edge, so a
+   caption down there loses its first characters — and worst exactly where it
+   can least afford to, on a narrow window, where the frames are at their
+   tallest and their least wide and that tenth of the height is a quarter of the
+   width. On the midline the same sum comes to `1 - cos(12°)`: one percent, at
+   every tilt and every size. So the panel sits where the maths is kind. */
+.community-slot__caption {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.4em;
+  /* Well clear of the one percent above, and enough that a line of it never
+     runs at the frame's corners. */
+  padding: 1em 9%;
+  text-align: center;
+  background: rgb(10 4 24 / 0.74);
+  opacity: 0;
+  transition: opacity 190ms ease-out;
+}
+
+/* Sized against the column rather than the root, because the column is a
+   clamp with a better than 3x range across the widths it appears at and text
+   set in rem would be enormous at one end of it and unreadable at the other. */
+.community-slot__caption-place {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-size: clamp(0.72rem, calc(var(--flank-w) * 0.076), 1rem);
+  font-weight: 650;
+  line-height: 1.25;
+  color: rgb(244 241 255 / 0.97);
+  text-wrap: balance;
+}
+
+/* The same amber the clip's plate is lettered in — the two are the only
+   writing anywhere on this stage and they should read as one hand. */
+.community-slot__caption-date {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-size: clamp(0.64rem, calc(var(--flank-w) * 0.062), 0.84rem);
+  font-weight: 500;
+  letter-spacing: 0.055em;
+  line-height: 1.2;
+  color: #f5c542;
+}
+
+/* The text arrives a little after the panel and from slightly below it, which
+   is the whole of the motion. Kept off `transform`: the frame carries a
+   `rotate` of its own and the track above it is being translated every frame,
+   and `translate` composes with both instead of overwriting either. */
+.community-slot__caption-place,
+.community-slot__caption-date {
+  translate: 0 0.45em;
+  transition: translate 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .community-slot--captioned:hover .community-slot__caption {
+    opacity: 1;
+  }
+
+  .community-slot--captioned:hover .community-slot__caption-place,
+  .community-slot--captioned:hover .community-slot__caption-date {
+    translate: 0 0;
+  }
+}
+
+/* No pointer to hover with, and the frames are not reachable any other way, so
+   the panel simply stands. Below 48rem this costs nothing either way — the
+   flanks are not rendered at all down there. */
+@media (hover: none) {
+  .community-slot--captioned .community-slot__caption {
+    opacity: 1;
+  }
+
+  .community-slot--captioned .community-slot__caption-place,
+  .community-slot--captioned .community-slot__caption-date {
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .community-slot__caption {
+    transition-duration: 1ms;
+  }
+
+  .community-slot__caption-place,
+  .community-slot__caption-date {
+    translate: 0 0;
+    transition: none;
+  }
+}
+
+/* --- The one frame that leads somewhere ----------------------------------
+   A wall of photographs where one of them is a link is a wall of photographs
+   where the link is invisible. Two things fix that, and both of them are on
+   while nobody is pointing at anything: the frame is ringed, and it carries a
+   button. A cue that waits for hover is not a cue, it is a confirmation.
+
+   The ring is drawn inward from the frame's own edge with an inset shadow
+   rather than as a border, which would be part of the box and would resize the
+   picture the flank is measured against. The amber is the one the clip's plate
+   and the caption's date are lettered in — the page has one accent and this is
+   it.
+
+   Some of the ring is cut off, and that is the layout working as intended: the
+   flanks are hard against the window's edges so the wall reads as continuing
+   past them, and this frame is at the top of the left one. Which is exactly why
+   the ring cannot be the whole of the signal, and why the button carries the
+   rest of it — a rectangle missing two corners is a weak shape, and a button is
+   a strong one wherever it lands.
+-------------------------------------------------------------------------- */
+
+.community-slot__link {
+  position: absolute;
+  inset: 0;
+  display: block;
+  box-shadow:
+    inset 0 0 0 4px #f5c542,
+    inset 0 0 0 6px rgb(10 4 24 / 0.35),
+    inset 0 0 30px rgb(245 197 66 / 0.34);
+  transition: box-shadow 200ms ease-out;
+}
+
+.community-slot--linked:hover .community-slot__link {
+  box-shadow:
+    inset 0 0 0 5px #ffd75e,
+    inset 0 0 0 7px rgb(10 4 24 / 0.4),
+    inset 0 0 38px rgb(255 215 94 / 0.52);
+}
+
+/* Keyboard arrivals get a ring inside the amber one — white, because the amber
+   is already spoken for and a focus ring has to be unmistakably not decoration.
+   `inert` on the off-stage scenes means this can only ever be reached while its
+   own scene is the one on the stage. */
+.community-slot__link:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: -12px;
+}
+
+/* The darkening. Hover only — at rest the photograph is the point and there is
+   nothing to read over it. */
+.community-slot__veil {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 4 24 / 0.74);
+  opacity: 0;
+  transition: opacity 190ms ease-out;
+}
+
+/* The stack, and always at full opacity so that the button inside it can be
+   visible while the veil behind it is not. Same centring and the same 9% side
+   padding as the plain caption, for the same reason — see the note there. */
+.community-slot__panel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.4em;
+  padding: 1em 9%;
+  text-align: center;
+}
+
+/* Where and when. Invisible at rest but still holding its space, so the button
+   below sits at one height and does not move when the veil arrives. */
+.community-slot__panel-text {
+  display: grid;
+  justify-items: center;
+  gap: 0.2em;
+  opacity: 0;
+  transition: opacity 190ms ease-out;
+}
+
+/* The standing cue: a filled button rather than a line of text, because a line
+   of amber text on a photograph is one more thing in a busy picture and a solid
+   shape is not. Dark type on amber, which is the only pairing here that holds
+   its contrast over a photograph nobody has cropped for the purpose. */
+.community-slot__cue {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.4em;
+  border-radius: 999px;
+  padding: 0.5em 0.9em;
+  background: #f5c542;
+  box-shadow: 0 2px 14px rgb(10 4 24 / 0.45);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-size: clamp(0.62rem, calc(var(--flank-w) * 0.055), 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: #1a1005;
+  transition:
+    background-color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+.community-slot__cue-arrow {
+  transition: translate 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .community-slot--linked:hover .community-slot__veil,
+  .community-slot--linked:hover .community-slot__panel-text {
+    opacity: 1;
+  }
+
+  .community-slot--linked:hover .community-slot__cue {
+    background: #ffd75e;
+    box-shadow: 0 3px 20px rgb(10 4 24 / 0.55);
+  }
+
+  .community-slot--linked:hover .community-slot__cue-arrow {
+    translate: 0.22em 0;
+  }
+}
+
+/* No pointer to hover with, so where and when simply stands with the button. */
+@media (hover: none) {
+  .community-slot--linked .community-slot__veil,
+  .community-slot--linked .community-slot__panel-text {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .community-slot__veil,
+  .community-slot__panel-text {
+    transition-duration: 1ms;
+  }
+
+  .community-slot__cue,
+  .community-slot__cue-arrow {
+    translate: 0 0;
+    transition: none;
+  }
 }
 
 /* The placeholder mark — see the note in MediaSlot.tsx for why it is this

@@ -72,6 +72,33 @@ const TRUNK_AISLE_Y = stationFoot + APPROACH;
 export const JUNCTION = { x: 84, y: 180, radius: 26 } as const;
 
 /**
+ * The goods waiting to be picked up, stacked on the floor beside the turntable.
+ *
+ * The junction was the one place on the plan where something happened with
+ * nothing to show for it: the robot arrived empty, paused, and left carrying a
+ * carton that had come from nowhere. This is where it comes from.
+ *
+ * Stood in the pocket to the right of the turntable, which is the only clear
+ * ground anywhere near it. The spine runs down at x = JUNCTION.x and a road is
+ * 58 units wide, so nothing may reach left of about 115; the first stop's stub
+ * runs in at the lane below, so nothing may reach past about 200 down the page.
+ * Everything below sits inside that box with a little room at each edge.
+ *
+ * Two rows, the upper one set in by half a carton, because a stack squared off
+ * on all four sides reads as one printed block rather than as separate boxes.
+ * Positions are centres, in floor units, and the carton is 24 x 21 about its
+ * own — see the carton in CultureFloor.tsx, which is drawn once and used here,
+ * on the robot's deck, and on a stop once a delivery lands.
+ */
+export const PICKUP_STACK: readonly Point[] = [
+  { x: 140, y: 186 },
+  { x: 166, y: 186 },
+  { x: 192, y: 186 },
+  { x: 153, y: 163 },
+  { x: 179, y: 163 },
+];
+
+/**
  * The stops, as a column rather than a row.
  *
  * A row of stops needs the floor's whole width and leaves the paragraph

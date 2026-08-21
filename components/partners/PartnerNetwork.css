@@ -481,6 +481,35 @@ a.partner-net__cell:focus-visible {
     inset: 0;
   }
 
+  /**
+   * The layers are see-through to the pointer; only the tiles are not.
+   *
+   * Each of those layers is `inset: 0` — the whole stage, three times over,
+   * exactly on top of one another. Painting is not the problem, because they
+   * are transparent; hit-testing is, because hit-testing reads boxes and not
+   * pixels. The last one in the document is therefore the topmost element over
+   * every point of the stage, so a click aimed at a tile on an inner track
+   * landed on the outermost track's empty layer and did nothing. The
+   * outermost ring worked, because its tiles are that layer's own children.
+   *
+   * That is also why the tiles have to be named back on rather than the
+   * property being put somewhere narrower: `pointer-events` inherits, and the
+   * layers are the ancestors of everything here.
+   *
+   * The labels stay live so their text can still be selected. They stand
+   * outside the outermost tiles and cover nothing.
+   */
+  .partner-net__rails,
+  .partner-net__orbit,
+  .partner-net__ring {
+    pointer-events: none;
+  }
+
+  .partner-net__cell,
+  .partner-net__label {
+    pointer-events: auto;
+  }
+
   /* How far this ring's leader has to reach to get to the common circle every
      title stands on. Declared on both layers, because --radius arrives per ring
      and a custom property is resolved where it is written — set on the section

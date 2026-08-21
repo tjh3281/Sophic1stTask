@@ -233,6 +233,54 @@ const APPROACH: Array<[number, number]> = [
   [0.78, 9],
 ];
 
+/* --- The sky, on the way in ----------------------------------------------
+   The starfield grows too, and the gap between how fast it grows and how fast
+   the world does is the whole of the effect.
+
+   A camera moving forward enlarges everything in front of it, but not equally:
+   the near thing races outward and the far thing barely stirs. That difference
+   is the only cue a flat screen has for depth of movement — hold the background
+   still while the world swells and the world reads as a picture being zoomed;
+   move them together at one rate and the whole frame reads as a zoom. Let the
+   sky creep while the world races and the camera is travelling.
+
+   So these numbers are deliberately small against the world's. By the time the
+   drawing has given the frame over to the surface it is at nine times its size
+   and the sky is at half again — a twelfth of the growth, which is what puts
+   the stars a long way behind the planet.
+
+   This does not contradict the note in app/community/community.css about the
+   sky being fixed. That is about *scroll* parallax — a sky sliding up the
+   window as the page moves, which would say the reader is travelling past the
+   scene. This says they are travelling into it.
+-------------------------------------------------------------------------- */
+
+/** Where the opening turn leaves the sky, against the world's OPEN_ZOOM. */
+const SKY_OPEN = 1.05;
+
+/**
+ * The sky's own approach, against progress through the hero segment.
+ *
+ * It picks up from SKY_OPEN for the same reason APPROACH picks up from
+ * OPEN_ZOOM — the turn has already moved it and starting from 1 would snap it
+ * back — and it is released to 1 at the end.
+ *
+ * That release is not a cheat. It happens between SHELL_FULL and EARTH_OUT,
+ * which is precisely the stretch where the surface is at full opacity across
+ * the whole frame: the sky is not on screen to be seen resetting, and it has to
+ * reset, because what comes out the other side is a different place and a sky
+ * still held at half again would have the reader emerge into a starfield that
+ * had been enlarged for no reason they could see.
+ */
+const SKY_APPROACH: Array<[number, number]> = [
+  [0, SKY_OPEN],
+  [0.25, 1.1],
+  [0.45, 1.2],
+  [0.62, 1.34],
+  [0.72, 1.5],
+  [0.78, 1],
+];
+
 /** Degrees the globe turns about its own vertical axis on the way in. */
 const TURN = 15;
 /** How far the camera is from the plane, in px. Shallower reads as wide-angle. */
@@ -413,6 +461,14 @@ export function CommunityGlobe() {
 
     const tunnel = section.querySelector<HTMLElement>("[data-tunnel]");
 
+    /* The page's own sky, which belongs to the route rather than to this
+       section — so it is asked for rather than assumed, and everything here
+       still runs if the page does not offer one. */
+    const sky =
+      section
+        .closest(".community-page")
+        ?.querySelector<HTMLElement>("[data-sky]") ?? null;
+
     /* Measured, not assumed. The set piece has to aim the camera at the crown
        of the globe, which means knowing where the sphere's centre sits and how
        big it is — both of which come from the stylesheet and change with the
@@ -481,6 +537,26 @@ export function CommunityGlobe() {
 
       // The opening handover is the set piece; every other one is a swap.
       const hero = segment.kind === "hand" && segment.scene === 0;
+
+      // The sky, creeping outward while the world races toward the reader —
+      // see the note on SKY_APPROACH for why the two rates differ so widely.
+      // Driven from here rather than from inside the scene loop below: there is
+      // one sky behind all four scenes, and writing it per scene would be four
+      // writes a frame for one layer, three of them immediately overwritten.
+      if (sky) {
+        const zoom =
+          reeling && held === 0
+            ? 1 + (SKY_OPEN - 1) * depth * smoothstep(local)
+            : hero
+              ? 1 + (curve(SKY_APPROACH, local) - 1) * depth
+              : 1;
+
+        sky.style.transform = `scale(${zoom.toFixed(4)})`;
+        // Hinted only while it is actually moving. This is a layer the size of
+        // the window, and it is still for most of the runway.
+        const live = zoom !== 1 ? "1" : "0";
+        if (sky.dataset.live !== live) sky.dataset.live = live;
+      }
 
       // The surface the camera passes through. Blooms as the drawing gives out,
       // holds while we are inside it, and clears as the next world arrives.
@@ -618,7 +694,17 @@ export function CommunityGlobe() {
         // that are actually moving. Written on change alone: this is an
         // attribute, and attributes are not free the way a style write is.
         const onStage = shown > 0 ? "1" : "0";
-        if (set.dataset.shown !== onStage) set.dataset.shown = onStage;
+        if (set.dataset.shown !== onStage) {
+          set.dataset.shown = onStage;
+          /* An off-stage scene is invisible but still in the document, so a
+             link inside one is still in the tab order and still readable by a
+             screen reader — a reader would tab to a picture nobody can see and
+             be offered a story about a scene that is not on the stage. `inert`
+             takes the whole scene out of both while it is not showing, and
+             leaves layout alone, which matters because the flanks below are
+             measured. */
+          set.toggleAttribute("inert", onStage === "0");
+        }
 
         // The whole layout fades — globe, sheet and flanks together, because
         // they are one scene. Only the globe then goes on to travel: frames
@@ -720,6 +806,13 @@ export function CommunityGlobe() {
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
+      // The sky outlives this section — it belongs to the route. Left as the
+      // last frame wrote it, a reader who turned reduced motion on halfway down
+      // would be stuck with a starfield frozen at half again.
+      if (sky) {
+        sky.style.transform = "";
+        delete sky.dataset.live;
+      }
     };
   }, [reduced]);
 
@@ -808,7 +901,13 @@ export function CommunityGlobe() {
                           return (
                             <div
                               key={slotIndex}
-                              className="community-slot"
+                              className={cn(
+                                "community-slot",
+                                // Only a frame with something to reveal takes
+                                // the pointer — see the stylesheet.
+                                slot.caption && "community-slot--captioned",
+                                slot.href && "community-slot--linked",
+                              )}
                               style={{ rotate: `${TILTS[nth % TILTS.length]}deg` }}
                             >
                               <MediaSlot slot={slot} />

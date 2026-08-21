@@ -1,5 +1,6 @@
 import Image from "next/image";
-import type { CommunitySlot } from "@/lib/community";
+import Link from "next/link";
+import type { CommunityCaption, CommunitySlot } from "@/lib/community";
 
 /**
  * A frame with a photograph or a clip in it — or, until those exist, the mark
@@ -47,6 +48,84 @@ function PhotoMark() {
   );
 }
 
+/**
+ * Where and when, over the bottom of the frame, on hover.
+ *
+ * Hidden with `opacity` rather than `display` or `visibility` on purpose. Those
+ * two take the text out of the accessibility tree along with the picture, and
+ * then the only route to where and when a photograph was taken is a mouse — no
+ * good to a screen reader, and no good on a touch screen either. At zero opacity
+ * it is still read out in its place, straight after the `alt` of the photograph
+ * it belongs to, which is exactly the order somebody would want it in.
+ *
+ * See the stylesheet for the rest of that argument: pointer devices get it on
+ * hover, and anything without hover is simply shown it.
+ */
+function SlotCaption({ caption }: { caption: CommunityCaption }) {
+  return (
+    <span className="community-slot__caption">
+      <CaptionLines caption={caption} />
+    </span>
+  );
+}
+
+function CaptionLines({ caption }: { caption: CommunityCaption }) {
+  return (
+    <>
+      <span className="community-slot__caption-place">{caption.place}</span>
+      <time className="community-slot__caption-date" dateTime={caption.iso}>
+        {caption.date}
+      </time>
+    </>
+  );
+}
+
+/**
+ * The one frame that leads somewhere.
+ *
+ * Three layers rather than the plain caption's one, and the split is the whole
+ * point of it: a frame that is a link has to say so while nobody is pointing at
+ * it. A cue that appears on hover is not a cue — it is a confirmation, and it
+ * confirms something the reader had already guessed by the time they see it.
+ *
+ *   veil   the darkening, on hover only. Nothing to say at rest.
+ *   panel  the stack, always at full opacity, so it can hold a child that is
+ *          visible when the veil is not — a child cannot out-opacity its
+ *          parent, which is why this is not simply the plain caption with one
+ *          more line in it.
+ *   text   where and when, on hover. It keeps its space at rest even while
+ *          invisible, so the button below does not jump when the veil arrives.
+ *
+ * The button is the standing cue and the reason for the restructure. It sits
+ * just below the middle of the picture — near enough to the midline that the
+ * frame's tilt barely moves it sideways, which is what keeps it clear of the
+ * window edge the flank is clipped against. See the stylesheet.
+ */
+function SlotLink({
+  href,
+  caption,
+}: {
+  href: string;
+  caption: CommunityCaption;
+}) {
+  return (
+    <Link href={href} className="community-slot__link">
+      <span aria-hidden="true" className="community-slot__veil" />
+      <span className="community-slot__panel">
+        <span className="community-slot__panel-text">
+          <CaptionLines caption={caption} />
+        </span>
+        <span className="community-slot__cue">
+          Read the story
+          <span aria-hidden="true" className="community-slot__cue-arrow">
+            →
+          </span>
+        </span>
+      </span>
+    </Link>
+  );
+}
+
 export function MediaSlot({ slot }: { slot: CommunitySlot }) {
   if (slot.src) {
     return slot.kind === "video" ? (
@@ -62,13 +141,23 @@ export function MediaSlot({ slot }: { slot: CommunitySlot }) {
         tabIndex={-1}
       />
     ) : (
-      <Image
-        src={slot.src}
-        alt={slot.alt ?? ""}
-        fill
-        className="community-slot__media"
-        sizes="(min-width: 48rem) 30vw, 60vw"
-      />
+      <>
+        <Image
+          src={slot.src}
+          alt={slot.alt ?? ""}
+          fill
+          className="community-slot__media"
+          sizes="(min-width: 48rem) 30vw, 60vw"
+        />
+        {/* A frame that leads somewhere puts its caption inside the link, so
+            the two are one target and the link has a name worth reading out.
+            A frame that does not simply carries the caption. */}
+        {slot.href && slot.caption ? (
+          <SlotLink href={slot.href} caption={slot.caption} />
+        ) : (
+          slot.caption && <SlotCaption caption={slot.caption} />
+        )}
+      </>
     );
   }
 

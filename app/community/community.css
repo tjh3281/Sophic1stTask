@@ -11,9 +11,14 @@
    One layer for the whole page rather than a background per section, and that
    is the point of it being fixed: the section below is four screens tall and
    the reader is meant to be travelling *toward* the world through the set
-   piece, not past a starfield scrolling by. A sky that moves with the page
-   would give the camera move a parallax it does not want. Fixed, the frame
-   stays where it is and only the world in it comes closer.
+   piece, not past a starfield scrolling by. A sky that slid up the window with
+   the page would say the reader was moving past the scene rather than into it.
+
+   It does move, but only in the one way that says the right thing: it grows,
+   slowly, while the camera closes on the world. Travelling forward enlarges
+   the near thing fast and the far thing barely at all, and that difference is
+   what reads as depth — so the sky creeps out while the world races, and never
+   slides. See SKY_APPROACH in CommunityGlobe.tsx.
 
    Fixed rather than `background-attachment: fixed`, which paints on scroll and
    over a runway this tall is a repaint of the whole window every frame. This is
@@ -50,6 +55,25 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
+  /* Grown by the globe sequence as the camera closes on the world — see
+     SKY_APPROACH in CommunityGlobe.tsx for the curve and the reasoning. Scaled
+     about the middle of the window, which is where the approach brings the
+     crown of the globe to and holds it.
+
+     Cover on a layer the size of the window means growing it only ever covers
+     more; there is no edge to bring into frame. Declared here as the resting
+     state so the layer starts composited the way it will be driven, and so the
+     sequence has something to hand back to. */
+  transform: scale(1);
+  transform-origin: 50% 50%;
+}
+
+/* Hinted only while the sequence is actually moving it. A standing will-change
+   on a fixed, window-sized layer holds a compositor layer for every page on
+   this route, and this moves for one stretch of one section. */
+.community-page__sky[data-live="1"] {
+  will-change: transform;
 }
 
 /* The header goes transparent over the cover on this route and its links are

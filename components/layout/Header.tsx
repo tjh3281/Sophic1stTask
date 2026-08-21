@@ -43,16 +43,19 @@ const COVER_ROUTES = new Set<string>([
 /**
  * Whole branches whose pages all have covers.
  *
- * One entry, for the nine role pages: every one of them opens on its own
+ * The first is the nine role pages: every one of them opens on its own
  * photograph, and the alternative to a prefix is either nine hard-coded paths
  * or importing lib/careers here — which would put the full text of nine job
  * ads into the bundle of every page on the site, for a list of slugs.
  *
- * Trailing slash on purpose. Without it this would also match the listing page
- * it is named after, which is already in the set above, and any future route
- * that merely starts with the same letters.
+ * The second is the community write-ups, which open on a photograph from the
+ * visit they describe, for the same reason and on the same terms.
+ *
+ * Trailing slashes on purpose. Without them these would also match the pages
+ * they are named after — both of which are already in the set above — and any
+ * future route that merely starts with the same letters.
  */
-const COVER_PREFIXES = ["/careers/openings/"];
+const COVER_PREFIXES = ["/careers/openings/", "/community/"];
 
 /**
  * The logo, in the two states the bar has: on its own solid background, and

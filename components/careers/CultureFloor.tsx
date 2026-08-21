@@ -8,6 +8,7 @@ import {
   DOCK,
   FLOOR,
   JUNCTION,
+  PICKUP_STACK,
   PROJECTOR,
   SCREEN,
   STATION,
@@ -214,6 +215,72 @@ function Roads({ paths }: { paths: string[] }) {
         />
       ))}
     </g>
+  );
+}
+
+/* --- The carton ------------------------------------------------------------
+   One box, drawn once, used in the three places a box appears: stacked beside
+   the turntable waiting to be collected, on the robot's deck once it has been,
+   and on a stop once it has been delivered. The three are the same object at
+   three moments of one journey, so they are the same drawing — a second box
+   drawn separately would be a box that drifts from the first the day either is
+   touched.
+
+   Sized 24 x 21 about its own centre, which is the size it is on the deck. The
+   two other uses scale it: the stack by nothing at all, since it stands on the
+   same floor, and the stop by putting it in a viewBox of its own.
+-------------------------------------------------------------------------- */
+
+/** The shapes alone, so they can go in a `g` on the plan or in an `svg` of
+ *  their own inside a block of HTML. */
+function CartonShape() {
+  return (
+    <>
+      <rect
+        className="amr-carton__body"
+        x="-12"
+        y="-10.5"
+        width="24"
+        height="21"
+        rx="2"
+      />
+      <path className="amr-carton__seam" d="M0 -10.5V10.5" />
+      <rect
+        className="amr-carton__tape"
+        x="-12"
+        y="-2.75"
+        width="24"
+        height="5.5"
+      />
+      <rect
+        className="amr-carton__label"
+        x="-9"
+        y="-7.5"
+        width="7"
+        height="4.5"
+        rx="0.8"
+      />
+    </>
+  );
+}
+
+/**
+ * The carton in a box of its own, for the stops — which are HTML, not SVG.
+ *
+ * The viewBox is the carton's own extent plus a unit of air, so the drawing
+ * fills whatever the stylesheet sizes this to and nothing has to be positioned
+ * by hand.
+ */
+function CartonMark({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="-13 -11.5 26 23"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <CartonShape />
+    </svg>
   );
 }
 
@@ -631,6 +698,23 @@ export function CultureFloor() {
       data-carrying={carrying}
       data-lit={delivered && chosen !== null}
     >
+      {/* The carton's fill, and the one thing on this component that has to be
+          declared outside the plan.
+
+          A paint server is looked up by id across the whole document, but only
+          if the element defining it is in the document to be found — and the
+          plan is `display: none` below 72rem, where the stops are still on
+          screen and still take deliveries. Held here instead, in a box with no
+          size and nothing to draw, it is present at every width. */}
+      <svg className="amr-floor__defs" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="amr-carton" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#e0b689" />
+            <stop offset="1" stopColor="#b58553" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       <div
         ref={frameRef}
         className="amr-floor__frame"
@@ -665,10 +749,7 @@ export function CultureFloor() {
               <stop offset="1" stopColor="#eda40c" />
             </linearGradient>
 
-            <linearGradient id="amr-carton" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#e0b689" />
-              <stop offset="1" stopColor="#b58553" />
-            </linearGradient>
+            {/* The carton's fill is not here — see .amr-floor__defs above. */}
 
             <radialGradient id="amr-cast">
               <stop offset="0" stopColor="#0f172a" stopOpacity="0.3" />
@@ -732,6 +813,33 @@ export function CultureFloor() {
               cy={JUNCTION.y}
               r="5"
             />
+          </g>
+
+          {/* The goods, stacked on the floor beside the turntable. What the
+              robot is here to collect, and the answer to the question the
+              junction used to raise: a machine that arrived empty and left
+              carrying a box that had come from nowhere. See PICKUP_STACK in
+              lib/cultureFloor for why the pocket is the shape it is. */}
+          <g className="amr-stack" aria-hidden="true">
+            {PICKUP_STACK.map((box) => (
+              <rect
+                key={`cast-${box.x}-${box.y}`}
+                className="amr-stack__cast"
+                x={box.x - 10.5}
+                y={box.y - 8.5}
+                width="24"
+                height="21"
+                rx="1.5"
+              />
+            ))}
+            {PICKUP_STACK.map((box) => (
+              <g
+                key={`box-${box.x}-${box.y}`}
+                transform={`translate(${box.x} ${box.y})`}
+              >
+                <CartonShape />
+              </g>
+            ))}
           </g>
 
           {/* --- The projector -------------------------------------------
@@ -837,17 +945,7 @@ export function CultureFloor() {
                 height="21"
                 rx="1.5"
               />
-              <rect
-                className="amr__carton"
-                x="-12"
-                y="-10.5"
-                width="24"
-                height="21"
-                rx="2"
-              />
-              <path className="amr__seam" d="M0 -10.5V10.5" />
-              <rect className="amr__tape" x="-12" y="-2.75" width="24" height="5.5" />
-              <rect className="amr__label" x="-9" y="-7.5" width="7" height="4.5" rx="0.8" />
+              <CartonShape />
             </g>
           </g>
         </svg>
@@ -942,6 +1040,14 @@ export function CultureFloor() {
                   }
                 >
                   <span className="amr-floor__dock-name">
+                    {/* The landing spot, at the left of every stop and the
+                        same size on all of them whether or not anything is
+                        standing in it — a slot that only takes up room once
+                        the delivery arrives would shove the heading sideways
+                        at the moment the reader is looking at it. */}
+                    <span aria-hidden="true" className="amr-floor__dock-spot">
+                      <CartonMark className="amr-floor__dock-crate" />
+                    </span>
                     <CareerGlyph name={item.icon} className="amr-floor__dock-mark" />
                     {item.name}
                   </span>

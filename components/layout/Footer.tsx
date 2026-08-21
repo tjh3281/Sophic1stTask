@@ -38,10 +38,10 @@ export function Footer() {
           {/* Identity */}
           <div>
             <Image
-              src="/images/sophic-logo-dark.png"
+              src="/images/sophic-logo-normal.png"
               alt="Sophic Digital Solutions"
-              width={480}
-              height={267}
+              width={686}
+              height={363}
               className="h-11 w-auto object-contain object-left"
             />
             <p className="mt-3 text-sm font-bold tracking-tight text-foreground">

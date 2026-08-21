@@ -35,8 +35,13 @@ export default function CommunityPage() {
   return (
     <div className="community-page">
       {/* Fixed to the window, under everything on this page. Decorative, and
-          the only element here that is not content. */}
-      <div aria-hidden="true" className="community-page__sky" />
+          the only element here that is not content.
+
+          `data-sky` is the handle the globe sequence drives it by: it grows
+          with the approach so that flying at the world reads as travelling
+          rather than as zooming. The sequence looks for this and does without
+          it if it is not here — see SKY_APPROACH in CommunityGlobe. */}
+      <div aria-hidden="true" data-sky className="community-page__sky" />
 
       <CommunityCover />
       <CommunityGlobe />
