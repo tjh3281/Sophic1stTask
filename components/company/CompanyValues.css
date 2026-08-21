@@ -12,7 +12,14 @@
   /* Two soft lights over the flat ground, so a screen-tall band of one colour
      has somewhere to look. Both end on their own colour at zero alpha, not on
      `transparent` - that is transparent *black*, and a wide gradient running
-     to it greys out on the way. */
+     to it greys out on the way.
+
+     On the runway these are covered: the scenes are opaque and fill the stage,
+     and the scrim over them carries the same two lights so the section keeps
+     its colour. What they are still doing here is the two readings that have no
+     scenes — the plain grid under prefers-reduced-motion, which is this ground
+     and nothing else, and the moment before the first photograph has
+     decoded. */
   background-image:
     radial-gradient(
       70% 55% at 50% 0%,
@@ -30,6 +37,160 @@
    off-stage are held below and above their resting place. */
 .company-values__stage {
   overflow: clip;
+}
+
+/* --- The scene behind the value ------------------------------------------
+   A photograph per value, all six in the same box, crossfading as the value on
+   the stage changes. Which one is showing is `data-active`, written by React
+   when the active index moves — six times over the runway, not sixty times a
+   second.
+-------------------------------------------------------------------------- */
+
+.company-values__scenery {
+  position: absolute;
+  inset: 0;
+  /* Behind the words, and above the section's flat navy, which is what shows
+     through wherever a photograph does not reach. */
+  z-index: 0;
+  /* The photographs are decoration and the rail underneath them is not: a
+     full-screen box over the whole stage would take every click meant for it. */
+  pointer-events: none;
+}
+
+/* The content has to say so. Both this and the scenery are children of the same
+   flex stage, and without a position the words would paint under an absolutely
+   positioned sibling that comes first in the source. */
+.company-values__content {
+  position: relative;
+  z-index: 1;
+  /* Every word on the stage carries its own ground, and this is what lets the
+     scrim behind it be as light as it is.
+
+     The two are alternatives buying the same thing: a veil dense enough to make
+     type safe over the worst pixel in the photograph costs the whole
+     photograph, because it is applied everywhere and the worst pixel is
+     usually nowhere near the words. A shadow is applied only where there is a
+     letter, so it is paid for by the handful of pixels that actually need it.
+
+     Inherited rather than set per element — text-shadow is an inherited
+     property and everything in here is type over a photograph, the heading and
+     the rail labels included. */
+  text-shadow:
+    0 1px 2px rgb(4 18 34 / 0.55),
+    0 2px 14px rgb(4 18 34 / 0.42);
+}
+
+.company-values__scene {
+  opacity: 0;
+  /* Linear, and the same duration in both directions, which is the one pairing
+     where the two opacities sum to 1 for the whole crossfade. Any easing curve
+     dips in the middle — both images half-faded at once — and what shows
+     through that dip is the bare navy ground, so an eased crossfade reads as a
+     blink between two scenes rather than as one becoming the other. */
+  transition: opacity 800ms linear;
+}
+
+.company-values__scene[data-active="true"] {
+  opacity: 1;
+}
+
+/* --- The scrim -----------------------------------------------------------
+   What makes the words readable, and the reason the photographs can be there
+   at all.
+
+   All six sources are bright, busy daylight scenes, and this section is mint
+   and white type. Laid in raw they would take the statement with them. So the
+   scrim is heavy in the middle and lets go towards the edges: the type is
+   centred in a column about half the width of the stage, and the sides are
+   where a photograph can still be a photograph.
+
+   The numbers are picked against the worst case in the set, which is a near
+   white sky, and they are checked with the shadow on the type ignored — the
+   shadow is what carries a letter that lands on a bright spot the veil did not
+   flatten, and counting it here would be counting the same thing twice. On
+   white, 0.74 of navy leaves the mint name at about 3.9:1 and white body copy
+   at 6.5:1, and the lightest point any type reaches, 0.62 out towards the ends
+   of the rail, still holds white above 4.5:1.
+
+   Those are the floors — large text 3:1, body 4.5:1 — so there is very little
+   left in this. Lightening it further means moving the words rather than the
+   veil, and it means checking against white rather than against the images as
+   they look on the screen you are on: what breaks first is a statement crossing
+   a patch of sky, which four of the six have and none of them have in the
+   middle.
+
+   The two coloured lights are the ones this section had before there was
+   anything behind it. They were on the section, which the photographs would now
+   cover, so they moved here — on top of the scenes, where they tint them and
+   keep the board's own colour over every one of the six.
+-------------------------------------------------------------------------- */
+
+.company-values__scrim {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(
+      70% 55% at 50% 0%,
+      rgb(69 224 189 / 0.16),
+      rgb(69 224 189 / 0) 70%
+    ),
+    radial-gradient(
+      90% 60% at 50% 100%,
+      rgb(11 95 165 / 0.36),
+      rgb(11 95 165 / 0) 72%
+    ),
+    /* The top and the foot, which the heading and the rail sit on. The foot is
+       much the heavier of the two, and it is the one place this section is
+       deliberately dark rather than as light as it can get away with: the rail
+       is 10px type, the smallest thing on the stage by some way, and it is the
+       one element here a reader is expected to aim at. What it costs is the
+       bottom fifth of the picture, which in all six is ground. */
+    linear-gradient(
+        rgb(10 39 72 / 0.42),
+        rgb(10 39 72 / 0) 24%,
+        rgb(10 39 72 / 0) 56%,
+        rgb(10 39 72 / 0.9)
+      ),
+    /* The reading area. Wider than the stage so the fall-off reaches the
+       corners rather than ending inside the frame. */
+      radial-gradient(
+        125% 88% at 50% 46%,
+        rgb(10 39 72 / 0.74),
+        rgb(10 39 72 / 0.62) 45%,
+        rgb(10 39 72 / 0.34)
+      );
+}
+
+/* A phone is the case the scrim is tightest in: the same type over a stage a
+   third as wide, so the column of words reaches the edges the fall-off was
+   opening up for. It closes back up rather than being tuned — there is no
+   width here for the photograph to show through beside the words. */
+@media (max-width: 40rem) {
+  .company-values__scrim {
+    background-image:
+      radial-gradient(
+        70% 55% at 50% 0%,
+        rgb(69 224 189 / 0.16),
+        rgb(69 224 189 / 0) 70%
+      ),
+      radial-gradient(
+        90% 60% at 50% 100%,
+        rgb(11 95 165 / 0.36),
+        rgb(11 95 165 / 0) 72%
+      ),
+      linear-gradient(
+          rgb(10 39 72 / 0.38),
+          rgb(10 39 72 / 0.04) 22%,
+          rgb(10 39 72 / 0.04) 62%,
+          rgb(10 39 72 / 0.86)
+        ),
+      radial-gradient(
+          145% 92% at 50% 46%,
+          rgb(10 39 72 / 0.7),
+          rgb(10 39 72 / 0.64) 55%,
+          rgb(10 39 72 / 0.54)
+        );
+  }
 }
 
 /* --- The stage -----------------------------------------------------------
@@ -221,7 +382,12 @@
   max-width: 30rem;
   font-size: clamp(0.9375rem, 2.4vw, 1.125rem);
   line-height: 1.65;
-  color: rgb(255 255 255 / 0.86);
+  /* Was 0.86, which is the right weight for body copy on a flat ground and a
+     tenth of a point of contrast this cannot afford on a photograph — at 18px
+     it is ordinary text and owes 4.5:1, and 0.86 came in just under it over the
+     palest scene in the set. Taking the veil up instead would have cost the
+     picture everywhere to fix the type in one place. */
+  color: rgb(255 255 255 / 0.95);
 }
 
 /* --- The count ----------------------------------------------------------- */
@@ -351,12 +517,17 @@
   background: var(--mint);
 }
 
+/* 0.55 rather than the 0.4 these were on a flat ground. They are the smallest
+   type on the stage at 10px, they sit in the busiest part of most of the
+   photographs, and an inactive step being quiet is not the same as it being
+   unreadable — the gap to the mint of the active one is still the widest
+   difference in the row. */
 .company-values__num {
   font-size: 0.625rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.18em;
-  color: rgb(255 255 255 / 0.4);
+  color: rgb(255 255 255 / 0.62);
   transition: color 300ms var(--ease-gentle);
 }
 
@@ -370,7 +541,7 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.4);
+  color: rgb(255 255 255 / 0.62);
   transition: color 300ms var(--ease-gentle);
 }
 
@@ -624,7 +795,11 @@
   .company-values__step,
   .company-values__dot,
   .company-values__num,
-  .company-values__short {
+  .company-values__short,
+  /* The scenes are only ever built on the runway, which this reading does not
+     get — but the rule costs nothing and the day the plain grid grows a
+     photograph it will not arrive with a crossfade attached. */
+  .company-values__scene {
     transition: none;
   }
 }

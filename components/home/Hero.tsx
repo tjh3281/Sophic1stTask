@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import { DarkVeil } from "@/components/ui/DarkVeil";
 import { ParticleText } from "@/components/ui/ParticleText";
+import { VantaNet } from "@/components/ui/VantaNet";
 import { EvolutionSequence } from "./EvolutionSequence";
 import "./Hero.css";
 
@@ -22,8 +22,9 @@ const EVOLUTION_CLIP = "/images/evolution.mp4";
  * Three canvases and a stylesheet make up the screen, and they are deliberately
  * kept apart:
  *
- *   - DarkVeil draws the background. It is a shader, it knows nothing about the
- *     page, and it is covered by a scrim that does the legibility work.
+ *   - VantaNet draws the background. It is a WebGL scene, it knows nothing
+ *     about the page, and it is covered by a scrim that does the legibility
+ *     work.
  *   - ParticleText draws the headline. It is decorative; the h1 below is the
  *     real heading, which is what a screen reader, a search engine and a reader
  *     with JavaScript off all get.
@@ -39,34 +40,28 @@ export function Hero() {
     // -mt-16 pt-16 cancels the layout's header clearance so the field runs
     // behind the transparent header, then gives the content the space back.
     // isolate holds the two absolute layers below inside the section.
-    <section className="hero relative isolate -mt-16 flex min-h-[100svh] flex-col justify-center overflow-hidden bg-[#04101c] pb-16 pt-28 text-white sm:pt-32">
+    <section className="hero relative isolate -mt-16 flex min-h-[100svh] flex-col justify-center overflow-hidden bg-[#23153c] pb-16 pt-28 text-white sm:pt-32">
       <div aria-hidden="true" className="absolute inset-0 -z-20">
-        <DarkVeil
-          // The field is a saturated violet out of the box, around 261° of hue.
+        <VantaNet
+          // The configuration from vantajs.com, value for value: cyan on
+          // violet, a lattice edge of 10 — which is (10+1)² × 2 = 242 dots,
+          // not 10 — and upstream's own connection radius and spacing. The
+          // section's background is set to the same violet, so the canvas and
+          // the CSS behind it are the same colour and nothing shows a seam
+          // before the first frame or if WebGL is missing.
           //
-          // This is not a number worth nudging by eye. The shader's rotation is
-          // written with GLSL matrix literals, which are read as columns — so
-          // it transposes its own YIQ matrices and the result is not the hue
-          // rotation the prop name promises. It also clamps, so the mapping is
-          // neither linear nor symmetric: 290 comes out magenta, not the cyan
-          // the arithmetic suggests. 30 is where the field lands on a blue of
-          // about 218° — a shade off the brand's own 207°, and far enough from
-          // the accent teal that the "er" and the light under the figures still
-          // read as a separate colour against it rather than as more of the
-          // same. Past about 45 it turns teal, and past 80 it goes green.
-          hueShift={30}
-          speed={0.32}
-          warpAmount={0.06}
-          // A trace of grain. The field is nothing but wide gradients, and wide
-          // gradients on a dark background are where 8-bit colour bands; a
-          // little noise is what breaks the bands up.
-          noiseIntensity={0.024}
-          // Rendered at just over half size and stretched. There is no edge in
-          // this image sharper than a gradient, so the resolution is spent on
-          // nothing — and it is a full-screen shader with a per-pixel network
-          // in it, which is not something to run at native resolution behind
-          // the fold of every visit.
-          resolutionScale={0.55}
+          // The effect is left at full strength everywhere, including behind
+          // the type. What keeps the headline clear is the pool in Hero.css,
+          // which is local to the column of content — so the net is only ever
+          // held back where a word is standing on it, and reads exactly as it
+          // does on vantajs.com across the rest of the frame.
+          color="#3fecff"
+          backgroundColor="#23153c"
+          points={10}
+          maxDistance={20}
+          spacing={15}
+          speed={1}
+          mouseCoeff={1}
         />
       </div>
       <div aria-hidden="true" className="hero-scrim absolute inset-0 -z-10" />

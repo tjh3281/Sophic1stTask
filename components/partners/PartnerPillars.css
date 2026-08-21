@@ -17,57 +17,91 @@
   /* The same mint the company page's dark half uses. One hex for the site. */
   --mint: #45e0bd;
   --disc: #123a63;
-  --icon: #8ed4ee;
+  /* Nearly white, with the site's blue still in it. It was the flat #8ed4ee
+     while the disc behind it was one flat navy; against five photographs — one
+     of which is a blue this hue sits inside — a tint that close to its ground
+     is the wrong tool, and lightening it costs nothing anywhere else. */
+  --icon: #e6f4ff;
 }
 
 /* --- The statement -------------------------------------------------------
-   The words sit on the white of the comet, in black.
+   The words are posted on a billboard standing on open ground.
 
-   The comet is a diagonal wedge: bright at the lower left, falling away to
-   dark sky at the top and to the right. There is no horizontal band across the
-   whole picture that is white the whole way, so a crop of the full frame will
-   always put part of a line of type on near-black however it is positioned.
+   The picture is one keyed cutout: board, legs and regolith, with everything
+   around them transparent, so the section's own starfield is the sky behind it
+   and the ground is lit by it. Its edges are ramped out in the file rather than
+   cut square — a rectangle of rock on a starfield reads as a pasted swatch, and
+   a patch that dissolves reads as ground.
 
-   The asset is therefore cropped to the core rather than the frame. The
-   rectangle was found by scanning the source for the one with the highest
-   *minimum* luminance — the darkest pixel is what black type has to clear, and
-   an average would hide exactly the corner that fails. At 100x50 of its 225 it
-   holds 6.14:1 against black at its worst point, which is why there is no
-   scrim over it: none is needed, at any panel shape, and one would only wash
-   out the picture that was asked for.
+   GEOMETRY. Every number below is measured off the asset and written as a
+   fraction of it, because the type has to land inside a painted rectangle that
+   is part of a photograph. The source crop is 753x469, and the poster face
+   inside its frame is x 146..606, y 19..205 of that. So:
 
-   That crop is 100px wide and arrives here 1400px wide. The upscale is
-   enormous and it does not matter — the region is a smooth glow, so there is
-   no detail in it to lose.
+     picture height   469/753        = 62.28% of the width
+     face left/right  146/753        = 19.39% in from each side
+     face top          19/469        =  4.05% of the picture height
+     face height      187/469        = 39.87% of the picture height
+
+   The last two are restated against the width — 2.52% and 24.84% — because
+   that is the axis a container query can measure. __statement exists only to
+   be that container: an element cannot answer its own cqw, so the ruler has to
+   sit one level above everything that reads from it.
+
+   Sizing the type in cqw as well is what makes the fit hold. Type and box then
+   scale by the same factor, so the number of lines the copy takes is the same
+   at 1150px as at 1900px — the layout cannot be correct at the width it was
+   drawn at and overflow at some other one.
+
+   TWO LAYOUTS, one set of markup — the copy is never in the HTML twice. Below
+   72rem the face is too short a letterbox to hold 160 words at any size worth
+   reading, so the statement splits: the heading stays on the board and the
+   paragraphs drop underneath it onto the starfield. That falls out of which
+   element is positioned. __copy is left static there, so __head resolves its
+   absolute placement against __scene and lands on the board, while __lead is an
+   ordinary block and flows below the picture. From 72rem __copy becomes the
+   positioned box on the face, and both of them are simply blocks inside it.
 -------------------------------------------------------------------------- */
 
 .partner-pillars__statement {
+  container-type: inline-size;
+}
+
+.partner-pillars__scene {
   position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border-radius: 0.875rem;
-  padding: clamp(2rem, 5vw, 3.25rem) clamp(1.5rem, 4vw, 3rem);
-  background-image: url("/images/partner-star-background.webp");
-  background-size: cover;
-  background-position: center;
-  /* Lifts a bright panel off the dark section behind it. The panel is lighter
-     than its ground now, so it needs a shadow under it rather than an edge
-     around it. */
-  box-shadow: 0 24px 60px -28px rgb(0 0 0 / 0.75);
+  /* Room for the picture, which the copy then starts below. From 72rem this
+     becomes the height of the whole thing — see the block at the end. */
+  padding-top: 62.28cqw;
+  background-image: url("/images/partner-signboard.webp");
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+/* The poster area, in both layouts. Below 72rem this is the heading alone and
+   __copy is not a box at all; from 72rem the whole statement is placed on the
+   board and this is left as an ordinary block inside it. */
+.partner-pillars__head {
+  position: absolute;
+  left: 19.39%;
+  right: 19.39%;
+  top: 2.52cqw;
+  height: 24.84cqw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-inline: 3cqw;
 }
 
 .partner-pillars__statement-title {
-  font-size: 1.75rem;
+  /* Tracks the board rather than the viewport: it is painted on it. Clamped at
+     both ends so it stays a heading on a phone and stops growing once the board
+     is wider than the words need. */
+  font-size: clamp(1.05rem, 5cqw, 2.6rem);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.03em;
   color: #04070d;
-}
-
-@media (min-width: 40rem) {
-  .partner-pillars__statement-title {
-    font-size: 2.25rem;
-  }
 }
 
 .partner-pillars__statement-rule {
@@ -80,18 +114,80 @@
   background: #29a8b8;
 }
 
+/* On the starfield, under the board. */
+.partner-pillars__lead {
+  margin-top: clamp(1.75rem, 4vw, 2.75rem);
+}
+
 .partner-pillars__statement-text {
-  margin-top: 1.75rem;
   max-width: 58rem;
   font-size: 1rem;
   line-height: 1.7;
-  /* Full opacity, not a tint. Anything faded here spends the contrast the
-     crop was chosen to provide. */
-  color: #101820;
+  color: rgb(255 255 255 / 0.84);
 }
 
 .partner-pillars__statement-text + .partner-pillars__statement-text {
   margin-top: 1.25rem;
+}
+
+/* --- The whole statement on the board ------------------------------------
+   Wide enough for the face to hold all of it at a size worth reading. At this
+   breakpoint the face is 61.2cqw across, so the body sets at 1.4cqw — around
+   15px where the layout starts and 17px at the container's full width. */
+
+@media (min-width: 72rem) {
+  .partner-pillars__scene {
+    /* The ratio box now, rather than a gap above the copy. */
+    height: 62.28cqw;
+    padding-top: 0;
+  }
+
+  .partner-pillars__copy {
+    position: absolute;
+    left: 19.39%;
+    right: 19.39%;
+    top: 2.52cqw;
+    height: 24.84cqw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2.2cqw 3.2cqw;
+  }
+
+  /* Back to an ordinary block: __copy is the box on the board now, and this is
+     just the first thing in it. */
+  .partner-pillars__head {
+    position: static;
+    height: auto;
+    padding-inline: 0;
+  }
+
+  .partner-pillars__statement-title {
+    font-size: 3cqw;
+  }
+
+  .partner-pillars__statement-rule {
+    width: 7cqw;
+    height: 0.32cqw;
+    margin-top: 0.9cqw;
+  }
+
+  .partner-pillars__lead {
+    margin-top: 1.9cqw;
+  }
+
+  .partner-pillars__statement-text {
+    max-width: none;
+    font-size: 1.4cqw;
+    line-height: 1.62;
+    /* Full strength, not a tint. The face is white and every point of contrast
+       is wanted at this size. */
+    color: #101820;
+  }
+
+  .partner-pillars__statement-text + .partner-pillars__statement-text {
+    margin-top: 1.3cqw;
+  }
 }
 
 /* --- The row ------------------------------------------------------------- */
@@ -149,22 +245,95 @@
 
 /* --- The disc ------------------------------------------------------------ */
 
+/* Three layers, and the order is the whole design:
+
+   the disc itself  — an opaque floor, so the garland threads behind it
+   ::before         — the planet, clipped to the circle
+   ::after          — a scrim, dark in the middle and clearing at the limb
+   the icon         — lifted above both
+
+   Nothing is drawn around the outside. The planet's own limb is the edge of the
+   disc: it is a sphere, it already ends in a curve, and a ring on top of that
+   is a second edge a few pixels outside the real one. What was a mint outline
+   here is now the glow in the open state below — the same colour doing the same
+   job, as light coming off the planet rather than as a line around it.
+
+   The scrim is what makes the photographs usable. These five planets are
+   nothing like each other in value: Mercury is a grey nearly as light as the
+   icon and Venus is brighter still, while Neptune is a blue the icon's own hue
+   sits inside. One flat tint over all of them would have to be set for the
+   worst case and would bury the other four. A radial instead puts the darkness
+   where the icon is — it occupies the middle 52% and no more — and lets the
+   limb, which has nothing on it, keep its colour. */
+
 .partner-pillars__disc {
   display: grid;
   place-items: center;
+  position: relative;
   width: clamp(5.5rem, 13vw, 7.5rem);
   aspect-ratio: 1;
   border-radius: 9999px;
   /* Opaque, not translucent: it has to cover the curve running underneath it
-     so the line reads as threading the discs rather than crossing them. */
+     so the line reads as threading the discs rather than crossing them. This
+     is also the face until the planet has loaded, which is why it stayed a
+     colour rather than becoming transparent under the image. */
   background: var(--disc);
-  box-shadow: inset 0 0 0 2px var(--mint);
   color: var(--icon);
 }
 
+.partner-pillars__disc::before,
+.partner-pillars__disc::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.partner-pillars__disc::before {
+  background-image: var(--planet);
+  /* Slightly over the box rather than cover. Each file is cropped to its own
+     limb, but the limbs are soft and the crop keeps a pixel or two of sky on
+     the shortest side; this pushes that sliver past the edge so the planet
+     meets the mint ring all the way round. */
+  background-size: 106% 106%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Flat where the icon is, falling away only outside it.
+   The icon is 52% of the disc wide and centred, so it reaches 52% of the way to
+   the rim and no further; every stop up to there is therefore held at one value,
+   and the clearing happens over the bare ring beyond it. An eased falloff that
+   started at the centre would be lightest exactly where the icon's outermost
+   strokes are, which is the half of it most likely to cross a bright crater ray
+   or a cloud top.
+
+   The value itself is measured, not judged. Against the brightest single pixel
+   inside that radius on any of the five — pure white, on Mercury's rays and on
+   Earth's cloud — 0.71 black holds the icon at 3.5:1 with the pillar open, and
+   further than that with it closed. An earlier 0.60 looked fine and came to
+   2.7:1 on those two, which is the reason this is stated as a number. */
+.partner-pillars__disc::after {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgb(2 8 18 / 0.74) 0%,
+    rgb(2 8 18 / 0.71) 52%,
+    rgb(2 8 18 / 0.5) 74%,
+    rgb(2 8 18 / 0.2) 100%
+  );
+}
+
 .partner-pillars__disc svg {
+  /* Above both pseudo-elements, which are positioned and would otherwise paint
+     over an ordinary child. */
+  position: relative;
+  z-index: 1;
   width: 52%;
   height: 52%;
+  /* The scrim sets the average behind the icon; this holds its edges where a
+     cloud or a crater happens to be lighter than the average. */
+  filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.85));
 }
 
 .partner-pillars__label {
@@ -178,6 +347,7 @@
 /* --- The open pillar ----------------------------------------------------- */
 
 .partner-pillars__disc,
+.partner-pillars__disc::after,
 .partner-pillars__disc svg,
 .partner-pillars__label {
   transition:
@@ -191,16 +361,25 @@
    the same row — this is a set of five with one open, not one live item and
    four disabled ones.
 
-   The dimming is on the ring and the icon, never on the disc. Opacity on the
-   disc fades its background along with everything else, and the garland runs
-   straight underneath it — a translucent disc has the line drawn across its
-   face instead of threading behind it. The disc stays opaque at all times;
-   only what is on it changes. */
-.partner-pillars__item[data-active="false"] .partner-pillars__disc {
-  box-shadow: inset 0 0 0 2px rgb(69 224 189 / 0.5);
+   Nothing here is ever `opacity` on the disc itself. The garland runs straight
+   underneath it, and a translucent disc has the line drawn across its face
+   instead of threading behind it. The element stays fully opaque; what changes
+   is the icon, the glow, and how far back the scrim holds the planet — and the
+   scrim is a layer inside the disc, so lifting it brightens the photograph
+   without making the disc see-through.
+
+   The open pillar is the one whose planet comes forward. That is the clearest
+   signal the row has: four worlds in shadow and one in daylight reads across
+   the whole board at a glance, where a line 2px wide never did. */
+
+/* Raised from the 0.7 this was when the ground behind it was flat navy. A
+   photograph gives the icon competition at every point of its outline, so it
+   is held closer to full even when its pillar is closed. */
+.partner-pillars__item[data-active="false"] .partner-pillars__disc svg {
+  opacity: 0.8;
 }
 
-.partner-pillars__item[data-active="false"] .partner-pillars__disc svg {
+.partner-pillars__item[data-active="true"] .partner-pillars__disc::after {
   opacity: 0.7;
 }
 
@@ -208,12 +387,15 @@
   opacity: 0.62;
 }
 
+/* All blur and no spread, so there is no radius at which the glow has an edge.
+   A spread ring would be the outline again in softer clothing; two overlapping
+   blurs read as light thrown off the planet, which is the only way a sphere in
+   a photograph can plausibly be lit. */
 .partner-pillars__item[data-active="true"] .partner-pillars__disc {
   transform: scale(1.07);
   box-shadow:
-    inset 0 0 0 2px var(--mint),
-    0 0 0 5px rgb(69 224 189 / 0.14),
-    0 0 26px rgb(69 224 189 / 0.3);
+    0 0 16px rgb(69 224 189 / 0.5),
+    0 0 42px 8px rgb(69 224 189 / 0.26);
 }
 
 .partner-pillars__item[data-active="true"] .partner-pillars__label {
@@ -222,6 +404,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .partner-pillars__disc,
+  .partner-pillars__disc::after,
+  .partner-pillars__disc svg,
   .partner-pillars__label {
     transition: none;
   }

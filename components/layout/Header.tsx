@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
+import { useCoverOverlay } from "@/lib/coverOverlay";
 import { HEADER_NAV, isCurrentSection } from "@/lib/nav";
 import { SOLUTIONS } from "@/lib/solutions";
 import { useScrolled } from "@/lib/useScrolled";
@@ -88,6 +89,9 @@ const MARKS = {
 export function Header() {
   const pathname = usePathname();
   const scrolled = useScrolled(24);
+  // A cover that is a film rather than a photograph, asking for the bar while
+  // it runs and handing it back when it lands. See lib/coverOverlay.
+  const asked = useCoverOverlay();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -95,6 +99,18 @@ export function Header() {
   // rendered twice — once per breakpoint — and would bind the keys twice with it.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      // Not every keydown arrives with a key on it, and the one below is the
+      // only line on the site that calls a method on one rather than comparing
+      // it. Chrome fires keydown events of its own while it autofills a field —
+      // which is exactly what it offers to do on a contact form it has an
+      // address saved for — and so do some IMEs and a good number of
+      // extensions. None of them are typing anything.
+      //
+      // Nothing warned about this: `key` is a plain `string` in the DOM types,
+      // never optional, so the call type-checked and then threw the first time
+      // somebody filled in the form.
+      if (typeof event.key !== "string") return;
+
       const inField =
         event.target instanceof HTMLElement &&
         (event.target.isContentEditable ||
@@ -130,10 +146,16 @@ export function Header() {
   // Transparent only while sitting at the top of a page that has a cover, and
   // never while the drawer is open — a see-through bar above a solid drawer
   // reads as a glitch.
+  //
+  // Two ways to have a cover, and the second is not a property of the route.
+  // A still cover is the same picture the whole time it is on screen, so the
+  // path is enough to know the bar is safe over it. The contact page's cover is
+  // ten seconds of film that ends on a near-white board, and nothing about the
+  // path says when that happens — so it asks, and stops asking when it lands.
   const hasCover =
     COVER_ROUTES.has(pathname) ||
     COVER_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-  const overlay = hasCover && !scrolled && !menuOpen;
+  const overlay = (hasCover || asked) && !scrolled && !menuOpen;
 
   // Always a pair: the mark for the solid bar, and the mark for a cover the bar
   // is transparent over. Which pair depends only on whether this is the home

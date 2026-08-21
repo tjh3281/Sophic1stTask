@@ -16,9 +16,17 @@ import type { PartnerGlyphName } from "@/components/partners/PartnerGlyph";
  * rather than error.
  */
 export const PARTNERS_HERO = {
-  /** Sits above the headline as a tracked label, the way "About us" does on
-   *  the company cover. It is the page's own name rather than a claim. */
-  eyebrow: "Partners",
+  /**
+   * The page's own name rather than a claim, which is why it can carry the
+   * cover on its own.
+   *
+   * It used to be set as a tracked label above the headline, the way "About us"
+   * is on the company cover. It is now the cover's display title and the page's
+   * h1, and the statement below reads as the sentence under it — the same two
+   * pieces of copy, with the name given the size it was always doing the job
+   * of.
+   */
+  title: "Partners",
   headline: "In I4.0 journey, we're not alone.",
   lead: "We need partners to make it a success, this includes our customers, principals and you.",
 };
@@ -39,6 +47,30 @@ export const PARTNERS_HERO = {
 export type PartnerPillar = {
   name: string;
   icon: PartnerGlyphName;
+  /**
+   * The globe behind the disc, as a path under /images.
+   *
+   * Five different planets rather than one texture repeated five times. The row
+   * is five things at once, and five identical spheres would say the opposite
+   * of that; five distinct worlds say it without a word of copy.
+   *
+   * They run outward from the Sun as the eye reads, left to right along the
+   * garland — Mercury, Venus, Earth, Mars, Neptune — so the sequence is a real
+   * one rather than five pictures dropped in the order they were found. Earth
+   * lands on the middle hook, which is the deepest point of the curve and the
+   * first disc the eye settles on.
+   *
+   * The Sun is deliberately absent, and so is Jupiter: at 7.5rem across both
+   * are a field of glare, and a disc cannot be a bright field and carry an icon
+   * at the same time. Neptune is the one large body here, and it earns its
+   * place by being an even, unlit blue rather than a storm.
+   *
+   * Every file is a NASA public-domain frame cropped to the planet's own limb —
+   * the lit disc found by threshold, then the smallest square around it — so
+   * each planet meets the edge of its circle at the same place however much sky
+   * the original had around it.
+   */
+  planet: string;
   /**
    * Shown in the board's panel when this pillar is the active one.
    *
@@ -61,30 +93,35 @@ export const PARTNER_WITH_SOPHIC = {
     {
       name: "Strategic Alignment",
       icon: "alignment",
+      planet: "/images/planet-mercury.webp",
       detail:
         "Our partnership is committed to working with us to achieve our strategic goals. We have a deep understanding of our business and our industry, and together, we are able to provide great insights and recommendations that help us to stay ahead of the curve.",
     },
     {
       name: "End-To-End Support",
       icon: "support",
+      planet: "/images/planet-venus.webp",
       detail:
         "As your partner, we are committed to providing comprehensive support throughout your Industry 4.0 journey. From strategy development and solution design to implementation and post-deployment support, we are with you at every stage. Our dedicated team is always available to address your concerns, answer your questions, and provide guidance to ensure a seamless and successful transformation.",
     },
     {
       name: "Co-Creation & Innovation",
       icon: "co-creation",
+      planet: "/images/planet-earth.webp",
       detail:
         "Our partnership is not just as a vendor. We are a partner who works together to co-create solutions that meet specific needs. We are not afraid to challenge our assumptions, which helps us think outside the box. This co-creation approach has helped us develop innovative solutions that have transformed our business.",
     },
     {
       name: "Shared Expertise",
       icon: "expertise",
+      planet: "/images/planet-mars.webp",
       detail:
         "Our partnership brings a wealth of expertise to the table. We have a team of experienced consultants who are experts in digital transformation, cloud computing, data analytics, and other areas. This expertise allows us to accelerate our transformation journey and achieve our goals more quickly.",
     },
     {
       name: "Agile & Adaptive Approach",
       icon: "agile",
+      planet: "/images/planet-neptune.webp",
       detail:
         "Industry 4.0 demands agility and adaptability. Our partnership embraces these principles. We work with you in an iterative and flexible manner, continuously evaluating and refining our strategies and solutions. By staying agile, we ensure that we can quickly respond to changing market dynamics, technological advancements, and evolving business needs.",
     },
@@ -193,24 +230,42 @@ export const PARTNER_NETWORK = {
   heading: "Our partner network",
   centre: {
     name: "Sophic Automation",
-    logo: "/images/sophic-logo-light.png",
-    width: 480,
-    height: 267,
+    /**
+     * The normal mark, in its white-lettered cut for the navy tile.
+     *
+     * There are two Sophic logos in the repository and they are not the same
+     * drawing — the other has a small aerial above the globe and a darker
+     * sphere. That one is the home page's, which the header keeps for the home
+     * page alone; every other page wears this one. This tile was on the home
+     * page's cut, which made Sophic's own hexagon the one mark on the site that
+     * disagreed with the header directly above it.
+     *
+     * See the note on MARKS in components/layout/Header.tsx, which owns that
+     * split and explains where this white cut came from — the file that arrived
+     * was flattened onto opaque black and its alpha had to be recovered.
+     */
+    logo: "/images/sophic-logo-normal-white.png",
+    width: 1565,
+    height: 856,
   },
   groups: [
     {
       slug: "things-of-internet",
       label: "Things of Internet",
-      // A pyramid, widening by one a row, with Sophic's own tile as its apex —
-      // the two at the top sit under it and everything below fans out from
-      // there. Fourteen partners is exactly 2 + 3 + 4 + 5, so the shape takes
-      // the whole group with nothing left over and no row half empty.
+      // A block five wide and three deep, hanging under Sophic's own tile.
+      // Fourteen is 5 + 4 + 5, and the middle row being the short one is what
+      // makes it tessellate: consecutive rows differ by one, so centring them
+      // staggers them by exactly half a tile.
+      //
+      // It was a 2 + 3 + 4 + 5 pyramid, which is the same fourteen partners a
+      // row deeper and two tiles narrower. The whole map has to stand inside one
+      // screen, and height is the scarce measure here rather than width — this
+      // shape spends a quarter less of it and the tiles come out larger for it.
+      // The order is untouched; only where the rows break has moved.
       rows: [
         [
           { name: "ADVFIT", logo: "/images/logo-advfit-color.webp", href: "https://www.advfit.com/" },
           { name: "Beckhoff", logo: "/images/logo-beckhoff-color.webp", href: "https://www.beckhoff.com/" },
-        ],
-        [
           { name: "Han's Laser", logo: "/images/logo-hanslaser-color.webp", href: "https://www.hanslaser.com/" },
           { name: "Monnit", logo: "/images/logo-monnit-color.webp", href: "https://www.monnit.com/" },
           // No href — could not be identified. See the note on PARTNER_NETWORK.

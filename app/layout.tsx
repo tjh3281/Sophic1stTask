@@ -73,11 +73,11 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         {/* Reveal starts its children hidden and shows them from JS; the home
-            page's medal starts parked above its section and the company
-            page's buildings start clipped into the ground for the same
-            reason. Without JS there is no observer to run, so opt out of the
-            motion entirely and show all three where they were going to end
-            up.
+            page's medal starts parked above its section, the company page's
+            buildings start clipped into the ground, and the partner wall's
+            hexagons start at nothing for the same reason. Without JS there is
+            no observer to run, so opt out of the motion entirely and show all
+            four where they were going to end up.
 
             The two scroll runways need more than that. Both are a tall section
             holding a sticky frame that only one thing is visible in at a time,
@@ -92,7 +92,7 @@ export default function RootLayout({
           <style
             dangerouslySetInnerHTML={{
               __html:
-                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}.medal-hang__arm{translate:none}.company-scene__piece{clip-path:none;translate:none;opacity:1}.company-values{height:auto}.company-values__stage{position:static;height:auto;padding:4rem 0}.company-values__deck{grid-template-areas:none;gap:3rem}.company-values__card{grid-area:auto;opacity:1;transform:none}.partner-pillars__panel[hidden]{display:block}.partner-pillars__panel+.partner-pillars__panel{margin-top:2rem}.partner-pillars__panels{min-height:0}.community-globe{height:auto}.community-globe__stage{display:none}",
+                ".reveal,.reveal-settle{opacity:1;transform:none;transition:none}.medal-hang__arm{translate:none}.company-scene__piece{clip-path:none;translate:none;opacity:1}.partner-net__cell{opacity:1}.company-values{height:auto}.company-values__stage{position:static;height:auto;padding:4rem 0}.company-values__deck{grid-template-areas:none;gap:3rem}.company-values__card{grid-area:auto;opacity:1;transform:none}.partner-pillars__panel[hidden]{display:block}.partner-pillars__panel+.partner-pillars__panel{margin-top:2rem}.partner-pillars__panels{min-height:0}.community-globe{height:auto}.community-globe__stage{display:none}",
             }}
           />
         </noscript>

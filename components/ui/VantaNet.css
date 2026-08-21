@@ -1,0 +1,26 @@
+/* Styles for VantaNet, ported from Vanta.js.
+
+   The canvas inside is three's, appended by the component rather than rendered
+   by React — see the note in VantaNet.tsx — so it is styled by descendant
+   rather than by a class on a JSX element.
+
+   Upstream positions its canvas absolutely inside whatever element it is handed
+   and rewrites that element's own position to suit. Here the placement is the
+   caller's business and this only says how big it is. */
+
+.vanta-net {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* It is a backdrop, not a surface. The pointer is still tracked — on the
+     window, not here — so the camera answers the cursor without this element
+     standing between the reader and the links on top of it. */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.vanta-net__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

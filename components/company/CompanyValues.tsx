@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { COMPANY_VALUES, VALUES_INTRO } from "@/lib/company";
@@ -255,8 +256,46 @@ export function CompanyValues() {
         ref={stageRef}
         className="company-values__stage sticky top-16 flex h-[calc(100svh-4rem)] flex-col justify-center overflow-hidden"
       >
+        {/* --- The scene behind the value --------------------------------
+            Six photographs in one box, and the one belonging to the value on
+            the stage is the one you can see.
+
+            Keyed on `active` rather than driven per frame like the cards are,
+            and that is a decision about depth rather than about cost: the card
+            in front tracks the scroll exactly, and a backdrop that tracked it
+            just as exactly would sit in the same plane as the card. Changing on
+            the value instead, over most of a second, puts it behind.
+
+            Hidden from the reading order. Six photographs of the same company
+            say nothing the six statements do not, and announcing them would put
+            six unnamed images between a reader and the words. */}
+        <div aria-hidden="true" className="company-values__scenery">
+          {COMPANY_VALUES.map((value, index) => (
+            <Image
+              key={value.slug}
+              data-active={index === active ? "true" : "false"}
+              className="company-values__scene"
+              src={value.background}
+              alt=""
+              fill
+              // One screen wide at every size, so there is nothing to choose
+              // between: this asks for the whole viewport and lets the
+              // optimizer pick the file.
+              sizes="100vw"
+              // Cover on a box whose shape is the reader's screen, against
+              // sources that run from 2.5:1 to 1.3:1. Every one of them is
+              // framed with its subject in the middle, so the crop can be the
+              // same for all six.
+              style={{ objectFit: "cover", objectPosition: "center" }}
+            />
+          ))}
+          {/* Drawn over all six — see the stylesheet for how heavy it is and
+              what it is holding up. */}
+          <span className="company-values__scrim" />
+        </div>
+
         {/* The padding is not decoration — see .company-values__frame. */}
-        <Container className="company-values__frame w-full">
+        <Container className="company-values__frame company-values__content w-full">
           {intro}
 
           {/* The stage. Its height is reserved rather than taken from whichever

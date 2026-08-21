@@ -35,3 +35,32 @@ export function scrollToY(top: number, options?: { immediate?: boolean }) {
 
   window.scrollTo({ top, behavior: immediate ? "auto" : "smooth" });
 }
+
+/* --- Holding the page still ------------------------------------------------
+   Both halves are needed and they cover different inputs. Lenis owns the wheel
+   and keyboard on desktop, and a page with `overflow: hidden` under it still
+   scrolls, because Lenis writes the offset itself and never asks the document
+   whether it is allowed to. Touch is the other way round: Lenis deliberately
+   leaves it native, so on a phone the only thing that stops a drag is the
+   document.
+
+   Restoring rather than clearing. `overflow` may well have been set by
+   something else — a dialog, a drawer — and a lock that ends by writing "" puts
+   the page back the way *this* module found it rather than the way it was.
+-------------------------------------------------------------------------- */
+
+let heldOverflow: string | null = null;
+
+export function holdScroll() {
+  if (heldOverflow !== null) return;
+  instance?.stop();
+  heldOverflow = document.documentElement.style.overflow;
+  document.documentElement.style.overflow = "hidden";
+}
+
+export function releaseScroll() {
+  if (heldOverflow === null) return;
+  document.documentElement.style.overflow = heldOverflow;
+  heldOverflow = null;
+  instance?.start();
+}

@@ -48,6 +48,20 @@ export type Office = {
    * and here they do — see the headquarters below.
    */
   mapsQuery?: string;
+  /**
+   * A link to Google's own entry for this office, used verbatim.
+   *
+   * The last resort, below `mapsQuery`: a search string is still a description
+   * of the place and re-resolves if Google re-indexes it, whereas this is an
+   * identifier and lands on whatever Google has decided the place is. Set it
+   * only where somebody has opened the link and seen the right pin, and record
+   * in a comment what they saw — nothing in this file can check it.
+   *
+   * The `?cid=` form is the identifier out of a Maps URL and nothing else. The
+   * links Google hands you carry the session that produced them as well, and
+   * those parameters are noise that goes stale.
+   */
+  mapsUrl?: string;
 };
 
 export const OFFICES: Office[] = [
@@ -84,13 +98,48 @@ export const OFFICES: Office[] = [
       "Bandar Puteri, 47100 Puchong, Selangor.",
     ],
     phones: ["(603) 8604 7311"],
+    // Supplied and opened: Google's entry for "SOPHIC MSC SDN BHD", which is
+    // the company name this office is registered under rather than the one at
+    // the top of this file — so the address alone is not what finds it.
+    mapsUrl: "https://www.google.com/maps?cid=17218557954181652313",
   },
   {
     name: "Singapore Branch",
     alias: "Alpha Office",
     lines: ["28 Sin Ming Lane, #03-146,", "Midview City, Singapore 573972."],
+    // Supplied and opened: "#06-131 Midview City, 28 Sin Ming Ln, Singapore
+    // 573972". Google has no Sophic listing here, so this is the unit rather
+    // than the company.
+    //
+    // Note the unit: the pin is #06-131 and the address printed above is
+    // #03-146. Same building, different floor, and one of the two is out of
+    // date — the link is the one that was supplied most recently, so it is
+    // what is followed here, but the printed address is what the footer and
+    // the contact page show and it has not been changed to match. Confirm
+    // which is current and correct the other.
+    mapsUrl: "https://www.google.com/maps?cid=12965869097820914399",
   },
 ];
+
+/**
+ * The Penang island site.
+ *
+ * Not in OFFICES, and deliberately: that list is the addresses Sophic
+ * publishes — the footer prints every one of them on every page — and this
+ * site's address is not among them. What exists for it is a Google entry and
+ * nothing more, so a link is all this can be.
+ *
+ * lib/officeMap.ts counts it. Its Penang pin says three sites against the two
+ * addresses in the list, with a note saying the third is this one.
+ *
+ * Supplied and opened: "Sophic Automation Sdn Bhd (Product Engineering
+ * Services) @ SPICE". Give this site a published address and it becomes an
+ * ordinary entry in OFFICES with a `mapsUrl`, and this constant goes away.
+ */
+export const PENANG_ISLAND_SITE = {
+  name: "Png Island Branch",
+  mapsUrl: "https://www.google.com/maps?cid=3296899467050832034",
+};
 
 /**
  * A Google Maps link for one office.
@@ -111,11 +160,17 @@ export const OFFICES: Office[] = [
  * rather than composed here, because the whole reason it exists is that what
  * Google indexes and what the company prints are not the same words.
  *
- * `search/?api=1` rather than a maps.google.com path: it is Google's supported
- * URL contract, and it opens the app rather than the website where one is
- * installed.
+ * Where even a verified string will not do it, `mapsUrl` names the place
+ * outright and is taken as given. It wins because it is the only one of the
+ * three that is not a guess about how Google reads an address, and an office
+ * that has one has been looked at by somebody — see the field.
+ *
+ * Otherwise `search/?api=1` rather than a maps.google.com path: it is Google's
+ * supported URL contract, and it opens the app rather than the website where
+ * one is installed.
  */
 export function officeMapsUrl(office: Office): string {
+  if (office.mapsUrl) return office.mapsUrl;
   const query = office.mapsQuery ?? office.lines.join(" ");
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }

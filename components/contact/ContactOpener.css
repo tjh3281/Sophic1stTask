@@ -1,0 +1,213 @@
+/* --- The contact page's opener --------------------------------------------
+   A ten-second film over the whole window, above a form that is drawn as a
+   circuit board. The film ends on one, so the way out is a straight cross-fade:
+   the picture goes and the board it was showing is still there, because the
+   board was the page all along.
+-------------------------------------------------------------------------- */
+
+.contact-opener {
+  position: fixed;
+  inset: 0;
+  /* Under the header, which is 50 and stays reachable and transparent over the
+     film, and over the advisor, which is 40 and would otherwise float its
+     button across the middle of the titles. */
+  z-index: 45;
+  /* The clip's own night. It is what the reader looks at while the film loads,
+     and the one colour that cannot flash: white here would be a white window
+     under a transparent bar, which is the one state the header has no legible
+     logo for. */
+  background: #0b1120;
+  transform-origin: center;
+}
+
+.contact-opener__film {
+  width: 100%;
+  height: 100%;
+  /* Full bleed. The subject is centred in the frame at every moment of the ten
+     seconds — the astronaut, then the board, then the mark — so a crop that
+     takes the edges never takes the shot. */
+  object-fit: cover;
+  object-position: center;
+}
+
+/* --- Going ----------------------------------------------------------------
+   The dissolve, and the one moment this component exists for.
+
+   Opacity carries it and the scale is what stops it reading as a layer being
+   switched off: the film's last shot is a camera pushing into a board, and
+   letting it keep pushing a little as it goes hands the movement to the page
+   rather than stopping it dead. Small — six percent over a second — because
+   the thing underneath is not moving, and anything more would read as two
+   pictures sliding past each other instead of one settling onto the other.
+
+   The timing here is the DISSOLVE constant in ContactOpener.tsx. That one only
+   decides when the element stops existing; this is what the reader sees.
+-------------------------------------------------------------------------- */
+
+.contact-opener[data-phase="leaving"] {
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.06);
+  transition:
+    opacity 1100ms var(--ease-gentle),
+    transform 1100ms var(--ease-out-quart);
+}
+
+/* --- Going, because somebody scrolled --------------------------------------
+   The other way out, and it is a different move rather than a faster version
+   of the same one.
+
+   A dissolve is what the film does when it has finished saying what it came to
+   say. This is what it does when the reader has said something instead: they
+   pushed the page, so the film goes the way they pushed it and the form is
+   underneath. Lifting it is also the honest answer to a held scrollbar — the
+   gesture did nothing to the page, and this is the page admitting the gesture
+   was heard.
+
+   Faster than the dissolve, and deliberately: a cross-fade is a hand-off worth
+   a second of anybody's time, but this one is a reader saying they are done
+   waiting. The travel is small — a sheet being drawn off, not a slide leaving
+   the stage — and it eases out rather than in, so the film is already moving on
+   the first frame after the wheel turns.
+-------------------------------------------------------------------------- */
+
+.contact-opener[data-phase="leaving"][data-exit="lift"] {
+  transform: translateY(-8%) scale(1.02);
+  transition:
+    opacity 620ms var(--ease-out-quart),
+    transform 760ms var(--ease-out-quint);
+}
+
+/* --- The crown -------------------------------------------------------------
+   The scrim the transparent header needs to sit on. Dark enough for white nav
+   links across the full width, and short enough to read as the top of a sky
+   rather than as a bar of its own.
+-------------------------------------------------------------------------- */
+
+.contact-opener__crown {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 11rem;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgb(2 6 23 / 0.6),
+    rgb(2 6 23 / 0.24) 48%,
+    transparent
+  );
+}
+
+/* --- The door --------------------------------------------------------------
+   Two jobs in one control. It is the way out of a ten-second hold, and it is
+   the lid on the watermark burned into the lower right of the footage.
+
+   Which is why nothing here is a corner offset. `object-fit: cover` crops a
+   different amount at every window shape, so the mark lands 58px in from the
+   right on one screen and 233px on another — and a button pinned to the corner
+   covers it on exactly the screen it was tuned on. ContactOpener.tsx does the
+   same arithmetic the browser does and hands the answer down as --skip-right
+   and --skip-bottom, measured to the button's *centre*; the translate below is
+   what turns those into a box sitting on the mark rather than beside it.
+
+   The size comes from the mark too. --skip-mark is how big the watermark is at
+   this window size, and the pill is a fixed multiple of it, so a screen big
+   enough to show a bigger watermark gets a bigger lid.
+-------------------------------------------------------------------------- */
+
+.contact-opener__skip {
+  position: absolute;
+  right: var(--skip-right, 2rem);
+  bottom: var(--skip-bottom, 2rem);
+  transform: translate(50%, 50%);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-width: var(--skip-w, 9.25rem);
+  min-height: var(--skip-h, 3.25rem);
+  padding: 0 1.4rem;
+
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: 999px;
+  /* Opaque enough to bury what is under it. The watermark is only about twelve
+     luminance above the sky it sits on, so this does not have to be a solid
+     block — but a mostly transparent pill with a star showing through it would
+     be worse than no pill at all. */
+  background: rgb(2 6 23 / 0.72);
+  backdrop-filter: blur(10px);
+
+  font-size: clamp(0.875rem, calc(var(--skip-mark, 60px) * 0.26), 1.125rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgb(255 255 255 / 0.94);
+  cursor: pointer;
+  transition:
+    background-color 200ms var(--ease-gentle),
+    border-color 200ms var(--ease-gentle),
+    opacity 420ms var(--ease-gentle);
+}
+
+/* The margin of error. The pill covers the mark on its own, but the mark's
+   position is measured from the footage rather than declared by it, and a soft
+   darkening around the lid means a few pixels of drift at some unusual window
+   shape costs nothing. Over night sky it is invisible; it simply deepens. */
+.contact-opener__skip::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--skip-mark, 60px) * 5);
+  height: calc(var(--skip-mark, 60px) * 4);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(2 6 23 / 0.72),
+    rgb(2 6 23 / 0.42) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.contact-opener__skip:hover {
+  border-color: rgb(255 255 255 / 0.55);
+  background: rgb(2 6 23 / 0.84);
+}
+
+.contact-opener__skip-arrow {
+  transition: transform 200ms var(--ease-gentle);
+}
+
+.contact-opener__skip:hover .contact-opener__skip-arrow {
+  transform: translateX(2px);
+}
+
+/* Gone once the shot lands. There is no watermark left to cover by then — the
+   frame is a bright board — and a dark pill held over the closing frame would
+   be hiding nothing at the cost of the one image the page continues from. */
+.contact-opener[data-landed="true"] .contact-opener__skip {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- Standing still --------------------------------------------------------
+   There is nothing here under reduced motion — the component returns null
+   before it renders, so the reader lands on the form with the page never having
+   been held. These are the belt and braces for the frame between mount and that
+   decision.
+-------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-opener[data-phase="leaving"],
+  .contact-opener[data-phase="leaving"][data-exit="lift"] {
+    transform: none;
+    transition: opacity 200ms linear;
+  }
+
+  .contact-opener__skip,
+  .contact-opener__skip-arrow {
+    transition: none;
+  }
+}

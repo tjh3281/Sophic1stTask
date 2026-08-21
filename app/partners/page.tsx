@@ -3,6 +3,7 @@ import { PartnerNetwork } from "@/components/partners/PartnerNetwork";
 import { PartnerPillars } from "@/components/partners/PartnerPillars";
 import { PartnersCover } from "@/components/partners/PartnersCover";
 import { PARTNERS_HERO } from "@/lib/partners";
+import "./partners.css";
 
 export const metadata: Metadata = {
   title: "Partners",
@@ -21,12 +22,22 @@ export const metadata: Metadata = {
  * already breaking the top of the fold. It is a page about partnership; opening
  * on a screen that says only "we're not alone" and makes you scroll to find out
  * who "we" is would be the wrong first move.
+ *
+ * The two of them are stacked rather than queued: the cover holds still and the
+ * signboard's ground climbs over it, which is why they share a wrapper here. See
+ * partners.css — the whole effect is three rules and no script.
  */
 export default function PartnersPage() {
   return (
     <>
-      <PartnersCover />
-      <PartnerPillars />
+      <div className="partners-stack">
+        <div className="partners-stack__cover">
+          <PartnersCover />
+        </div>
+        <div className="partners-stack__rise">
+          <PartnerPillars />
+        </div>
+      </div>
       {/* No -mb-24 here, unlike the other pages that end on a dark band. That
           margin exists to close the strip of bare page a dark section leaves
           above the near-white footer; this section is pale itself, so the

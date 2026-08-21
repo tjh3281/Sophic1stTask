@@ -348,8 +348,10 @@ const SITES: Record<string, Point> = {
  * Everywhere else on this page the number of offices is however many addresses
  * lib/contact holds, and for Kuala Lumpur and Singapore it still is. Penang is
  * three against the two addresses the footer prints, on instruction: there is a
- * third Penang site whose address is not in the published list. Give it an
- * entry in OFFICES and this line should come straight back out.
+ * third Penang site whose address is not in the published list. That site is
+ * PENANG_ISLAND_SITE in lib/contact — it has a name and a map pin there, and
+ * still no address. Give it an entry in OFFICES and this line should come
+ * straight back out.
  */
 const CITIES = [
   {

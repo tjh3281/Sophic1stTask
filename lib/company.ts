@@ -22,6 +22,19 @@ export type CompanyValue = {
   short: string;
   statement: string;
   icon: ValueGlyphName;
+  /**
+   * The scene behind this value on the runway, and behind nothing else.
+   *
+   * Required rather than optional, because the six are read as a sequence: one
+   * value on a bare navy ground between five that carry a photograph does not
+   * look like a value without a picture, it looks like a picture that failed to
+   * load. Adding a seventh value means finding it a scene.
+   *
+   * They are backdrops and are treated as such — held well back behind a scrim
+   * so the statement in front of them stays the thing being read. See
+   * .company-values__scrim for what that costs and why it is that heavy.
+   */
+  background: string;
 };
 
 export const COMPANY_VALUES: CompanyValue[] = [
@@ -32,6 +45,7 @@ export const COMPANY_VALUES: CompanyValue[] = [
     statement:
       "Creating solutions for the company to win, the customer to win, and the community to win.",
     icon: "win",
+    background: "/images/value-bg-win-win-win.jpg",
   },
   {
     slug: "diversity",
@@ -40,6 +54,7 @@ export const COMPANY_VALUES: CompanyValue[] = [
     statement:
       "Be inclusive and collaborative so that individuals with diverse backgrounds and talents can contribute and thrive.",
     icon: "diversity",
+    background: "/images/value-bg-diversity.jpg",
   },
   {
     slug: "innovation",
@@ -48,6 +63,7 @@ export const COMPANY_VALUES: CompanyValue[] = [
     statement:
       "Embrace new knowledge and new thought processes, and be fearless of failures.",
     icon: "innovation",
+    background: "/images/value-bg-innovation.jpg",
   },
   {
     slug: "integrity",
@@ -56,6 +72,7 @@ export const COMPANY_VALUES: CompanyValue[] = [
     statement:
       "We believe in doing what's right, complying with regulations, and adhering to laws, customers, and cultures.",
     icon: "integrity",
+    background: "/images/value-bg-integrity.jpg",
   },
   {
     slug: "quality-excellence",
@@ -64,6 +81,7 @@ export const COMPANY_VALUES: CompanyValue[] = [
     statement:
       "Be remarkable, Take ownership, Be uncomfortable; Execution matters.",
     icon: "quality",
+    background: "/images/value-bg-quality-excellence.jpg",
   },
   {
     slug: "social-responsibility",
@@ -71,6 +89,7 @@ export const COMPANY_VALUES: CompanyValue[] = [
     short: "Social",
     statement: "We make a difference in the communities we serve.",
     icon: "social",
+    background: "/images/value-bg-social-responsibility.jpg",
   },
 ];
 

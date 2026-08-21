@@ -253,30 +253,73 @@
 }
 
 /* --- The scrim -----------------------------------------------------------
-   The field underneath is a photograph's worth of colour and it does not know
-   there is type on it. Two gradients tame it:
+   The field underneath is a network of lit lines and it does not know there is
+   type on it. This is the only thing standing between the two, and it is now
+   the opposite shape of the vignette that used to be here.
 
-     - a vignette, which holds the middle open and closes the corners down, so
-       the headline sits in the clear part of the frame;
-     - a top-weighted wash, which is what makes the header's white nav links
-       legible across the full width of the bar.
+   A vignette darkens the frame and opens the middle, which is the right way
+   round for a photograph and the wrong way round for this: it dims the net
+   exactly where the net is the picture — the open corners of the lattice — and
+   leaves it at full strength exactly where the reader is trying to read a word.
+   So the weight has been inverted. A single pool of the net's own violet sits
+   under the column of content, and everything outside it is untouched, at the
+   brightness the effect has on vantajs.com.
+
+   The pool carries the whole job, which is why it is as strong as it is. The
+   alternative — softening the net's colour instead — was tried and is worse:
+   it buys legibility by taking the effect apart everywhere, including in the
+   nine tenths of the frame that has nothing on it and every reason to look
+   like vantajs.com. Local and heavy beats global and mild.
+
+   Two things are worth knowing before the numbers are moved:
+
+     - the pool is measured in percentages of the section, so it holds its
+       relationship to the content at every width. The column is a fixed share
+       of the frame, not a fixed number of pixels;
+     - the falloff runs over five stops rather than two. The eye finds the edge
+       of a soft shape far more easily than it finds a dark one, and a pool that
+       fades out in a single ramp reads as a smudge on the lens.
+
+   The band across the top is the same argument for the header: white nav links
+   crossing a lit lattice, over a bar with no background of its own.
 -------------------------------------------------------------------------- */
 
 .hero-scrim {
+  /* The pool's two radii, as fractions of the section. Named because they are
+     the only part of this that changes with the width — see below. */
+  --pool-w: 46%;
+  --pool-h: 44%;
+
   background:
+    /* The pool. Centred a little below the middle of the section, which is
+       where the column's own centre of gravity is once the figures, the lede
+       and the button are counted under the headline. */
     radial-gradient(
-      124% 88% at 50% 46%,
-      rgb(2 10 20 / 0.12),
-      rgb(2 10 20 / 0.55) 58%,
-      rgb(2 8 18 / 0.82) 100%
+      var(--pool-w) var(--pool-h) at 50% 55%,
+      rgb(12 7 24 / 0.86),
+      rgb(12 7 24 / 0.82) 42%,
+      rgb(12 7 24 / 0.6) 66%,
+      rgb(12 7 24 / 0.26) 84%,
+      rgb(12 7 24 / 0) 100%
     ),
+    /* The header band. Gone by a fifth of the way down, so it is spent on the
+       bar and nothing else. */
     linear-gradient(
       to bottom,
-      rgb(2 8 18 / 0.68),
-      rgb(2 8 18 / 0.22) 26%,
-      rgb(2 8 18 / 0.3) 68%,
-      rgb(2 8 18 / 0.66)
+      rgb(12 7 24 / 0.66),
+      rgb(12 7 24 / 0.24) 10%,
+      rgb(12 7 24 / 0) 20%
     );
+}
+
+/* The column is most of the screen on a phone, so the pool has to be most of it
+   too. Only the radii change; the falloff and the weight are the same shape at
+   every width. */
+@media (max-width: 639px) {
+  .hero-scrim {
+    --pool-w: 88%;
+    --pool-h: 38%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

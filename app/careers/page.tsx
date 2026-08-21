@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CareersCover } from "@/components/careers/CareersCover";
-import { CulturePillars } from "@/components/careers/CulturePillars";
+import { CultureFloor } from "@/components/careers/CultureFloor";
 import { ForkliftRun } from "@/components/careers/ForkliftRun";
 import { PillarCube } from "@/components/careers/PillarCube";
 import { Container } from "@/components/ui/Container";
@@ -105,8 +105,13 @@ export default function CareersPage() {
       <PillarCube />
       </ForkliftRun>
 
-      {/* --- All of them, in full ------------------------------------------- */}
-      <section className="border-y border-line bg-background py-16 sm:py-24">
+      {/* --- All of them, in full -------------------------------------------
+          Shorter top and bottom than the sections either side of it, and on
+          purpose: the floor inside is one exchange — pick a heading, pick a
+          stop, read the answer — and an exchange that does not fit a window is
+          an exchange the reader has to scroll through to finish. The padding
+          is the last thing standing between the heading and that fitting. */}
+      <section className="border-y border-line bg-background py-14 sm:py-20">
         <Container>
           <Reveal>
             <Eyebrow>In our own words</Eyebrow>
@@ -114,7 +119,7 @@ export default function CareersPage() {
               Culture, values, environment.
             </h2>
           </Reveal>
-          <CulturePillars />
+          <CultureFloor />
         </Container>
       </section>
 

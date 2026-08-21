@@ -1,0 +1,33 @@
+/* --- The cover, and the ground that rises over it -------------------------
+   Scrolling down does not push the cover up the screen. The cover stays where
+   it is and the signboard section climbs over it, so the regolith comes up like
+   a curtain and takes the star field's place rather than following it.
+
+   It is two declarations and no JavaScript. The cover is sticky inside a box
+   that also holds the section below it, so it stops where the viewport stops;
+   the section below is given a layer above it and is already opaque, so the
+   ground itself is what does the covering. No scroll listener, nothing to keep
+   in sync, and it degrades to an ordinary page on anything without sticky.
+
+   `top: -4rem` rather than 0 is the cover's own -mt-16 read back. That margin
+   exists so the star field runs up behind the fixed header, and it collapses
+   out to this wrapper — which means the wrapper's margin box starts 4rem above
+   its border box. Sticky pins the *margin* box, so pinning it at -4rem is what
+   puts the border box at the top of the screen. At 0 the cover would come to
+   rest 4rem down and leave a strip of bare page under the header.
+-------------------------------------------------------------------------- */
+
+.partners-stack {
+  position: relative;
+}
+
+.partners-stack__cover {
+  position: sticky;
+  top: -4rem;
+  z-index: 0;
+}
+
+.partners-stack__rise {
+  position: relative;
+  z-index: 1;
+}

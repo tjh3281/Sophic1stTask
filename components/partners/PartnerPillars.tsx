@@ -85,23 +85,40 @@ export function PartnerPillars() {
       />
 
       <Container className="relative">
-        {/* Every word of the statement sits on the comet — see the note in
-            PartnerPillars.css for how it is cropped and scrimmed. */}
+        {/* The statement is posted on a billboard standing on open ground, and
+            the four nested elements are all doing work — see the long note in
+            PartnerPillars.css, which owns the geometry. In short: __statement
+            is the measuring stick every size below is a fraction of, __scene
+            holds the picture, __copy is the poster area at the width where the
+            whole statement fits on it, and __head is the part that stays on the
+            board at every width, because a billboard with nothing written on it
+            reads as a mistake rather than as scenery. */}
         <Reveal>
           <div className="partner-pillars__statement">
-            <h2 className="partner-pillars__statement-title">
-              {PARTNER_WITH_SOPHIC.heading}
-            </h2>
-            <span
-              aria-hidden="true"
-              className="partner-pillars__statement-rule"
-            />
+            <div className="partner-pillars__scene">
+              <div className="partner-pillars__copy">
+                <div className="partner-pillars__head">
+                  <h2 className="partner-pillars__statement-title">
+                    {PARTNER_WITH_SOPHIC.heading}
+                  </h2>
+                  <span
+                    aria-hidden="true"
+                    className="partner-pillars__statement-rule"
+                  />
+                </div>
 
-            {PARTNER_WITH_SOPHIC.paragraphs.map((paragraph) => (
-              <p key={paragraph} className="partner-pillars__statement-text">
-                {paragraph}
-              </p>
-            ))}
+                <div className="partner-pillars__lead">
+                  {PARTNER_WITH_SOPHIC.paragraphs.map((paragraph) => (
+                    <p
+                      key={paragraph}
+                      className="partner-pillars__statement-text"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </Reveal>
 

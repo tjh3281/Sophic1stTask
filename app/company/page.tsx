@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CompanyCover } from "@/components/company/CompanyCover";
 import { CompanyLeaders } from "@/components/company/CompanyLeaders";
+import { CompanyOffices } from "@/components/company/CompanyOffices";
 import { CompanyScene } from "@/components/company/CompanyScene";
 import { CompanyValues } from "@/components/company/CompanyValues";
 import { CompanyVision } from "@/components/company/CompanyVision";
@@ -85,6 +86,14 @@ export default function CompanyPage() {
                 it builds. */}
             <CompanyScene className="mx-auto w-full max-w-2xl lg:max-w-none" />
           </div>
+
+          {/* The three offices the drawing above does not cover, photographed.
+              Below the whole grid rather than inside either column: they belong
+              to the paragraph and the scene together, and dropping them under
+              the scene alone would put them beside the text on a wide screen,
+              where a strip of photographs at a third of the page is too small
+              to be worth showing. */}
+          <CompanyOffices className="mt-14 sm:mt-16" />
         </Container>
       </section>
 

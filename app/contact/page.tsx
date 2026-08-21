@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ContactBoard } from "@/components/contact/ContactBoard";
+import { ContactOpener } from "@/components/contact/ContactOpener";
 import { Container } from "@/components/ui/Container";
 import "./contact.css";
 
@@ -36,32 +37,40 @@ export const metadata: Metadata = {
  */
 export default function ContactPage() {
   return (
-    <section className="contact-page bg-surface py-14 sm:py-20">
-      <Container>
-        {/* Small, and out of the way at the top left. The board underneath is
-            the page — six fields converging on a part — and it wants the
-            height. A centred title with a paragraph under it spent the whole
-            of the first screen saying what the board says better by being
-            looked at. */}
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-          Contact Us
-        </h1>
+    <>
+      {/* Ten seconds over the whole window, holding the page still, ending on a
+          circuit board — which is what the section below already is, so the way
+          out is a cross-fade between two pictures of the same thing. It takes
+          itself down; nothing here has to make room for it. See ContactOpener. */}
+      <ContactOpener />
 
-        {/* Required: a client component reading the query string cannot be
-            prerendered, and without a boundary the build refuses the page
-            rather than silently making it dynamic again.
+      <section className="contact-page bg-surface py-14 sm:py-20">
+        <Container>
+          {/* Small, and out of the way at the top left. The board underneath is
+              the page — six fields converging on a part — and it wants the
+              height. A centred title with a paragraph under it spent the whole
+              of the first screen saying what the board says better by being
+              looked at. */}
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            Contact Us
+          </h1>
 
-            The fallback is only ever seen on a cold page load — someone
-            opening or sharing the URL directly. Arriving by clicking Contact
-            Us is a client navigation, where the router already holds the
-            params and the hook resolves without suspending. It reserves the
-            board's height so neither path shifts the layout. */}
-        <div className="mt-6 sm:mt-8">
-          <Suspense fallback={<div className="min-h-[48rem]" />}>
-            <ContactBoard />
-          </Suspense>
-        </div>
-      </Container>
-    </section>
+          {/* Required: a client component reading the query string cannot be
+              prerendered, and without a boundary the build refuses the page
+              rather than silently making it dynamic again.
+
+              The fallback is only ever seen on a cold page load — someone
+              opening or sharing the URL directly. Arriving by clicking Contact
+              Us is a client navigation, where the router already holds the
+              params and the hook resolves without suspending. It reserves the
+              board's height so neither path shifts the layout. */}
+          <div className="mt-6 sm:mt-8">
+            <Suspense fallback={<div className="min-h-[48rem]" />}>
+              <ContactBoard />
+            </Suspense>
+          </div>
+        </Container>
+      </section>
+    </>
   );
 }

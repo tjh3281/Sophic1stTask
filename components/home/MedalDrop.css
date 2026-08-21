@@ -29,14 +29,59 @@
      The ceiling used to be 16.75rem, which was the 268px the old face was
      drawn at — past that it was upscaling a file it had no more detail in. The
      face is 705px now, so that ceiling was only ever about the artwork and it
-     went with it. 21rem is still under half the source's own width, so this is
-     comfortably oversampled even at 3x.
+     went with it.
 
-     What bounds it now is the certificate beside it. The rig is 1.097 discs
-     wide, so 21rem of disc is 23.04rem of rig, and every one of those rem
-     comes off the certificate's column — which is content-sized, so this is the
-     only number that decides the split. It is the one to turn. */
-  --disc-w: clamp(12rem, 28vw, 21rem);
+     26rem is the first size that asks anything of the file: 416px on a 2x
+     screen is 832 device pixels against a 705px source, so the browser is
+     upscaling it by about a sixth. On a disc that is gradients, a rim and a
+     stamped face, that is invisible — but it is the direction of travel, and
+     the next step up wants a bigger export rather than a bigger number here.
+
+     Two things bound it, and the second is the one that was missing.
+
+     The first is the certificate beside it. The rig is 1.097 discs wide, so
+     26rem of disc is 28.52rem of rig, and every one of those rem comes off the
+     certificate's column — which is content-sized, so this number decides the
+     split. At 1280px of container there is still room for the certificate's
+     own 46rem ceiling, so this has not started costing it anything yet.
+
+     The second is the height of the window, which matters here in a way it
+     does not for most artwork: this rig is pinned. It is 2.1998 discs tall, it
+     sticks 2rem above the top of the window, and the disc carries a drop
+     shadow another 0.11 of a disc below its own edge — so it reaches about
+     2.16 discs below the pin and stays there. Anything past the bottom of the
+     window is not merely below the fold; it is unreachable, because a pinned
+     element does not travel. At the old 21rem ceiling that put the foot of the
+     medal 657px down, and every window shorter than that — a 768p laptop, or
+     any 1080p screen at the 125% scaling Windows ships with — had the bottom
+     of the medal cut off for the whole of its stay on screen.
+
+     So the middle term is the smaller of the two measurements the rig actually
+     has to fit inside.
+
+     The arithmetic sets its own ceiling. The rig reaches 2.052 discs below the
+     pin — 2.1998 of rig, less the 0.1478 the ribbon's clipped top holds back —
+     so with the pin 4rem above the window (see the sticky offset in Awards.tsx,
+     which is the other half of this) the disc's own foot lands on the bottom
+     edge at about 53vh. Its shadow, another 0.11 of a disc, lands there at
+     about 48vh.
+
+     52vh sits between those. The medal is whole with a dozen or so pixels of
+     page under it at every height, and what the window trims is the last of the
+     shadow — the faint end of a blur, on a screen short enough that nobody is
+     looking for it. Going under about 45vh is what makes this read as a lapel
+     pin rather than a medal, which was the first attempt at this.
+
+     That band is also what lets the ceiling go *up*, and it is why 26rem is
+     safe when 21rem was not: on any window too short to take the ceiling, the
+     vh term takes over before it can be reached. Below 800px of window the size
+     follows the window; above it, the medal is 416px and there is room to
+     spare. The two terms cross at exactly that height.
+
+     The vh term only ever participates on a screen both wide and short. On a
+     phone 28vw is around 109px, well under the 12rem floor, so the floor wins
+     and the medal's size never moves when a mobile URL bar slides away. */
+  --disc-w: clamp(12rem, min(28vw, 52vh), 26rem);
 
   /* The disc's own height is not among these: it is 1.0043 of its width and
      the <img> keeps that itself, so naming it here would only be a second

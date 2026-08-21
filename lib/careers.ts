@@ -248,25 +248,22 @@ export const CUBE_PILLARS: CubePillar[] = CUBE_FACE_NAMES.map((name) => {
 
 export type PillarGroup = {
   name: PillarGroupName;
-  /** Sits under the tab name in the panel, so the three groups are told apart
-   *  by what they mean rather than only by which pillars landed in them. */
-  tagline: string;
   pillars: Pillar[];
 };
 
-const GROUP_TAGLINES: Record<PillarGroupName, string> = {
-  Culture: "How the place feels to work in, day to day.",
-  Values: "What we hold each other to.",
-  Environment: "What we put around you while you do the work.",
-};
-
-/** Derived, so a pillar only ever has to be filed once. Tab order is fixed
- *  here rather than taken from PILLARS, which runs in the brief's own order. */
+/**
+ * Derived, so a pillar only ever has to be filed once. Order is fixed here
+ * rather than taken from PILLARS, which runs in the brief's own order.
+ *
+ * No tagline under the three headings. They used to carry one each — "how the
+ * place feels to work in", and so on — and every one of them said out loud what
+ * the pillars filed underneath were about to demonstrate. Which bucket a pillar
+ * falls in is the claim; a line explaining the bucket is the claim made twice.
+ */
 export const PILLAR_GROUPS: PillarGroup[] = (
   ["Culture", "Values", "Environment"] as const
 ).map((name) => ({
   name,
-  tagline: GROUP_TAGLINES[name],
   pillars: PILLARS.filter((pillar) => pillar.group === name),
 }));
 

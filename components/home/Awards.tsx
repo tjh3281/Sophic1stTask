@@ -81,8 +81,18 @@ export function Awards() {
                 little below the header — which is the same gap this is all
                 about, just in the pinned state instead of the parked one.
                 Below lg the two stack, so there is no second column for the
-                medal to stay beside: it simply leads the section. */}
-            <div className="lg:sticky lg:-top-8">
+                medal to stay beside: it simply leads the section.
+
+                It is 4rem rather than 2rem because this is also what pays for
+                the medal's size. A pinned rig has exactly one window's height
+                to fit into, and every rem it starts above the top is a rem the
+                disc gets back at the bottom before its foot runs off the
+                screen. What it costs is ribbon, of which there is plenty: the
+                strap is 1.23 discs long and the top of it is cut and hidden by
+                design, so hiding another 2rem of it changes nothing that can be
+                seen. See --disc-w in MedalDrop.css, which is sized against
+                this number. */}
+            <div className="lg:sticky lg:-top-16">
               <MedalDrop />
             </div>
           </div>

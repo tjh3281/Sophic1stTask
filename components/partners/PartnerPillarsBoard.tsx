@@ -104,6 +104,13 @@ export function PartnerPillarsBoard({
                 {
                   "--x": points[index][0],
                   "--y": points[index][1],
+                  // The planet travels as a custom property rather than as an
+                  // <img> because it is the disc's face, not a picture on it:
+                  // it has to be a background so the circle can clip it, and so
+                  // the scrim that keeps the icon legible can sit between the
+                  // two. Decorative either way — the pillar is named twice
+                  // over, in the label and in the panel below.
+                  "--planet": `url(${pillar.planet})`,
                 } as CSSProperties
               }
               onMouseEnter={() => setActive(index)}
