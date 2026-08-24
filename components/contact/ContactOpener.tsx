@@ -43,13 +43,19 @@ const FRAME = { width: 3840, height: 2160 } as const;
  * Measured off the clip rather than eyeballed — a four-pointed star in the
  * lower right, about twelve luminance above the sky behind it, which is faint
  * enough to miss on a still and impossible to miss once it is the only thing on
- * screen not moving. It vanishes on its own in the last second, when the shot
- * lands on the board and everything goes bright.
+ * screen not moving.
  *
- * The Skip control is parked on top of it. That is the whole reason the button
- * is placed by measurement instead of pinned to the corner: `cover` crops a
- * different amount at every window shape, so the mark is 58px in from the right
- * on one screen and 233px on another, and no fixed corner offset covers both.
+ * It is in every frame the clip has. It does not go when the camera lands and
+ * the picture turns light — it only stops being dark-on-dark and starts being
+ * the mark on a bright board — and it is still there under the cross-fade,
+ * which is the worst place to leave it: a picture on its way out is the one
+ * thing on a page a reader watches rather than reads.
+ *
+ * The Skip control is parked on top of it, and stays there until the film is
+ * off the screen. That is the whole reason the button is placed by measurement
+ * instead of pinned to the corner: `cover` crops a different amount at every
+ * window shape, so the mark is 58px in from the right on one screen and 233px
+ * on another, and no fixed corner offset covers both.
  */
 const MARK = { x: 0.909, y: 0.834, size: 0.042 } as const;
 
@@ -58,9 +64,13 @@ const MARK = { x: 0.909, y: 0.834, size: 0.042 } as const;
  *
  * Measured the same way: the top strip of the frame holds between 57 and 99 of
  * 255 for the first eight and a half seconds, then jumps to 143 and is 205 by
- * the end. Two things hang off it — the Skip control gets out of the way of the
- * closing shot, and it is the last moment a dark scrim over the top of the
- * picture is doing any good rather than dirtying it.
+ * the end. It is the moment the picture stops being night sky, which is the
+ * only thing the closing card has to wait for — and the last moment a dark
+ * scrim over the top of the picture is doing any good rather than dirtying it.
+ *
+ * Nothing else hangs off it any more. The Skip control used to get out of the
+ * way here, on the reasoning that the watermark went bright with the frame; it
+ * does not, so the control stays.
  */
 const LANDS_AT = 8.5;
 
@@ -177,9 +187,7 @@ export function ContactOpener() {
    *  rather than by the minimum it was asked for. */
   const skipRef = useRef<HTMLButtonElement>(null);
   const [phase, setPhase] = useState<Phase>("playing");
-  const [landed, setLanded] = useState(false);
-  /** Whether the invitation under the mark is up. Separate from `landed`
-   *  because they are two beats of the closing shot, not one. */
+  /** Whether the invitation under the mark is up. */
   const [greeting, setGreeting] = useState(false);
   const leftRef = useRef(false);
 
@@ -268,6 +276,12 @@ export function ContactOpener() {
     const realWidth = Math.max(width, box?.width ?? 0);
     const realHeight = Math.max(height, box?.height ?? 0);
 
+    /* Published for the closing card, which now has to clear a control that is
+       still on screen when it arrives. The measured height rather than the
+       minimum above, for the same reason the clamp uses it: the pill is as tall
+       as its text, and a card that clears the minimum clears nothing. */
+    shell.style.setProperty("--skip-box-h", `${Math.round(realHeight)}px`);
+
     shell.style.setProperty(
       "--skip-right",
       `${Math.round(clamp(vw - x, realWidth, vw))}px`,
@@ -353,7 +367,6 @@ export function ContactOpener() {
     dissolveRef.current?.();
     leftRef.current = false;
     setExit("fade");
-    setLanded(false);
     setGreeting(false);
     setPhase("playing");
     setRun((showing) => showing + 1);
@@ -516,13 +529,10 @@ export function ContactOpener() {
     const onPlaying = () => window.clearTimeout(startGuard);
     video.addEventListener("playing", onPlaying);
 
-    // The door closes as the film arrives. Two reasons, and the second is the
-    // one that matters: the watermark the Skip control is covering has gone by
-    // now — the frame is a bright board and there is nothing left to see — so
-    // holding a dark pill over the closing shot would be hiding nothing at the
-    // cost of the one frame the whole page continues from.
+    // The closing card, once the camera has landed and the frame has turned
+    // light. The only thing the film's own clock is asked for: the door stays
+    // open for the whole showing now, because the watermark under it does.
     const onTime = () => {
-      if (video.currentTime >= LANDS_AT) setLanded(true);
       if (video.currentTime >= GREETS_AT) setGreeting(true);
     };
     video.addEventListener("timeupdate", onTime);
@@ -608,7 +618,6 @@ export function ContactOpener() {
       className="contact-opener"
       data-phase={phase}
       data-exit={exit}
-      data-landed={landed}
       data-greeting={greeting}
       // Not a dialog. A dialog is something the reader is asked to deal with,
       // and this is a title sequence — it wants announcing once and then
@@ -652,7 +661,8 @@ export function ContactOpener() {
           message. The film is the greeting; this is the door.
 
           It is also the lid on the watermark, which is why it is sized from
-          MARK and placed by `place` rather than pinned to the corner. */}
+          MARK and placed by `place` rather than pinned to the corner — and why
+          it is on screen for as long as the film is, dissolve included. */}
       <button
         ref={skipRef}
         type="button"

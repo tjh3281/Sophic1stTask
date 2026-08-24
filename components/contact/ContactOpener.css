@@ -144,8 +144,7 @@
   cursor: pointer;
   transition:
     background-color 200ms var(--ease-gentle),
-    border-color 200ms var(--ease-gentle),
-    opacity 420ms var(--ease-gentle);
+    border-color 200ms var(--ease-gentle);
 }
 
 /* The margin of error. The pill covers the mark on its own, but the mark's
@@ -209,13 +208,18 @@
   transform: translateX(2px);
 }
 
-/* Gone once the shot lands. There is no watermark left to cover by then — the
-   frame is a bright board — and a dark pill held over the closing frame would
-   be hiding nothing at the cost of the one image the page continues from. */
-.contact-opener[data-landed="true"] .contact-opener__skip {
-  opacity: 0;
-  pointer-events: none;
-}
+/* There is deliberately no rule here taking the pill away before the film goes.
+
+   There used to be: it left at the landing, on the reading that the frame turns
+   bright and the watermark goes with it. Only the first half of that is true.
+   The mark is burned into the footage and is in the closing shot and in every
+   frame of the cross-fade — and a mark that survives the lid is worse than one
+   that was never covered, because it appears rather than sits there.
+
+   So the lid stays down for the whole showing, and the picture underneath takes
+   it with it: the pill is inside the element that dissolves, so it fades at
+   exactly the rate the frame it is covering does. There is no moment where one
+   is there without the other. */
 
 /* --- The invitation --------------------------------------------------------
    "Let's Talk", under the mark, for the closing stretch of the film.
@@ -233,15 +237,23 @@
    the window without a transform — the transform is spent on the movement
    below, and two of them on one element is a fight over the same property.
 
-   It does not have to get out of anything's way. The Skip control has already
-   gone by the time this arrives — see the rule above — which is why a line
-   across the middle of the lower third can be as wide as it likes.
+   It does have to get out of the way of the Skip control, which is on screen by
+   now and stays. Hence the floor under `bottom`: the pill's centre and real
+   height come down from ContactOpener.tsx, so the card can sit above whatever
+   the pill turned out to be at this window shape rather than above a guess.
+   Eighteen percent is what that works out to on a wide window, where the two are
+   nowhere near each other; it is the narrow and tall ones — where `cover` has
+   cropped the mark off to the side and the pill is sitting in the corner under a
+   line of type at 11vw — that the floor is really for.
 -------------------------------------------------------------------------- */
 
 .contact-opener__greeting {
   position: absolute;
   right: 0;
-  bottom: 18%;
+  bottom: max(
+    18%,
+    calc(var(--skip-bottom, 2rem) + var(--skip-box-h, 3.25rem) / 2 + 1.25rem)
+  );
   left: 0;
   margin: 0;
   padding: 0 1.5rem;
