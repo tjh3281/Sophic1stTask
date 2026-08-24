@@ -12,7 +12,7 @@ import type { Solution } from "@/lib/solutions";
  * conveyor rail, so a scrim light enough to leave the photo recognisable was
  * never dark enough to read against. Splitting them fixes it outright — the
  * type sits on the card's own white, and the photo keeps doing the one job it
- * is good at, which is telling four categories apart before a word is read.
+ * is good at, which is telling the categories apart before a word is read.
  *
  * The photo has no frame around it. It fades out through the mask in
  * globals.css, finishing before the type column begins.
@@ -20,8 +20,8 @@ import type { Solution } from "@/lib/solutions";
  * The list of equipment replaces the old "3 solutions" counter. The count was
  * dead metadata — an engineer scanning for a tray handler needs to know whether
  * this is the category that holds one, and the names answer that where a
- * number cannot. It is also what makes the four cards read differently from
- * each other rather than as four variations of the same tile.
+ * number cannot. It is also what makes the cards read differently from each
+ * other rather than as seven variations of the same tile.
  */
 export function SolutionCard({ solution }: { solution: Solution }) {
   const image = solution.coverImage;
@@ -46,9 +46,9 @@ export function SolutionCard({ solution }: { solution: Solution }) {
           "hover:border-brand hover:shadow-lg hover:shadow-slate-900/5",
           // Without a photo the type simply takes the whole card, so a category
           // can be added before its photography exists.
-          // Narrower on a phone: the longest equipment name is 35 monospaced
-          // characters, and the photo cannot take room the names need to sit on
-          // one line each.
+          // Narrower on a phone: the longest equipment name is 41 monospaced
+          // characters — "AMHS (Automated Material Handling System)" — and the
+          // photo cannot take room the names need to sit on one line each.
           image
             ? "grid-cols-[6.5rem_minmax(0,1fr)] sm:grid-cols-[9.5rem_minmax(0,1fr)]"
             : "grid-cols-1",

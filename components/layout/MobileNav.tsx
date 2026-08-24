@@ -96,8 +96,8 @@ export function MobileNav({
                     </p>
                     <ul className="space-y-1">
                       {/* Matches the desktop menu: the overview sits above the
-                          four categories it covers, since the "Solution"
-                          heading here is a label rather than a link. */}
+                          categories it covers, since the "Solution" heading
+                          here is a label rather than a link. */}
                       <li>
                         <Link
                           href="/solutions"

@@ -4,15 +4,15 @@ import {
 } from "@/components/solutions/SolutionOverviewPage";
 
 export const metadata = subSolutionMetadata(
-  "material-handling",
-  "material-management-system",
+  "production-custom-equipment",
+  "laser-marking-equipment",
 );
 
 export default function Page() {
   return (
     <SubSolutionPage
-      solutionSlug="material-handling"
-      subSlug="material-management-system"
+      solutionSlug="production-custom-equipment"
+      subSlug="laser-marking-equipment"
     />
   );
 }

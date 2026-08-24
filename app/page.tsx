@@ -24,8 +24,7 @@ export const metadata: Metadata = {
  * already assumed that: every breadcrumb trail on every solution and careers
  * page opens with Home pointing here, and the header's logo goes here from
  * anywhere. The solutions overview that used to occupy this route moved to
- * /solutions, at the head of the four category pages that were already under
- * it.
+ * /solutions, at the head of the category pages that were already under it.
  *
  * The hero is dark; the awards section and the company statement are both
  * white; and the anniversary band closes on the dark the page opened in. Two

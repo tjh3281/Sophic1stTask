@@ -4,15 +4,12 @@ import {
 } from "@/components/solutions/SolutionOverviewPage";
 
 export const metadata = subSolutionMetadata(
-  "ict-fct",
-  "automated-functional-test-equipment",
+  "specialised-process-equipment",
+  "vacuum-solutions",
 );
 
 export default function Page() {
   return (
-    <SubSolutionPage
-      solutionSlug="ict-fct"
-      subSlug="automated-functional-test-equipment"
-    />
+    <SubSolutionPage solutionSlug="specialised-process-equipment" subSlug="vacuum-solutions" />
   );
 }

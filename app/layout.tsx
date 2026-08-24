@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     template: "%s — Sophic Automation",
   },
   description:
-    "Prototype for the four Sophic Automation solution categories: Assembly Automation, Inspection & Testing, Automated Material Handling System, and ICT & FCT.",
+    "Prototype for the Sophic Automation equipment catalogue: vision, assembly, inspection and test, storage and material handling, robotics, and production and custom equipment.",
 };
 
 export default function RootLayout({

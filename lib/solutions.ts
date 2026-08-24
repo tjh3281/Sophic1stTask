@@ -155,344 +155,164 @@ export type Solution = {
   benefits?: Benefit[];
 };
 
-export const SOLUTIONS: Solution[] = [
+/* --- Placeholder content ---------------------------------------------------
+   Stand-in sections for the equipment added from the Automated Equipment
+   sitemap, none of which came with a brief.
+
+   There is no spec sheet, no function list and no benefit copy for any of it.
+   The pages that do have copy carry invented figures in two or three places
+   already, each flagged where it sits, and twelve more machines' worth would
+   turn a marketing site into fiction. So these fill the same sections with
+   numbered stand-ins instead: the page is laid out exactly as a finished one,
+   and which pages are still waiting on words is obvious at a glance rather
+   than something you have to know.
+
+   The counts are the written pages' counts, not the smallest thing that would
+   render. Six metrics because that band is a marquee and a track shorter than
+   the window leaves a gap as it loops; three functions and three benefits
+   because that is what fills their grids to the row.
+
+   Every one of these is meant to be deleted. Replace a section with real
+   content and the stand-in goes with it; a page that keeps the whole set is a
+   page nobody has written yet.
+-------------------------------------------------------------------------- */
+
+/**
+ * Six numbered figures for the metrics band.
+ *
+ * The values are the labels' own numbers, so nothing here can be mistaken for
+ * a measurement: a spec sheet does not read 1, 2, 3, 4, 5, 6.
+ */
+const PLACEHOLDER_METRICS: Metric[] = [1, 2, 3, 4, 5, 6].map((n) => ({
+  label: `Technical Metric ${n}`,
+  values: [n],
+}));
+
+const PLACEHOLDER_FUNCTIONS: SolutionFunction[] = [
   {
-    slug: "assembly-automation",
-    title: "Assembly Automation",
-    oneLiner:
-      "Machines and robots that build, sort, mark, and pack products automatically — replacing slow, error-prone manual handling.",
-    href: "/solutions/assembly-automation",
-    coverImage: "/images/assembly-automation-3.avif",
-    benefits: [
-      {
-        icon: "rocket",
-        title: "Higher Productivity",
-        description:
-          "Systems operate around the clock, 24/7, without fatigue, drastically cutting cycle times and boosting output volumes.",
-      },
-      {
-        icon: "verified",
-        title: "Consistent Quality",
-        description:
-          "Precise, repeatable actions eliminate human error, ensuring every part matches exact specifications with fewer defects.",
-      },
-      {
-        icon: "handshake",
-        title: "Lower Labor Costs",
-        description:
-          "Routine work shifts to machines, reducing direct staffing needs and freeing workers for higher-value programming or oversight roles.",
-      },
-      {
-        icon: "shield",
-        title: "Improved Safety",
-        description:
-          "Moving hazardous or repetitive physical tasks away from human operators lowers workplace accidents.",
-      },
-    ],
-    subSolutions: [
-      {
-        slug: "automated-packing-equipment",
-        title: "Automated Packing Equipment",
-        summary: "Product transferring, sealing, and barcode labelling.",
-        href: "/solutions/assembly-automation/automated-packing-equipment",
-        image: "/images/automated-packing-equipment-cutout.webp",
-        metrics: [
-          {
-            label: "Speed",
-            values: [50, 80],
-            separator: "–",
-            suffix: "bags/h",
-          },
-          {
-            label: "Weighing",
-            values: [100, 600],
-            separator: "–",
-            suffix: "kg",
-          },
-          {
-            label: "Error",
-            values: [2, 5],
-            separator: "–",
-            prefix: "±",
-            suffix: "‰",
-          },
-          {
-            label: "Air Supply Pressure",
-            values: [0.5, 0.8],
-            separator: "~",
-            suffix: "MPa",
-            decimals: 1,
-          },
-          { label: "Warranty", values: [1], suffix: "year" },
-          {
-            // The newline is honoured: a label this long would otherwise
-            // stretch its slot in the marquee far wider than its figure.
-            label: "Plug-and-Play\nDeployment",
-            values: [3],
-            suffix: "days",
-          },
-        ],
-        // NOTE: the brief writes each benefit as one sentence. Split here at
-        // its own comma so the card reads as a list like the reference design;
-        // no claim has been added or changed.
-        benefits: [
-          {
-            icon: "gauge",
-            title: "Faster, Consistent Packing",
-            image: "/images/packing-benefit-1.webp",
-            points: [
-              "Automated sealing and packaging handle every unit at line speed with the same precision.",
-              "Keeps your output steady and throughput high.",
-            ],
-          },
-          {
-            icon: "tag",
-            title: "Built-in Traceability",
-            image: "/images/packing-benefit-2.webp",
-            points: [
-              "Barcode labelling is applied directly to each package.",
-              "Every product can be tracked and identified from packing through to shipment.",
-            ],
-          },
-          {
-            icon: "cycle",
-            title: "Reduced Manual Handling",
-            image: "/images/packing-benefit-3.webp",
-            points: [
-              "Product transfer, case closing, and sealing are automated.",
-              "Cuts labour effort and lowers the risk of packing errors or damage.",
-            ],
-          },
-        ],
-        functions: [
-          {
-            icon: "package",
-            title: "Handling and Sealing",
-            description:
-              "Manages physical product transport, case closing, and package sealing.",
-          },
-          {
-            icon: "barcode",
-            title: "Barcode Labelling",
-            description:
-              "Applies tracking and identification codes directly to packaged goods.",
-          },
-          {
-            icon: "tune",
-            title: "Custom Integration",
-            description:
-              "Tailored through Sophic Automation to match specific factory floor requirements and line speeds.",
-          },
-        ],
-      },
-      {
-        slug: "laser-marking-equipment",
-        title: "Laser Marking Equipment",
-        summary: "1D and 2D laser tracking codes on electronics.",
-        href: "/solutions/assembly-automation/laser-marking-equipment",
-        image: "/images/laser-marking-equipment-cutout.webp",
-        // NOTE: unlike the packing equipment, these figures are NOT from a
-        // spec sheet — the brief gives none for this machine. They are
-        // plausible values for a fibre marking laser, matched to the shape and
-        // count of the packing figures. Replace before this goes near a
-        // customer.
-        metrics: [
-          {
-            label: "Marking Speed",
-            values: [2000, 7000],
-            separator: "–",
-            suffix: "mm/s",
-          },
-          {
-            label: "Laser Power",
-            values: [20, 50],
-            separator: "–",
-            suffix: "W",
-          },
-          {
-            label: "Repeatability",
-            values: [5, 10],
-            separator: "–",
-            prefix: "±",
-            suffix: "µm",
-          },
-          {
-            label: "Minimum Line Width",
-            values: [0.02, 0.05],
-            separator: "~",
-            suffix: "mm",
-            decimals: 2,
-          },
-          { label: "Warranty", values: [1], suffix: "year" },
-          {
-            label: "Plug-and-Play\nDeployment",
-            values: [3],
-            suffix: "days",
-          },
-        ],
-        // NOTE: the brief's Function and Benefit lists for this machine say
-        // almost the same three things in the same words, headings included.
-        // Rewritten so the two sections earn their place: Functions describe
-        // the mechanism — what the machine physically does — and Benefits
-        // describe the consequence of having it. Same substance as the brief,
-        // different angle, and no word shared between the two sets of titles.
-        functions: [
-          {
-            icon: "barcode",
-            title: "Code Marking",
-            description:
-              "Writes 1D barcodes and 2D data matrix codes straight onto sensitive electronic components — no contact, no consumables.",
-          },
-          {
-            icon: "cycle",
-            title: "Line Integration",
-            description:
-              "Sits inline with product handling and quality tracking, so marking is a step in the flow rather than a station of its own.",
-          },
-          {
-            icon: "laser",
-            title: "Surface Etching",
-            description:
-              "Etches serial numbers, part numbers and logos into the surface itself instead of printing on top of it.",
-          },
-        ],
-        benefits: [
-          {
-            icon: "tag",
-            title: "Full Traceability",
-            image: "/images/laser-benefit-2.webp",
-            points: [
-              "Any unit can be traced back to its batch, shift and date long after it has left the factory.",
-              "A recall narrows to the parts actually affected, not the whole run.",
-            ],
-          },
-          {
-            icon: "durable",
-            title: "Built to Last",
-            image: "/images/laser-benefit-3.webp",
-            points: [
-              "Marks survive reflow, cleaning and years of wear without fading or peeling off.",
-              "Nothing to reprint, relabel or reapply later.",
-            ],
-          },
-          {
-            icon: "gauge",
-            title: "Reliable Reads",
-            image: "/images/laser-benefit-1.webp",
-            points: [
-              "Every unit gets the same code in the same place, so downstream scanners read it first time.",
-              "No operator to schedule, and no misread labels to rework.",
-            ],
-          },
-        ],
-      },
-      {
-        slug: "automated-handler-equipment",
-        title: "Automated Handler Equipment",
-        summary: "Robotic assembly, tray switching, and quality sorting.",
-        href: "/solutions/assembly-automation/automated-handler-equipment",
-        image: "/images/automated-handler-equipment-cutout.webp",
-        // NOTE: invented figures, as for the laser marker — the brief gives
-        // none for this machine. Plausible for a pick-and-place test handler,
-        // matched to the shape and count used on the other two pages. Replace
-        // before this goes near a customer.
-        metrics: [
-          {
-            label: "Handling Rate",
-            values: [3000, 8000],
-            separator: "–",
-            suffix: "UPH",
-          },
-          {
-            label: "Placement Accuracy",
-            values: [20, 50],
-            separator: "–",
-            prefix: "±",
-            suffix: "µm",
-          },
-          {
-            label: "Cycle Time",
-            values: [0.4, 0.8],
-            separator: "~",
-            suffix: "s",
-            decimals: 1,
-          },
-          {
-            label: "Sorting Outputs",
-            values: [4, 8],
-            separator: "–",
-            suffix: "bins",
-          },
-          { label: "Warranty", values: [1], suffix: "year" },
-          {
-            label: "Plug-and-Play\nDeployment",
-            values: [3],
-            suffix: "days",
-          },
-        ],
-        // NOTE: the brief's Function and Benefit lists overlap here the same
-        // way they did for the laser marker — both revolve around switching
-        // trays and sorting by quality. Split the same way: Functions are the
-        // mechanism, Benefits are the consequence, and no word is shared
-        // between the two sets of titles.
-        functions: [
-          {
-            icon: "arm",
-            title: "Part Transfer",
-            description:
-              "Robotic arms pick and place components at high speed, from infeed through to placement.",
-          },
-          {
-            icon: "trays",
-            title: "Tray Switching",
-            description:
-              "Transfers product between process trays so each one reaches the test it needs.",
-          },
-          {
-            icon: "sort",
-            title: "Grade Sorting",
-            description:
-              "Reads the result carried by each part and routes it to the matching output bin.",
-          },
-        ],
-        benefits: [
-          {
-            icon: "gauge",
-            title: "Higher Throughput",
-            image: "/images/handler-benefit-1.webp",
-            points: [
-              "Loading and unloading run at machine pace instead of waiting on a pair of hands.",
-              "The line keeps moving through breaks and shift changes.",
-            ],
-          },
-          {
-            icon: "durable",
-            title: "No Mix-Ups",
-            image: "/images/handler-benefit-2.webp",
-            points: [
-              "Every unit is judged against the same rule, so passes and failures never get confused.",
-              "Nothing ships that should have been held back.",
-            ],
-          },
-          {
-            icon: "cycle",
-            title: "Freed-Up Operators",
-            image: "/images/handler-benefit-3.webp",
-            points: [
-              "Repetitive station work no longer needs a person standing at it.",
-              "Staff move to higher-value tasks, and handling damage falls with them.",
-            ],
-          },
-        ],
-      },
+    icon: "tune",
+    title: "Function 1",
+    description: "What the equipment does. First of three, to be written.",
+  },
+  {
+    icon: "arm",
+    title: "Function 2",
+    description: "The second thing it does, to be written.",
+  },
+  {
+    icon: "chart",
+    title: "Function 3",
+    description: "The third thing it does, to be written.",
+  },
+];
+
+/**
+ * Three benefit cards.
+ *
+ * The pictures are shared across every placeholder page rather than generated
+ * per machine, and deliberately: three plates that recur on twelve pages read
+ * as scaffolding, where twelve distinct sets of invented photography would
+ * read as a finished catalogue.
+ */
+const PLACEHOLDER_BENEFITS: SubBenefit[] = [
+  {
+    icon: "gauge",
+    title: "Benefit 1",
+    image: "/images/placeholder-benefit-1.webp",
+    points: [
+      "Why this equipment is worth having. First of three, to be written.",
+      "The second line of the same point, to be written.",
     ],
   },
   {
-    slug: "inspection-testing",
-    title: "Inspection & Testing",
+    icon: "durable",
+    title: "Benefit 2",
+    image: "/images/placeholder-benefit-2.webp",
+    points: [
+      "The second reason, to be written.",
+      "The second line of the same point, to be written.",
+    ],
+  },
+  {
+    icon: "cycle",
+    title: "Benefit 3",
+    image: "/images/placeholder-benefit-3.webp",
+    points: [
+      "The third reason, to be written.",
+      "The second line of the same point, to be written.",
+    ],
+  },
+];
+
+/** The "Why <category>?" cards on a cover. Three, so the row fills. */
+const PLACEHOLDER_CATEGORY_BENEFITS: Benefit[] = [
+  {
+    icon: "rocket",
+    title: "Benefit 1",
+    description:
+      "What this category is worth to a production line. First of three, to be written.",
+  },
+  {
+    icon: "verified",
+    title: "Benefit 2",
+    description: "The second reason, to be written.",
+  },
+  {
+    icon: "handshake",
+    title: "Benefit 3",
+    description: "The third reason, to be written.",
+  },
+];
+
+/**
+ * One machine with every section still to be written.
+ *
+ * `href` is passed rather than built from the slugs, so each one stays a
+ * literal that can be checked against the route folder that has to exist for
+ * it — a template string would type-check happily against a page that was
+ * never created.
+ *
+ * Framed as a photo because the generated plate is a full-frame picture with
+ * edges of its own. A cut-out floats on the wash and needs a machine on white
+ * to do it with.
+ */
+function placeholderSub(
+  slug: string,
+  title: string,
+  summary: string,
+  href: Route,
+): SubSolution {
+  return {
+    slug,
+    title,
+    summary,
+    href,
+    image: `/images/placeholder-${slug}.webp`,
+    imageFraming: "photo",
+    metrics: PLACEHOLDER_METRICS,
+    functions: PLACEHOLDER_FUNCTIONS,
+    benefits: PLACEHOLDER_BENEFITS,
+  };
+}
+
+/**
+ * The catalogue, in the order of the Automated Equipment sitemap.
+ *
+ * Seven categories now rather than four: three of them (Automation & Assembly,
+ * Robotics, Specialised Process Equipment) are new, and the other four kept
+ * their content and changed their names — see the note on each.
+ */
+export const SOLUTIONS: Solution[] = [
+  {
+    // Renamed from "Inspection & Testing", which now names the category below
+    // that holds the electrical test equipment. Same content, same cover; the
+    // photograph's filename still says inspection-testing and is left alone,
+    // since renaming an asset only moves the staleness to a different file.
+    slug: "vision-automation",
+    title: "Vision & Automation",
     oneLiner:
       "Cameras and vision software that check every part for defects — faster and more consistent than the human eye.",
-    href: "/solutions/inspection-testing",
+    href: "/solutions/vision-automation",
     coverImage: "/images/inspection-testing-cover.webp",
     // NOTE: the README leaves this section's Benefits list blank. Drafted from
     // the Machine Vision "What is" and Functions text — replace with the real
@@ -528,7 +348,7 @@ export const SOLUTIONS: Solution[] = [
         slug: "machine-vision",
         title: "Machine Vision",
         summary: "Automated visual inspection and defect detection systems.",
-        href: "/solutions/inspection-testing/machine-vision",
+        href: "/solutions/vision-automation/machine-vision",
         image: "/images/machine-vision-cover.webp",
         heroSlides: [
           { title: "PCB Inspection", image: "/images/vision-pcb.webp" },
@@ -659,243 +479,41 @@ export const SOLUTIONS: Solution[] = [
     ],
   },
   {
-    slug: "material-handling",
-    title: "Automated Material Handling System",
+    // NOTE: new category, and everything in it is a stand-in — the cover
+    // photograph included. Descriptions here and on the two machines below are
+    // drafted from their names and nothing else.
+    slug: "automation-assembly",
+    title: "Automation & Assembly",
     oneLiner:
-      "Systems that store, track, and move materials around the factory — without workers carrying or pushing them.",
-    href: "/solutions/material-handling",
-    coverImage: "/images/material-handling-cover.webp",
-    benefits: [
-      {
-        icon: "speed",
-        title: "Higher Speed",
-        description:
-          "Systems process and move large volumes of inventory much faster than manual labour.",
-      },
-      {
-        icon: "protection",
-        title: "Less Damage",
-        description:
-          "Consistent machine handling protects fragile and sensitive products from drops or crashes.",
-      },
-      {
-        icon: "savings",
-        title: "Long-Term Saving",
-        description:
-          "Reduced waste, fewer errors and an optimised workflow save money over time.",
-      },
-    ],
+      "Automated cells that put the product together and finish it, in place of a pair of hands at every station.",
+    href: "/solutions/automation-assembly",
+    coverImage: "/images/placeholder-cover-automation-assembly.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
     subSolutions: [
-      {
-        slug: "material-management-system",
-        title: "Material Management System (MMS)",
-        summary: "Storage and tracking of materials across the factory floor.",
-        href: "/solutions/material-handling/material-management-system",
-        image: "/images/mms-cover.webp",
-        // A warehouse interior, not a machine on white like the assembly
-        // pages — so the hero frames it rather than floating it.
-        imageFraming: "photo",
-        // NOTE: invented figures. The brief lists this sub-solution by name
-        // only, with no spec sheet, so these follow the shape and count used on
-        // the assembly pages. Replace before this goes near a customer.
-        //
-        // Deployment deliberately breaks from the "3 days plug-and-play" the
-        // machine pages carry: an MMS is a system wired into existing racking
-        // and stock records, not a unit wheeled onto a line, and a three-day
-        // claim here would not survive a customer asking about it.
-        metrics: [
-          {
-            label: "Inventory Accuracy",
-            values: [99.5, 99.9],
-            separator: "~",
-            suffix: "%",
-            decimals: 1,
-          },
-          {
-            label: "Stock Movements",
-            values: [600, 1200],
-            separator: "–",
-            suffix: "/hour",
-          },
-          {
-            label: "Stock-Take Time",
-            values: [2, 4],
-            separator: "–",
-            suffix: "hours",
-          },
-          { label: "Data Refresh", values: [1, 3], separator: "~", suffix: "s" },
-          { label: "Warranty", values: [1], suffix: "year" },
-          {
-            label: "System\nDeployment",
-            values: [2, 4],
-            separator: "–",
-            suffix: "weeks",
-          },
-        ],
-        // NOTE: the brief gives neither Functions nor Benefits for this
-        // sub-solution. Both sets are drafted from the category line — "store,
-        // track, and move materials" — and split the way the other pages split
-        // theirs: Functions are the mechanism, Benefits are the consequence,
-        // with no word shared between the two sets of titles.
-        functions: [
-          {
-            icon: "barcode",
-            title: "Item Tracking",
-            description:
-              "Every pallet, bin and carton carries a scannable ID that is read at each move.",
-          },
-          {
-            icon: "sort",
-            title: "Storage Routing",
-            description:
-              "Assigns each incoming load a location, and calls it back when the line asks for it.",
-          },
-          {
-            icon: "chart",
-            title: "Live Stock Records",
-            description:
-              "Counts update as goods move, so the figure on screen matches the figure on the floor.",
-          },
-        ],
-        benefits: [
-          {
-            icon: "gauge",
-            title: "Faster Retrieval",
-            image: "/images/mms-benefit-1.webp",
-            points: [
-              "Drivers are sent straight to a location instead of walking the racks to find one.",
-              "Material reaches the line in minutes, so machines are not left waiting on parts.",
-            ],
-          },
-          {
-            icon: "package",
-            title: "No Surprise Shortages",
-            image: "/images/mms-benefit-2.webp",
-            points: [
-              "A shortfall shows up before it stops a line, not when a picker reaches an empty bay.",
-              "Buying is based on what is actually held, so cash is not tied up in surplus.",
-            ],
-          },
-          {
-            icon: "lens",
-            title: "Visible Across Sites",
-            image: "/images/mms-benefit-3.webp",
-            points: [
-              "Stock in every store and staging area is read from one screen, wherever you are.",
-              "Incoming and outgoing loads are planned against real numbers rather than a phone call.",
-            ],
-          },
-        ],
-      },
-      {
-        slug: "autonomous-mobile-robot",
-        title: "Autonomous Mobile Robot (AMR)",
-        summary: "Self-navigating robots that move materials between stations.",
-        href: "/solutions/material-handling/autonomous-mobile-robot",
-        image: "/images/amr-cover.webp",
-        // A shop-floor photograph rather than a machine cut out on white.
-        imageFraming: "photo",
-        // NOTE: invented figures — the brief supplies Functions and Benefits
-        // for this machine but no spec sheet. Sized for a mid-payload indoor
-        // AMR and matched to the shape and count the other pages use. Replace
-        // before this goes near a customer.
-        metrics: [
-          {
-            label: "Payload",
-            values: [100, 500],
-            separator: "–",
-            suffix: "kg",
-          },
-          {
-            label: "Travel Speed",
-            values: [1.5, 2.0],
-            separator: "~",
-            suffix: "m/s",
-            decimals: 1,
-          },
-          {
-            label: "Battery Runtime",
-            values: [8, 12],
-            separator: "–",
-            suffix: "hours",
-          },
-          {
-            label: "Docking Accuracy",
-            values: [10],
-            prefix: "±",
-            suffix: "mm",
-          },
-          { label: "Warranty", values: [1], suffix: "year" },
-          {
-            label: "Fleet\nDeployment",
-            values: [1, 2],
-            separator: "–",
-            suffix: "weeks",
-          },
-        ],
-        // Functions are the brief's own three, kept in its order and wording.
-        functions: [
-          {
-            icon: "tune",
-            title: "Easy Setup & Configuration",
-            description:
-              "Layouts, stopping points and task templates are mapped once on the Fleet Management System, and left alone after that.",
-          },
-          {
-            icon: "sort",
-            title: "Comprehensive Fleet Management System",
-            description:
-              "Path settings are controlled across multiple AMRs at once, preventing collisions and misrouting.",
-          },
-          {
-            icon: "chart",
-            title: "Task Planning & Execution",
-            description:
-              "Machines raise tasks to the dispatcher, which distributes them according to the assignment policy you set.",
-          },
-        ],
-        benefits: [
-          {
-            icon: "tag",
-            // The brief's first two benefits, titles kept verbatim.
-            title: "Reduced Long Term Operating Cost",
-            image: "/images/amr-benefit-1.webp",
-            points: [
-              "A one-time investment that returns over the long term, rather than a wage paid every month.",
-              "No overtime, insurance, injury leave or the other hidden costs of hiring for floor transport.",
-            ],
-          },
-          {
-            icon: "durable",
-            title: "Reduce Work Injury",
-            image: "/images/amr-benefit-2.webp",
-            points: [
-              "A Ministry of Health Malaysia study (2002–2006) recorded 249,904 non-fatal occupational injuries, 53% of them attributed to transporting and lifting equipment.",
-              "Taking repetitive heavy lifting off people lowers that risk and lifts productivity at the same time.",
-            ],
-          },
-          {
-            // NOTE: third benefit written here — the brief gives two. Chosen as
-            // the one thing an AMR does that an AGV cannot, so it adds to the
-            // pair above instead of restating them.
-            icon: "cycle",
-            title: "No Rails to Lay",
-            image: "/images/amr-benefit-3.webp",
-            points: [
-              "Routes are held as a map, so there is no wire or tape to cut into the floor before the first run.",
-              "Move a station and the route is redrawn the same day — the building itself is never touched.",
-            ],
-          },
-        ],
-      },
+      placeholderSub(
+        "assembly-automation",
+        "Assembly Automation",
+        "Automated assembly cells built around your product and its takt time.",
+        "/solutions/automation-assembly/assembly-automation",
+      ),
+      placeholderSub(
+        "printing-automation",
+        "Printing Automation",
+        "Printing and coding applied inline, as a step in the assembly flow.",
+        "/solutions/automation-assembly/printing-automation",
+      ),
     ],
   },
   {
-    slug: "ict-fct",
-    title: "ICT & FCT",
+    // Renamed from "ICT & FCT", which is now the name of one of the machines
+    // inside it. The one-liner widens with the category: it used to describe
+    // electrical test alone, and this now covers the inspection equipment
+    // beside it.
+    slug: "inspection-testing",
+    title: "Inspection & Testing",
     oneLiner:
-      "Electrical tests that prove a finished board actually works — before it ever ships to the customer.",
-    href: "/solutions/ict-fct",
+      "Inspection and electrical test that prove a finished board is built right and actually works — before it ever ships to the customer.",
+    href: "/solutions/inspection-testing",
     coverImage: "/images/ict-fct-cover.webp",
     benefits: [
       {
@@ -918,11 +536,27 @@ export const SOLUTIONS: Solution[] = [
       },
     ],
     subSolutions: [
+      placeholderSub(
+        "inspection-testing-equipment",
+        "Inspection & Testing",
+        "Inspection and test stations for finished boards and assemblies.",
+        "/solutions/inspection-testing/inspection-testing-equipment",
+      ),
+      // This was the Automated Functional Test Equipment page, which the
+      // Automated Equipment sitemap does not list. Rather than keep it beside
+      // an empty ICT & FCT stub or throw it away, the two were merged: the name
+      // is the sitemap's, everything below it is the written page's.
+      //
+      // The content carries over honestly, which is the only reason this was
+      // worth doing. A bed-of-nails press is in-circuit test's own mechanism
+      // and the powered sequence beside it is functional test's, so a page
+      // built around those two is a page about ICT and FCT — it was only ever
+      // filed under the narrower of the two names.
       {
-        slug: "automated-functional-test-equipment",
-        title: "Automated Functional Test Equipment",
+        slug: "ict-fct",
+        title: "ICT & FCT",
         summary: "Verifies every finished unit against your exact specifications.",
-        href: "/solutions/ict-fct/automated-functional-test-equipment",
+        href: "/solutions/inspection-testing/ict-fct",
         image: "/images/automated-functional-test-equipment.webp",
         imageFraming: "photo",
         // Unlike the other pages, these are not invented. They are the figures
@@ -1032,6 +666,661 @@ export const SOLUTIONS: Solution[] = [
           },
         ],
       },
+    ],
+  },
+  {
+    // Renamed to widen it: storage is now half of what the category holds, and
+    // "Automated Material Handling System" has become the name of one machine
+    // inside it (AMHS) rather than the heading over all of them. The slug is
+    // left alone — nothing else on the site claims "material handling", so
+    // there is no confusion to fix and no URL worth breaking.
+    slug: "material-handling",
+    title: "Automated Storage & Material Handling",
+    oneLiner:
+      "Systems that store, track, and move materials around the factory — without workers carrying or pushing them.",
+    href: "/solutions/material-handling",
+    coverImage: "/images/material-handling-cover.webp",
+    benefits: [
+      {
+        icon: "speed",
+        title: "Higher Speed",
+        description:
+          "Systems process and move large volumes of inventory much faster than manual labour.",
+      },
+      {
+        icon: "protection",
+        title: "Less Damage",
+        description:
+          "Consistent machine handling protects fragile and sensitive products from drops or crashes.",
+      },
+      {
+        icon: "savings",
+        title: "Long-Term Saving",
+        description:
+          "Reduced waste, fewer errors and an optimised workflow save money over time.",
+      },
+    ],
+    subSolutions: [
+      placeholderSub(
+        "smarter-storage",
+        "SMARTer Storage (ASRS & Pallet Shuttle)",
+        "Automated storage and retrieval, with pallet shuttles working the racking.",
+        "/solutions/material-handling/smarter-storage",
+      ),
+      {
+        slug: "autonomous-mobile-robot",
+        title: "Autonomous Mobile Robot (AMR)",
+        summary: "Self-navigating robots that move materials between stations.",
+        href: "/solutions/material-handling/autonomous-mobile-robot",
+        image: "/images/amr-cover.webp",
+        // A shop-floor photograph rather than a machine cut out on white.
+        imageFraming: "photo",
+        // NOTE: invented figures — the brief supplies Functions and Benefits
+        // for this machine but no spec sheet. Sized for a mid-payload indoor
+        // AMR and matched to the shape and count the other pages use. Replace
+        // before this goes near a customer.
+        metrics: [
+          {
+            label: "Payload",
+            values: [100, 500],
+            separator: "–",
+            suffix: "kg",
+          },
+          {
+            label: "Travel Speed",
+            values: [1.5, 2.0],
+            separator: "~",
+            suffix: "m/s",
+            decimals: 1,
+          },
+          {
+            label: "Battery Runtime",
+            values: [8, 12],
+            separator: "–",
+            suffix: "hours",
+          },
+          {
+            label: "Docking Accuracy",
+            values: [10],
+            prefix: "±",
+            suffix: "mm",
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "Fleet\nDeployment",
+            values: [1, 2],
+            separator: "–",
+            suffix: "weeks",
+          },
+        ],
+        // Functions are the brief's own three, kept in its order and wording.
+        functions: [
+          {
+            icon: "tune",
+            title: "Easy Setup & Configuration",
+            description:
+              "Layouts, stopping points and task templates are mapped once on the Fleet Management System, and left alone after that.",
+          },
+          {
+            icon: "sort",
+            title: "Comprehensive Fleet Management System",
+            description:
+              "Path settings are controlled across multiple AMRs at once, preventing collisions and misrouting.",
+          },
+          {
+            icon: "chart",
+            title: "Task Planning & Execution",
+            description:
+              "Machines raise tasks to the dispatcher, which distributes them according to the assignment policy you set.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "tag",
+            // The brief's first two benefits, titles kept verbatim.
+            title: "Reduced Long Term Operating Cost",
+            image: "/images/amr-benefit-1.webp",
+            points: [
+              "A one-time investment that returns over the long term, rather than a wage paid every month.",
+              "No overtime, insurance, injury leave or the other hidden costs of hiring for floor transport.",
+            ],
+          },
+          {
+            icon: "durable",
+            title: "Reduce Work Injury",
+            image: "/images/amr-benefit-2.webp",
+            points: [
+              "A Ministry of Health Malaysia study (2002–2006) recorded 249,904 non-fatal occupational injuries, 53% of them attributed to transporting and lifting equipment.",
+              "Taking repetitive heavy lifting off people lowers that risk and lifts productivity at the same time.",
+            ],
+          },
+          {
+            // NOTE: third benefit written here — the brief gives two. Chosen as
+            // the one thing an AMR does that an AGV cannot, so it adds to the
+            // pair above instead of restating them.
+            icon: "cycle",
+            title: "No Rails to Lay",
+            image: "/images/amr-benefit-3.webp",
+            points: [
+              "Routes are held as a map, so there is no wire or tape to cut into the floor before the first run.",
+              "Move a station and the route is redrawn the same day — the building itself is never touched.",
+            ],
+          },
+        ],
+      },
+      placeholderSub(
+        "smarter-logistic",
+        "SMARTer Logistic",
+        "Movement planned and dispatched across the floor as one flow.",
+        "/solutions/material-handling/smarter-logistic",
+      ),
+      placeholderSub(
+        "robotic-cart-thouzer",
+        "Robotic Cart Thouzer",
+        "A follow-and-carry cart for the loads a person would otherwise push.",
+        "/solutions/material-handling/robotic-cart-thouzer",
+      ),
+      // This was the Material Management System page, which the Automated
+      // Equipment sitemap does not list. Rather than keep it beside an empty
+      // AMHS stub or throw it away, the two were merged: the name is the
+      // sitemap's, everything below it is the written page's.
+      //
+      // NOTE: the fit is looser than the ICT & FCT merge in the category above,
+      // and worth knowing about. What follows is written about knowing where
+      // material is — item tracking, storage routing, live stock counts — where
+      // AMHS usually names the transport that moves it, overhead hoists and
+      // inter-bay track. Neither is wrong about an automated material handling
+      // system and the two are halves of one job, but if a reader arrives here
+      // looking for the transport side, this page does not describe it yet.
+      {
+        slug: "amhs",
+        title: "AMHS (Automated Material Handling System)",
+        summary: "Storage and tracking of materials across the factory floor.",
+        href: "/solutions/material-handling/amhs",
+        image: "/images/mms-cover.webp",
+        // A warehouse interior, not a machine on white like the assembly
+        // pages — so the hero frames it rather than floating it.
+        imageFraming: "photo",
+        // NOTE: invented figures. The brief lists this sub-solution by name
+        // only, with no spec sheet, so these follow the shape and count used on
+        // the assembly pages. Replace before this goes near a customer.
+        //
+        // Deployment deliberately breaks from the "3 days plug-and-play" the
+        // machine pages carry: this is a system wired into existing racking and
+        // stock records, not a unit wheeled onto a line, and a three-day claim
+        // here would not survive a customer asking about it.
+        metrics: [
+          {
+            label: "Inventory Accuracy",
+            values: [99.5, 99.9],
+            separator: "~",
+            suffix: "%",
+            decimals: 1,
+          },
+          {
+            label: "Stock Movements",
+            values: [600, 1200],
+            separator: "–",
+            suffix: "/hour",
+          },
+          {
+            label: "Stock-Take Time",
+            values: [2, 4],
+            separator: "–",
+            suffix: "hours",
+          },
+          { label: "Data Refresh", values: [1, 3], separator: "~", suffix: "s" },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "System\nDeployment",
+            values: [2, 4],
+            separator: "–",
+            suffix: "weeks",
+          },
+        ],
+        // NOTE: the brief gives neither Functions nor Benefits for this
+        // sub-solution. Both sets are drafted from the category line — "store,
+        // track, and move materials" — and split the way the other pages split
+        // theirs: Functions are the mechanism, Benefits are the consequence,
+        // with no word shared between the two sets of titles.
+        functions: [
+          {
+            icon: "barcode",
+            title: "Item Tracking",
+            description:
+              "Every pallet, bin and carton carries a scannable ID that is read at each move.",
+          },
+          {
+            icon: "sort",
+            title: "Storage Routing",
+            description:
+              "Assigns each incoming load a location, and calls it back when the line asks for it.",
+          },
+          {
+            icon: "chart",
+            title: "Live Stock Records",
+            description:
+              "Counts update as goods move, so the figure on screen matches the figure on the floor.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "gauge",
+            title: "Faster Retrieval",
+            image: "/images/mms-benefit-1.webp",
+            points: [
+              "Drivers are sent straight to a location instead of walking the racks to find one.",
+              "Material reaches the line in minutes, so machines are not left waiting on parts.",
+            ],
+          },
+          {
+            icon: "package",
+            title: "No Surprise Shortages",
+            image: "/images/mms-benefit-2.webp",
+            points: [
+              "A shortfall shows up before it stops a line, not when a picker reaches an empty bay.",
+              "Buying is based on what is actually held, so cash is not tied up in surplus.",
+            ],
+          },
+          {
+            icon: "lens",
+            title: "Visible Across Sites",
+            image: "/images/mms-benefit-3.webp",
+            points: [
+              "Stock in every store and staging area is read from one screen, wherever you are.",
+              "Incoming and outgoing loads are planned against real numbers rather than a phone call.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    // NOTE: new category, one machine in it, everything a stand-in.
+    slug: "robotics",
+    title: "Robotics",
+    oneLiner:
+      "Robots that work next to your operators rather than behind a fence.",
+    href: "/solutions/robotics",
+    coverImage: "/images/placeholder-cover-robotics.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+    subSolutions: [
+      placeholderSub(
+        "cobot",
+        "Cobot",
+        "A collaborative arm that shares a bench with the person using it.",
+        "/solutions/robotics/cobot",
+      ),
+    ],
+  },
+  {
+    // Renamed from "Assembly Automation", which is now a machine in the
+    // Automation & Assembly category above. The slug moved with the name —
+    // leaving /solutions/assembly-automation pointing at this page while a
+    // different page is called Assembly Automation is the one rename here that
+    // would have been worth breaking a URL to avoid.
+    //
+    // The one-liner widens to take in the two additions below: the category is
+    // no longer only machines off a catalogue, it is also the ones built to a
+    // customer's drawing.
+    slug: "production-custom-equipment",
+    title: "Production & Custom Equipment",
+    oneLiner:
+      "Machines that build, mark, sort and pack — off the shelf where one fits, built to your print where none does.",
+    href: "/solutions/production-custom-equipment",
+    coverImage: "/images/assembly-automation-3.avif",
+    benefits: [
+      {
+        icon: "rocket",
+        title: "Higher Productivity",
+        description:
+          "Systems operate around the clock, 24/7, without fatigue, drastically cutting cycle times and boosting output volumes.",
+      },
+      {
+        icon: "verified",
+        title: "Consistent Quality",
+        description:
+          "Precise, repeatable actions eliminate human error, ensuring every part matches exact specifications with fewer defects.",
+      },
+      {
+        icon: "handshake",
+        title: "Lower Labor Costs",
+        description:
+          "Routine work shifts to machines, reducing direct staffing needs and freeing workers for higher-value programming or oversight roles.",
+      },
+      {
+        icon: "shield",
+        title: "Improved Safety",
+        description:
+          "Moving hazardous or repetitive physical tasks away from human operators lowers workplace accidents.",
+      },
+    ],
+    subSolutions: [
+      {
+        slug: "automated-packing-equipment",
+        title: "Automated Packing Equipment",
+        summary: "Product transferring, sealing, and barcode labelling.",
+        href: "/solutions/production-custom-equipment/automated-packing-equipment",
+        image: "/images/automated-packing-equipment-cutout.webp",
+        metrics: [
+          {
+            label: "Speed",
+            values: [50, 80],
+            separator: "–",
+            suffix: "bags/h",
+          },
+          {
+            label: "Weighing",
+            values: [100, 600],
+            separator: "–",
+            suffix: "kg",
+          },
+          {
+            label: "Error",
+            values: [2, 5],
+            separator: "–",
+            prefix: "±",
+            suffix: "‰",
+          },
+          {
+            label: "Air Supply Pressure",
+            values: [0.5, 0.8],
+            separator: "~",
+            suffix: "MPa",
+            decimals: 1,
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            // The newline is honoured: a label this long would otherwise
+            // stretch its slot in the marquee far wider than its figure.
+            label: "Plug-and-Play\nDeployment",
+            values: [3],
+            suffix: "days",
+          },
+        ],
+        // NOTE: the brief writes each benefit as one sentence. Split here at
+        // its own comma so the card reads as a list like the reference design;
+        // no claim has been added or changed.
+        benefits: [
+          {
+            icon: "gauge",
+            title: "Faster, Consistent Packing",
+            image: "/images/packing-benefit-1.webp",
+            points: [
+              "Automated sealing and packaging handle every unit at line speed with the same precision.",
+              "Keeps your output steady and throughput high.",
+            ],
+          },
+          {
+            icon: "tag",
+            title: "Built-in Traceability",
+            image: "/images/packing-benefit-2.webp",
+            points: [
+              "Barcode labelling is applied directly to each package.",
+              "Every product can be tracked and identified from packing through to shipment.",
+            ],
+          },
+          {
+            icon: "cycle",
+            title: "Reduced Manual Handling",
+            image: "/images/packing-benefit-3.webp",
+            points: [
+              "Product transfer, case closing, and sealing are automated.",
+              "Cuts labour effort and lowers the risk of packing errors or damage.",
+            ],
+          },
+        ],
+        functions: [
+          {
+            icon: "package",
+            title: "Handling and Sealing",
+            description:
+              "Manages physical product transport, case closing, and package sealing.",
+          },
+          {
+            icon: "barcode",
+            title: "Barcode Labelling",
+            description:
+              "Applies tracking and identification codes directly to packaged goods.",
+          },
+          {
+            icon: "tune",
+            title: "Custom Integration",
+            description:
+              "Tailored through Sophic Automation to match specific factory floor requirements and line speeds.",
+          },
+        ],
+      },
+      {
+        slug: "laser-marking-equipment",
+        title: "Laser Marking Equipment",
+        summary: "1D and 2D laser tracking codes on electronics.",
+        href: "/solutions/production-custom-equipment/laser-marking-equipment",
+        image: "/images/laser-marking-equipment-cutout.webp",
+        // NOTE: unlike the packing equipment, these figures are NOT from a
+        // spec sheet — the brief gives none for this machine. They are
+        // plausible values for a fibre marking laser, matched to the shape and
+        // count of the packing figures. Replace before this goes near a
+        // customer.
+        metrics: [
+          {
+            label: "Marking Speed",
+            values: [2000, 7000],
+            separator: "–",
+            suffix: "mm/s",
+          },
+          {
+            label: "Laser Power",
+            values: [20, 50],
+            separator: "–",
+            suffix: "W",
+          },
+          {
+            label: "Repeatability",
+            values: [5, 10],
+            separator: "–",
+            prefix: "±",
+            suffix: "µm",
+          },
+          {
+            label: "Minimum Line Width",
+            values: [0.02, 0.05],
+            separator: "~",
+            suffix: "mm",
+            decimals: 2,
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "Plug-and-Play\nDeployment",
+            values: [3],
+            suffix: "days",
+          },
+        ],
+        // NOTE: the brief's Function and Benefit lists for this machine say
+        // almost the same three things in the same words, headings included.
+        // Rewritten so the two sections earn their place: Functions describe
+        // the mechanism — what the machine physically does — and Benefits
+        // describe the consequence of having it. Same substance as the brief,
+        // different angle, and no word shared between the two sets of titles.
+        functions: [
+          {
+            icon: "barcode",
+            title: "Code Marking",
+            description:
+              "Writes 1D barcodes and 2D data matrix codes straight onto sensitive electronic components — no contact, no consumables.",
+          },
+          {
+            icon: "cycle",
+            title: "Line Integration",
+            description:
+              "Sits inline with product handling and quality tracking, so marking is a step in the flow rather than a station of its own.",
+          },
+          {
+            icon: "laser",
+            title: "Surface Etching",
+            description:
+              "Etches serial numbers, part numbers and logos into the surface itself instead of printing on top of it.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "tag",
+            title: "Full Traceability",
+            image: "/images/laser-benefit-2.webp",
+            points: [
+              "Any unit can be traced back to its batch, shift and date long after it has left the factory.",
+              "A recall narrows to the parts actually affected, not the whole run.",
+            ],
+          },
+          {
+            icon: "durable",
+            title: "Built to Last",
+            image: "/images/laser-benefit-3.webp",
+            points: [
+              "Marks survive reflow, cleaning and years of wear without fading or peeling off.",
+              "Nothing to reprint, relabel or reapply later.",
+            ],
+          },
+          {
+            icon: "gauge",
+            title: "Reliable Reads",
+            image: "/images/laser-benefit-1.webp",
+            points: [
+              "Every unit gets the same code in the same place, so downstream scanners read it first time.",
+              "No operator to schedule, and no misread labels to rework.",
+            ],
+          },
+        ],
+      },
+      {
+        slug: "automated-handler-equipment",
+        title: "Automated Handler Equipment",
+        summary: "Robotic assembly, tray switching, and quality sorting.",
+        href: "/solutions/production-custom-equipment/automated-handler-equipment",
+        image: "/images/automated-handler-equipment-cutout.webp",
+        // NOTE: invented figures, as for the laser marker — the brief gives
+        // none for this machine. Plausible for a pick-and-place test handler,
+        // matched to the shape and count used on the other two pages. Replace
+        // before this goes near a customer.
+        metrics: [
+          {
+            label: "Handling Rate",
+            values: [3000, 8000],
+            separator: "–",
+            suffix: "UPH",
+          },
+          {
+            label: "Placement Accuracy",
+            values: [20, 50],
+            separator: "–",
+            prefix: "±",
+            suffix: "µm",
+          },
+          {
+            label: "Cycle Time",
+            values: [0.4, 0.8],
+            separator: "~",
+            suffix: "s",
+            decimals: 1,
+          },
+          {
+            label: "Sorting Outputs",
+            values: [4, 8],
+            separator: "–",
+            suffix: "bins",
+          },
+          { label: "Warranty", values: [1], suffix: "year" },
+          {
+            label: "Plug-and-Play\nDeployment",
+            values: [3],
+            suffix: "days",
+          },
+        ],
+        // NOTE: the brief's Function and Benefit lists overlap here the same
+        // way they did for the laser marker — both revolve around switching
+        // trays and sorting by quality. Split the same way: Functions are the
+        // mechanism, Benefits are the consequence, and no word is shared
+        // between the two sets of titles.
+        functions: [
+          {
+            icon: "arm",
+            title: "Part Transfer",
+            description:
+              "Robotic arms pick and place components at high speed, from infeed through to placement.",
+          },
+          {
+            icon: "trays",
+            title: "Tray Switching",
+            description:
+              "Transfers product between process trays so each one reaches the test it needs.",
+          },
+          {
+            icon: "sort",
+            title: "Grade Sorting",
+            description:
+              "Reads the result carried by each part and routes it to the matching output bin.",
+          },
+        ],
+        benefits: [
+          {
+            icon: "gauge",
+            title: "Higher Throughput",
+            image: "/images/handler-benefit-1.webp",
+            points: [
+              "Loading and unloading run at machine pace instead of waiting on a pair of hands.",
+              "The line keeps moving through breaks and shift changes.",
+            ],
+          },
+          {
+            icon: "durable",
+            title: "No Mix-Ups",
+            image: "/images/handler-benefit-2.webp",
+            points: [
+              "Every unit is judged against the same rule, so passes and failures never get confused.",
+              "Nothing ships that should have been held back.",
+            ],
+          },
+          {
+            icon: "cycle",
+            title: "Freed-Up Operators",
+            image: "/images/handler-benefit-3.webp",
+            points: [
+              "Repetitive station work no longer needs a person standing at it.",
+              "Staff move to higher-value tasks, and handling damage falls with them.",
+            ],
+          },
+        ],
+      },
+      placeholderSub(
+        "gold-wire-management-system",
+        "Gold Wire Management System (GWMS)",
+        "Tracks and accounts for bonding wire from store to machine.",
+        "/solutions/production-custom-equipment/gold-wire-management-system",
+      ),
+      placeholderSub(
+        "build-to-print",
+        "Build-to-Print",
+        "Equipment built to your drawing, where nothing off the shelf fits.",
+        "/solutions/production-custom-equipment/build-to-print",
+      ),
+    ],
+  },
+  {
+    // NOTE: new category, one machine in it, everything a stand-in.
+    slug: "specialised-process-equipment",
+    title: "Specialised Process Equipment",
+    oneLiner:
+      "Process equipment for the steps a standard line has no station for.",
+    href: "/solutions/specialised-process-equipment",
+    coverImage: "/images/placeholder-cover-specialised-process-equipment.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+    subSolutions: [
+      placeholderSub(
+        "vacuum-solutions",
+        "Vacuum Solutions",
+        "Vacuum handling and process stations for parts that cannot be gripped.",
+        "/solutions/specialised-process-equipment/vacuum-solutions",
+      ),
     ],
   },
 ];

@@ -19,9 +19,9 @@ so it uses maybe a third of it — deeply. Here's the honest map.
 | Server Components (default)        | ✅ Heavily       | Every file without `"use client"`                                                                                                                      |
 | Client Components (`"use client"`) | ✅ 8 files       | [Header.tsx](components/layout/Header.tsx), [HeroScene.tsx](components/home/HeroScene.tsx), [MetricValue.tsx](components/solutions/MetricValue.tsx), … |
 | `layout.tsx` nesting               | ✅ Two levels    | [app/layout.tsx](app/layout.tsx), [app/solutions/layout.tsx](app/solutions/layout.tsx)                                                                 |
-| `page.tsx`                         | ✅ 12 of them    | [app/page.tsx](app/page.tsx) + 11 under `app/solutions/`                                                                                               |
+| `page.tsx`                         | ✅ 36 of them    | 27 under `app/solutions/`, plus [app/page.tsx](app/page.tsx) and the careers, community, company, contact and partners pages                           |
 | Metadata API                       | ✅               | [app/layout.tsx](app/layout.tsx), `solutionMetadata()` in [SolutionOverviewPage.tsx](components/solutions/SolutionOverviewPage.tsx)                    |
-| Static rendering (SSG)             | ✅ All 14 routes | `npm run build` output — every route marked `○`                                                                                                        |
+| Static rendering (SSG)             | ✅ All but the API | `npm run build` output — every page route marked `○` or `●`                                                                                          |
 | `next/image`                       | ✅               | Covers, hero, cards                                                                                                                                    |
 | Dynamic routes `[id]`              | ❌               | Folders are hardcoded — see §2                                                                                                                         |
 | `generateStaticParams`             | ❌               | Not needed without dynamic segments                                                                                                                    |
@@ -154,18 +154,26 @@ app/
 ├── icon.png                      ← file convention: becomes the favicon
 └── solutions/
     ├── layout.tsx                ← nested layout: scopes the display font
-    ├── assembly-automation/
-    │   ├── page.tsx              ← /solutions/assembly-automation
+    ├── page.tsx                  ← /solutions — the Automated Equipment overview
+    ├── production-custom-equipment/
+    │   ├── page.tsx              ← /solutions/production-custom-equipment
     │   ├── automated-packing-equipment/page.tsx
     │   ├── laser-marking-equipment/page.tsx
-    │   └── automated-handler-equipment/page.tsx
+    │   ├── automated-handler-equipment/page.tsx
+    │   ├── gold-wire-management-system/page.tsx
+    │   └── build-to-print/page.tsx
+    ├── vision-automation/…
+    ├── automation-assembly/…
     ├── inspection-testing/…
     ├── material-handling/…
-    └── ict-fct/…
+    ├── robotics/…
+    └── specialised-process-equipment/…
 ```
 
-Note there is **no** `app/solutions/page.tsx`. A layout without a page is legal —
-`/solutions` simply 404s, and the layout only exists to wrap the routes below it.
+The layout has a page beside it, and that is worth noticing because it did not
+always: `/solutions` used to 404 by design, with the layout existing only to
+wrap the routes below it. A layout without a page is legal, and this branch was
+the demonstration of it until the overview moved here from the root.
 
 ### Layouts don't re-render on navigation
 
@@ -213,21 +221,29 @@ Two things to learn from this:
 ### This project has no dynamic routes — and that's a decision
 
 The guide shows `app/posts/[id]/page.tsx` with awaited `params`. This project
-deliberately does the opposite: eleven hardcoded folders, each a one-liner:
+deliberately does the opposite: twenty-six hardcoded folders, each a one-liner:
 
 ```tsx
-// app/solutions/assembly-automation/page.tsx
-export const metadata = solutionMetadata("assembly-automation");
+// app/solutions/production-custom-equipment/page.tsx
+export const metadata = solutionMetadata("production-custom-equipment");
 export default function Page() {
-  return <SolutionOverviewPage slug="assembly-automation" />;
+  return <SolutionOverviewPage slug="production-custom-equipment" />;
 }
 ```
 
-**Why not `app/solutions/[slug]/page.tsx`?** With a fixed set of eleven routes
-known at build time, dynamic segments would add `params` awaiting,
+**Why not `app/solutions/[slug]/page.tsx`?** With a fixed set of routes known at
+build time, dynamic segments would add `params` awaiting,
 `generateStaticParams()`, and a runtime `notFound()` path — machinery to
 rediscover something already known statically. The hardcoded version is also
 type-safe for free: a typo is a missing folder, not a 404 at runtime.
+
+That argument was written when there were eleven of these folders and it is
+weaker at twenty-six — the Automated Equipment restructure added twelve machines
+and three categories in one go, and fifteen new files whose entire content is
+their own name is the smell dynamic segments exist to remove. The trade is the
+same as it ever was, but the side it favours has moved: the next batch of
+equipment is the point at which `[category]/[machine]` starts costing less than
+the folders do.
 
 For reference, the dynamic version would look like this, and note `params` is a
 **Promise** in Next 15+:
@@ -288,7 +304,7 @@ export function solutionMetadata(slug: string): Metadata {
 }
 ```
 
-So `/solutions/ict-fct` gets `<title>ICT & FCT — Sophic Automation</title>`
+So `/solutions/robotics` gets `<title>Robotics — Sophic Automation</title>`
 without anyone writing that string. `app/icon.png` needs no code at all — the
 filename _is_ the API.
 
@@ -300,7 +316,7 @@ There is exactly one data source: [lib/solutions.ts](lib/solutions.ts), a plain
 TypeScript module exporting a `const` array.
 
 ```ts
-export const SOLUTIONS: Solution[] = [ /* four categories, nested */ ];
+export const SOLUTIONS: Solution[] = [ /* seven categories, nested */ ];
 
 export function getSolution(slug: string): Solution { … }
 export function getSubSolution(solutionSlug: string, subSlug: string) { … }
@@ -358,14 +374,15 @@ when something external needs a URL: a Stripe webhook, a CMS publish hook.
 
 ### Every route here is static
 
-Run `npm run build` and every one of the 14 routes is marked `○ (Static)`:
+Run `npm run build` and every route that is not an API handler is marked
+`○ (Static)`:
 
 ```
 Route (app)
 ┌ ○ /
 ├ ○ /icon.png
-├ ○ /solutions/assembly-automation
-├ ○ /solutions/assembly-automation/automated-packing-equipment
+├ ○ /solutions/production-custom-equipment
+├ ○ /solutions/production-custom-equipment/automated-packing-equipment
 …
 ○  (Static)  prerendered as static content
 ```
@@ -384,7 +401,7 @@ You can see the prerendering directly:
 
 ```powershell
 # The counted-up figures are already in the HTML, before any JS runs
-.next/server/app/solutions/assembly-automation/automated-packing-equipment.html
+.next/server/app/solutions/production-custom-equipment/automated-packing-equipment.html
 #  → 50–80bags/h   100–600kg   ±2–5‰   0.5~0.8MPa
 ```
 

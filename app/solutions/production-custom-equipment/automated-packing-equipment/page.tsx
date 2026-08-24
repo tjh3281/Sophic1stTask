@@ -4,15 +4,15 @@ import {
 } from "@/components/solutions/SolutionOverviewPage";
 
 export const metadata = subSolutionMetadata(
-  "assembly-automation",
-  "automated-handler-equipment",
+  "production-custom-equipment",
+  "automated-packing-equipment",
 );
 
 export default function Page() {
   return (
     <SubSolutionPage
-      solutionSlug="assembly-automation"
-      subSlug="automated-handler-equipment"
+      solutionSlug="production-custom-equipment"
+      subSlug="automated-packing-equipment"
     />
   );
 }

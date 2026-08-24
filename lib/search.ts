@@ -98,21 +98,26 @@ function buildIndex(): SearchEntry[] {
     },
     {
       // Its own entry since the overview moved off the root. It keeps the
-      // "four categories" line, which is what somebody typing "solutions" or
-      // "overview" is actually looking for — and which used to be filed under
-      // Home purely because that is where the page happened to live.
+      // headline of the page it points at, which is what somebody typing
+      // "solutions" or "overview" is actually looking for — and which used to
+      // be filed under Home purely because that is where the page lived.
+      //
+      // Titled for the page and keyworded for the route: it answers to
+      // "automated equipment" because that is what the page is called, and to
+      // "solutions" because that is the word in the header, in the URL and on
+      // every breadcrumb below it.
       id: "solutions",
       kind: "category",
-      title: "Solutions",
+      title: "Automated Equipment",
       href: "/solutions",
       breadcrumb: "Sophic Automation",
-      summary: "Four solution categories, one automation partner.",
+      summary: "Seven equipment families, one automation partner.",
       lower: {
-        title: "solutions",
+        title: "automated equipment",
         breadcrumb: "sophic automation",
-        summary: "four solution categories, one automation partner",
+        summary: "seven equipment families, one automation partner",
         keywords: lower(
-          "overview all solutions capabilities what we do services catalogue",
+          "solutions overview all solutions capabilities what we do services catalogue",
           ...SOLUTIONS.map((solution) => solution.title),
         ),
       },

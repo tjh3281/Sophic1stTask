@@ -14,6 +14,22 @@ import { getSolution, getSubSolution } from "@/lib/solutions";
  * which is written from the buyer's side of the problem rather than ours.
  */
 
+/*
+ * NOTE: these four are now four of the seven categories in SOLUTIONS. The
+ * Automated Equipment restructure added Automation & Assembly, Robotics and
+ * Specialised Process Equipment, and the advisor cannot return any of them —
+ * a reader whose problem is a cobot is sent to the nearest of the four it does
+ * know. Adding them means symptom copy written from the buyer's side for
+ * categories that have no copy at all yet, so it waits until they do.
+ *
+ * The names are the enums the classifier was trained against, not the
+ * categories' titles, and they have drifted apart: ASSEMBLY is now Production &
+ * Custom Equipment, INSPECTION is Vision & Automation, and ICT_FCT is the
+ * category actually called Inspection & Testing. Everything the reader sees is
+ * read from SOLUTIONS, so the drift is invisible on screen — but it is a trap
+ * for anyone editing this file, hence the slugs below being the only place the
+ * mapping is stated.
+ */
 export const CATEGORY_ENUMS = [
   "ASSEMBLY",
   "INSPECTION",
@@ -38,13 +54,13 @@ type CategoryCopy = {
 
 const COPY: Record<MatchedCategory, CategoryCopy> = {
   ASSEMBLY: {
-    slug: "assembly-automation",
+    slug: "production-custom-equipment",
     symptom:
       "We still build, mark, or pack by hand — it's slow and errors slip through.",
     shortLabel: "Building it",
   },
   INSPECTION: {
-    slug: "inspection-testing",
+    slug: "vision-automation",
     symptom: "Defects reach our customers, or inspectors can't keep up.",
     shortLabel: "Checking it",
   },
@@ -54,7 +70,7 @@ const COPY: Record<MatchedCategory, CategoryCopy> = {
     shortLabel: "Moving materials",
   },
   ICT_FCT: {
-    slug: "ict-fct",
+    slug: "inspection-testing",
     symptom: "Board testing is a bottleneck, or bad boards ship out.",
     shortLabel: "Final testing",
   },
@@ -112,14 +128,15 @@ export function isMatchedCategory(value: unknown): value is MatchedCategory {
    describes it.
 
    A category is the right unit for a diagnosis and the wrong unit for an
-   answer. "Assembly Automation" is true but it is not a recommendation —
-   it covers three machines that solve three different problems, and a reader
-   sent to the category page has to work out which of them they came for. The
-   advisor already knows enough to say, so it says it.
+   answer. "Production & Custom Equipment" is true but it is not a
+   recommendation — it covers several machines that solve different problems,
+   and a reader sent to the category page has to work out which of them they
+   came for. The advisor already knows enough to say, so it says it.
 
-   Two of the four categories hold a single machine, which means the specific
-   answer costs nothing there: naming the category names the machine. Only
-   assembly and material handling need the extra question below.
+   The list below is the machines the advisor can name, not everything the
+   categories hold: the restructure added equipment to three of the four, and
+   none of it has copy yet. So a category with one entry here still asks no
+   extra question, whatever is on its page.
 -------------------------------------------------------------------------- */
 
 export const EQUIPMENT_ENUMS = [
@@ -165,9 +182,14 @@ const EQUIPMENT_COPY: Record<EquipmentEnum, EquipmentCopy> = {
     slug: "machine-vision",
     job: "Checking parts for defects with cameras",
   },
+  // The Material Management System page was folded into AMHS, which is what the
+  // Automated Equipment sitemap calls it. The enum keeps the old name — it is a
+  // token the classifier was trained against, not a label anybody sees — and
+  // the job below still describes what the page is about, because the page's
+  // content went across unchanged.
   MMS: {
     category: "MATERIAL_HANDLING",
-    slug: "material-management-system",
+    slug: "amhs",
     job: "Knowing where stock is and what is left",
   },
   AMR: {
@@ -175,9 +197,11 @@ const EQUIPMENT_COPY: Record<EquipmentEnum, EquipmentCopy> = {
     slug: "autonomous-mobile-robot",
     job: "Carrying material across the floor",
   },
+  // Likewise: the Automated Functional Test Equipment page was folded into
+  // ICT & FCT. Same enum, same job, new slug.
   FCT: {
     category: "ICT_FCT",
-    slug: "automated-functional-test-equipment",
+    slug: "ict-fct",
     job: "Testing finished boards before they ship",
   },
 };

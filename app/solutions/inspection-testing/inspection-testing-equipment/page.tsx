@@ -5,11 +5,11 @@ import {
 
 export const metadata = subSolutionMetadata(
   "inspection-testing",
-  "machine-vision",
+  "inspection-testing-equipment",
 );
 
 export default function Page() {
   return (
-    <SubSolutionPage solutionSlug="inspection-testing" subSlug="machine-vision" />
+    <SubSolutionPage solutionSlug="inspection-testing" subSlug="inspection-testing-equipment" />
   );
 }

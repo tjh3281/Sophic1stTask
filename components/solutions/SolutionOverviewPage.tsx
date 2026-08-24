@@ -12,7 +12,7 @@ import { SubSolutionList } from "./SubSolutionList";
 import { TechnicalMetrics } from "./TechnicalMetrics";
 
 /**
- * Shared shell for the four category overview pages.
+ * Shared shell for the category overview pages.
  *
  * A solution with a coverImage gets the full-bleed cover with its benefits;
  * the rest fall back to the plain header until their content is written. Each

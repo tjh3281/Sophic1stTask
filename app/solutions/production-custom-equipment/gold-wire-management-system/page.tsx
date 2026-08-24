@@ -4,15 +4,12 @@ import {
 } from "@/components/solutions/SolutionOverviewPage";
 
 export const metadata = subSolutionMetadata(
-  "assembly-automation",
-  "automated-packing-equipment",
+  "production-custom-equipment",
+  "gold-wire-management-system",
 );
 
 export default function Page() {
   return (
-    <SubSolutionPage
-      solutionSlug="assembly-automation"
-      subSlug="automated-packing-equipment"
-    />
+    <SubSolutionPage solutionSlug="production-custom-equipment" subSlug="gold-wire-management-system" />
   );
 }

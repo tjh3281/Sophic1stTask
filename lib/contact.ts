@@ -207,7 +207,7 @@ export const ENQUIRY_GROUPS: EnquiryGroup[] = [
   ...SOLUTIONS.map((solution) => ({
     label: solution.title,
     options: solution.subSolutions.map((sub) => ({
-      // The sub-solution slug, which is unique across all four categories, so
+      // The sub-solution slug, which is unique across every category, so
       // a value identifies a machine without needing its parent alongside it.
       value: sub.slug,
       label: sub.title,

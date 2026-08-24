@@ -3,8 +3,8 @@ import {
   solutionMetadata,
 } from "@/components/solutions/SolutionOverviewPage";
 
-export const metadata = solutionMetadata("ict-fct");
+export const metadata = solutionMetadata("automation-assembly");
 
 export default function Page() {
-  return <SolutionOverviewPage slug="ict-fct" />;
+  return <SolutionOverviewPage slug="automation-assembly" />;
 }

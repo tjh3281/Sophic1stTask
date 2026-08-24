@@ -3,8 +3,8 @@ import {
   solutionMetadata,
 } from "@/components/solutions/SolutionOverviewPage";
 
-export const metadata = solutionMetadata("assembly-automation");
+export const metadata = solutionMetadata("robotics");
 
 export default function Page() {
-  return <SolutionOverviewPage slug="assembly-automation" />;
+  return <SolutionOverviewPage slug="robotics" />;
 }
