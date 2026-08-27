@@ -4,12 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { HEADER_NAV, isCurrentSection } from "@/lib/nav";
-import { SOLUTIONS } from "@/lib/solutions";
+import { SOLUTION_LINES } from "@/lib/solutions";
 import { cn } from "@/lib/cn";
 
 /**
- * Below lg the header collapses into a drawer. "Solution" becomes a two-level
+ * Below lg the header collapses into a drawer. "Solution" becomes a nested
  * accordion; the other items stay inert, matching the desktop behaviour.
+ *
+ * The nesting follows the URL exactly — line, then category, then machine — so
+ * the drawer and the address bar tell the same story about where a page sits.
+ * Only the last of those levels collapses: the lines and their categories are
+ * short enough to sit open, and the machines are what would make the drawer
+ * long enough to need scrolling.
  *
  * The current page is marked in brand blue here too. The drawer is the bar at
  * this width, and a reader who opens it to see where they can go should not
@@ -95,92 +101,124 @@ export function MobileNav({
                       {item.label}
                     </p>
                     <ul className="space-y-1">
-                      {/* Matches the desktop menu: the overview sits above the
-                          categories it covers, since the "Solution" heading
-                          here is a label rather than a link. */}
+                      {/* The heading above is a label rather than a link, so
+                          the section's own page has to be a row of its own. */}
                       <li>
                         <Link
                           href="/solutions"
+                          aria-current={
+                            pathname === "/solutions" ? "page" : undefined
+                          }
                           className="block rounded-md px-1 py-2 text-sm font-medium text-brand"
                         >
                           All solutions
                         </Link>
                       </li>
-                      {SOLUTIONS.map((solution) => {
-                        const isExpanded = expanded === solution.slug;
-                        return (
-                          <li key={solution.slug}>
-                            <div className="flex items-center">
-                              <Link
-                                href={solution.href}
-                                aria-current={
-                                  inSection(solution.href) ? "page" : undefined
-                                }
-                                className={cn(
-                                  "flex-1 rounded-md px-1 py-2 text-sm font-medium",
-                                  inSection(solution.href)
-                                    ? "text-brand"
-                                    : "text-foreground",
-                                )}
-                              >
-                                {solution.title}
-                              </Link>
-                              <button
-                                type="button"
-                                aria-expanded={isExpanded}
-                                aria-label={`${isExpanded ? "Hide" : "Show"} ${solution.title} solutions`}
-                                onClick={() =>
-                                  setExpanded(isExpanded ? null : solution.slug)
-                                }
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted hover:bg-surface"
-                              >
-                                <svg
-                                  viewBox="0 0 20 20"
-                                  aria-hidden="true"
-                                  className={cn(
-                                    "h-3.5 w-3.5 transition-transform",
-                                    isExpanded && "rotate-180",
-                                  )}
-                                >
-                                  <path
-                                    d="M5 7.5 10 12.5 15 7.5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
 
-                            {isExpanded && (
-                              <ul className="mb-2 ml-1 space-y-1 border-l border-line pl-3">
-                                {solution.subSolutions.map((sub) => (
-                                  <li key={sub.slug}>
+                      {SOLUTION_LINES.map((line) => (
+                        <li key={line.slug}>
+                          <Link
+                            href={line.href}
+                            aria-current={
+                              inSection(line.href) ? "page" : undefined
+                            }
+                            className={cn(
+                              "block rounded-md px-1 py-2 text-sm font-medium",
+                              inSection(line.href)
+                                ? "text-brand"
+                                : "text-foreground",
+                            )}
+                          >
+                            {line.title}
+                          </Link>
+
+                          {/* The categories, indented under the line that
+                              holds them — the same rule the machines follow
+                              under a category further down. */}
+                          <ul className="mb-1 ml-1 mt-1 space-y-1 border-l border-line pl-3">
+                            {line.children.map((solution) => {
+                              const isExpanded = expanded === solution.slug;
+
+                              return (
+                                <li key={solution.slug}>
+                                  <div className="flex items-center">
                                     <Link
-                                      href={sub.href}
+                                      href={solution.href}
                                       aria-current={
-                                        pathname === sub.href
+                                        inSection(solution.href)
                                           ? "page"
                                           : undefined
                                       }
                                       className={cn(
-                                        "block rounded-md px-2 py-2 text-sm hover:text-brand",
-                                        pathname === sub.href
+                                        "flex-1 rounded-md px-1 py-2 text-sm",
+                                        inSection(solution.href)
                                           ? "font-medium text-brand"
-                                          : "text-muted",
+                                          : "text-foreground",
                                       )}
                                     >
-                                      {sub.title}
+                                      {solution.title}
                                     </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </li>
-                        );
-                      })}
+                                    <button
+                                      type="button"
+                                      aria-expanded={isExpanded}
+                                      aria-label={`${isExpanded ? "Hide" : "Show"} ${solution.title} solutions`}
+                                      onClick={() =>
+                                        setExpanded(
+                                          isExpanded ? null : solution.slug,
+                                        )
+                                      }
+                                      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted hover:bg-surface"
+                                    >
+                                      <svg
+                                        viewBox="0 0 20 20"
+                                        aria-hidden="true"
+                                        className={cn(
+                                          "h-3.5 w-3.5 transition-transform",
+                                          isExpanded && "rotate-180",
+                                        )}
+                                      >
+                                        <path
+                                          d="M5 7.5 10 12.5 15 7.5"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth="1.8"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        />
+                                      </svg>
+                                    </button>
+                                  </div>
+
+                                  {isExpanded && (
+                                    <ul className="mb-2 ml-1 space-y-1 border-l border-line pl-3">
+                                      {solution.subSolutions.map((sub) => (
+                                        <li key={sub.slug}>
+                                          <Link
+                                            href={sub.href}
+                                            aria-current={
+                                              pathname === sub.href
+                                                ? "page"
+                                                : undefined
+                                            }
+                                            className={cn(
+                                              "block rounded-md px-2 py-2 text-sm hover:text-brand",
+                                              pathname === sub.href
+                                                ? "font-medium text-brand"
+                                                : "text-muted",
+                                            )}
+                                          >
+                                            {sub.title}
+                                          </Link>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </li>
+                      ))}
                     </ul>
                   </li>
                 ) : (

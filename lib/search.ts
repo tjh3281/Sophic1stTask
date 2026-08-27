@@ -11,7 +11,7 @@ import {
   PARTNER_WITH_SOPHIC,
   PARTNERS_HERO,
 } from "./partners";
-import { SOLUTIONS } from "./solutions";
+import { AUTOMATED_EQUIPMENT, SOLUTION_LINES, SOLUTIONS } from "./solutions";
 
 /**
  * Site search, over a flat index built from the solutions tree.
@@ -108,13 +108,13 @@ function buildIndex(): SearchEntry[] {
       // every breadcrumb below it.
       id: "solutions",
       kind: "category",
-      title: "Automated Equipment",
-      href: "/solutions",
-      breadcrumb: "Sophic Automation",
+      title: AUTOMATED_EQUIPMENT.title,
+      href: AUTOMATED_EQUIPMENT.href,
+      breadcrumb: "Solutions",
       summary: "Seven equipment families, one automation partner.",
       lower: {
-        title: "automated equipment",
-        breadcrumb: "sophic automation",
+        title: AUTOMATED_EQUIPMENT.title.toLowerCase(),
+        breadcrumb: "solutions",
         summary: "seven equipment families, one automation partner",
         keywords: lower(
           "solutions overview all solutions capabilities what we do services catalogue",
@@ -272,17 +272,26 @@ function buildIndex(): SearchEntry[] {
     },
   ];
 
-  for (const solution of SOLUTIONS) {
+  // Every line, not just the equipment one — and each category paired with the
+  // line it actually belongs to, so a Digitalised Solutions result does not
+  // announce itself as Automated Equipment. Flattened rather than nested: the
+  // body below is long, and a second `for` around it would indent all of it to
+  // say something one flatMap says here.
+  const filed = SOLUTION_LINES.flatMap((line) =>
+    line.children.map((solution) => ({ line, solution })),
+  );
+
+  for (const { line, solution } of filed) {
     entries.push({
       id: solution.slug,
       kind: "category",
       title: solution.title,
       href: solution.href,
-      breadcrumb: "Solutions",
+      breadcrumb: line.title,
       summary: solution.oneLiner,
       lower: {
         title: solution.title.toLowerCase(),
-        breadcrumb: "solutions",
+        breadcrumb: line.title.toLowerCase(),
         summary: solution.oneLiner.toLowerCase(),
         keywords: lower(
           solution.slug.replace(/-/g, " "),
@@ -300,11 +309,11 @@ function buildIndex(): SearchEntry[] {
         kind: "equipment",
         title: sub.title,
         href: sub.href,
-        breadcrumb: `Solutions · ${solution.title}`,
+        breadcrumb: `${line.title} · ${solution.title}`,
         summary: sub.summary,
         lower: {
           title: sub.title.toLowerCase(),
-          breadcrumb: `solutions ${solution.title}`.toLowerCase(),
+          breadcrumb: `${line.title} ${solution.title}`.toLowerCase(),
           summary: sub.summary.toLowerCase(),
           keywords: lower(
             sub.slug.replace(/-/g, " "),

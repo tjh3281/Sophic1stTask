@@ -231,22 +231,18 @@ export const PARTNER_NETWORK = {
   centre: {
     name: "Sophic Automation",
     /**
-     * The normal mark, in its white-lettered cut for the navy tile.
+     * The current mark, in its white-lettered cut for the navy tile.
      *
-     * There are two Sophic logos in the repository and they are not the same
-     * drawing — the other has a small aerial above the globe and a darker
-     * sphere. That one is the home page's, which the header keeps for the home
-     * page alone; every other page wears this one. This tile was on the home
-     * page's cut, which made Sophic's own hexagon the one mark on the site that
-     * disagreed with the header directly above it.
-     *
-     * See the note on MARKS in components/layout/Header.tsx, which owns that
-     * split and explains where this white cut came from — the file that arrived
-     * was flattened onto opaque black and its alpha had to be recovered.
+     * The same drawing the header wears, which is the point: this hexagon sits
+     * under the bar, and a tile carrying a different cut of Sophic's own logo
+     * is the one mark on the site that can disagree with the one above it. The
+     * repository still holds a second, flatter drawing in
+     * public/images/sophic-logo-normal*.png; nothing wears it. See the note on
+     * MARKS in components/layout/Header.tsx.
      */
-    logo: "/images/sophic-logo-normal-white.png",
-    width: 1565,
-    height: 856,
+    logo: "/images/sophic-logo-light.png",
+    width: 480,
+    height: 267,
   },
   groups: [
     {

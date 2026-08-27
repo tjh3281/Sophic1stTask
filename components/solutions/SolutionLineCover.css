@@ -1,0 +1,113 @@
+/* --- The line cover ------------------------------------------------------
+   A still photograph, given the two things a still photograph needs to hold a
+   full screen: something to do as it arrives, and something under the type
+   dark enough to read against.
+
+   Everything here is transform and opacity on absolutely positioned layers, so
+   none of it lays anything out and none of it costs a frame after it settles.
+-------------------------------------------------------------------------- */
+
+.line-cover__photo {
+  position: absolute;
+  inset: 0;
+}
+
+/*
+ * The arrival.
+ *
+ * The photograph comes in a touch over size and settles back to its own scale
+ * — the whole move is 3%, over nearly two seconds, on the site's gentle curve.
+ * Slow and small is the entire point: a fast or large push reads as a slideshow
+ * effect, where this is meant to register as the picture coming to rest and
+ * nothing more.
+ *
+ * `both` holds the opening frame before the animation runs, so the first paint
+ * is the scaled-up photo rather than a flash of the final one.
+ */
+.line-cover__photo img {
+  animation: line-cover-settle 1900ms var(--ease-gentle) both;
+}
+
+@keyframes line-cover-settle {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/*
+ * Brand light, thrown across the picture from the low left.
+ *
+ * The photograph is daylight-cool almost everywhere — white arms, pale blue
+ * glass — and a scrim alone turns that into flat grey. This puts the brand's
+ * own colour back into the shadow it sits in, which is what keeps the dark end
+ * of the frame reading as a lit room rather than as a dimmed photo.
+ *
+ * `screen` so it only ever lightens: over the bright half of the picture it has
+ * almost nothing left to add and quietly disappears, which is what stops it
+ * becoming a visible wash.
+ */
+.line-cover__light {
+  position: absolute;
+  /* Room to move without an edge ever entering the frame. */
+  inset: -20%;
+  background:
+    radial-gradient(
+      40% 55% at 18% 78%,
+      rgb(41 168 184 / 0.34),
+      rgb(41 168 184 / 0) 70%
+    ),
+    radial-gradient(
+      34% 44% at 84% 24%,
+      rgb(120 190 255 / 0.16),
+      rgb(120 190 255 / 0) 72%
+    );
+  mix-blend-mode: screen;
+
+  /* Slow enough that nobody catches it moving, long enough that it never
+     repeats while anyone is on the page. */
+  animation: line-cover-drift 38s ease-in-out infinite;
+}
+
+@keyframes line-cover-drift {
+  0% {
+    transform: translate3d(-1.4%, 1%, 0) scale(1.03);
+  }
+  50% {
+    transform: translate3d(1.6%, -1.2%, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(-1.4%, 1%, 0) scale(1.03);
+  }
+}
+
+/*
+ * The hairline over the eyebrow.
+ *
+ * Drawn rather than bordered so it can fade out along its length — a rule that
+ * stops dead is a line, and one that dissolves is an edge of light. It is the
+ * one purely decorative mark on the cover, which is what it is allowed to cost.
+ */
+.line-cover__rule {
+  display: block;
+  width: 3.5rem;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--accent),
+    rgb(255 255 255 / 0.15)
+  );
+}
+
+/* A settling photograph and drifting light are both exactly what this asks
+   not to happen. The picture simply arrives. */
+@media (prefers-reduced-motion: reduce) {
+  .line-cover__photo img,
+  .line-cover__light {
+    animation: none;
+  }
+}

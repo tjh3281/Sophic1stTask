@@ -44,7 +44,12 @@ export type GlyphName =
   | "trays"
   | "sort"
   | "lens"
-  | "chart";
+  | "chart"
+  // The three added for the Solution menu, where each line needs a mark. Named
+  // for what they depict like the rest, so nothing stops a machine using one.
+  | "screen"
+  | "compass"
+  | "wrench";
 
 /** One thing the machine does, as listed under Function in the brief. */
 export type SolutionFunction = {
@@ -312,7 +317,7 @@ export const SOLUTIONS: Solution[] = [
     title: "Vision & Automation",
     oneLiner:
       "Cameras and vision software that check every part for defects — faster and more consistent than the human eye.",
-    href: "/solutions/vision-automation",
+    href: "/solutions/automated-equipment/vision-automation",
     coverImage: "/images/inspection-testing-cover.webp",
     // NOTE: the README leaves this section's Benefits list blank. Drafted from
     // the Machine Vision "What is" and Functions text — replace with the real
@@ -348,7 +353,7 @@ export const SOLUTIONS: Solution[] = [
         slug: "machine-vision",
         title: "Machine Vision",
         summary: "Automated visual inspection and defect detection systems.",
-        href: "/solutions/vision-automation/machine-vision",
+        href: "/solutions/automated-equipment/vision-automation/machine-vision",
         image: "/images/machine-vision-cover.webp",
         heroSlides: [
           { title: "PCB Inspection", image: "/images/vision-pcb.webp" },
@@ -486,7 +491,7 @@ export const SOLUTIONS: Solution[] = [
     title: "Automation & Assembly",
     oneLiner:
       "Automated cells that put the product together and finish it, in place of a pair of hands at every station.",
-    href: "/solutions/automation-assembly",
+    href: "/solutions/automated-equipment/automation-assembly",
     coverImage: "/images/placeholder-cover-automation-assembly.webp",
     benefits: PLACEHOLDER_CATEGORY_BENEFITS,
     subSolutions: [
@@ -494,13 +499,13 @@ export const SOLUTIONS: Solution[] = [
         "assembly-automation",
         "Assembly Automation",
         "Automated assembly cells built around your product and its takt time.",
-        "/solutions/automation-assembly/assembly-automation",
+        "/solutions/automated-equipment/automation-assembly/assembly-automation",
       ),
       placeholderSub(
         "printing-automation",
         "Printing Automation",
         "Printing and coding applied inline, as a step in the assembly flow.",
-        "/solutions/automation-assembly/printing-automation",
+        "/solutions/automated-equipment/automation-assembly/printing-automation",
       ),
     ],
   },
@@ -513,7 +518,7 @@ export const SOLUTIONS: Solution[] = [
     title: "Inspection & Testing",
     oneLiner:
       "Inspection and electrical test that prove a finished board is built right and actually works — before it ever ships to the customer.",
-    href: "/solutions/inspection-testing",
+    href: "/solutions/automated-equipment/inspection-testing",
     coverImage: "/images/ict-fct-cover.webp",
     benefits: [
       {
@@ -540,7 +545,7 @@ export const SOLUTIONS: Solution[] = [
         "inspection-testing-equipment",
         "Inspection & Testing",
         "Inspection and test stations for finished boards and assemblies.",
-        "/solutions/inspection-testing/inspection-testing-equipment",
+        "/solutions/automated-equipment/inspection-testing/inspection-testing-equipment",
       ),
       // This was the Automated Functional Test Equipment page, which the
       // Automated Equipment sitemap does not list. Rather than keep it beside
@@ -556,7 +561,7 @@ export const SOLUTIONS: Solution[] = [
         slug: "ict-fct",
         title: "ICT & FCT",
         summary: "Verifies every finished unit against your exact specifications.",
-        href: "/solutions/inspection-testing/ict-fct",
+        href: "/solutions/automated-equipment/inspection-testing/ict-fct",
         image: "/images/automated-functional-test-equipment.webp",
         imageFraming: "photo",
         // Unlike the other pages, these are not invented. They are the figures
@@ -678,7 +683,7 @@ export const SOLUTIONS: Solution[] = [
     title: "Automated Storage & Material Handling",
     oneLiner:
       "Systems that store, track, and move materials around the factory — without workers carrying or pushing them.",
-    href: "/solutions/material-handling",
+    href: "/solutions/automated-equipment/material-handling",
     coverImage: "/images/material-handling-cover.webp",
     benefits: [
       {
@@ -705,13 +710,13 @@ export const SOLUTIONS: Solution[] = [
         "smarter-storage",
         "SMARTer Storage (ASRS & Pallet Shuttle)",
         "Automated storage and retrieval, with pallet shuttles working the racking.",
-        "/solutions/material-handling/smarter-storage",
+        "/solutions/automated-equipment/material-handling/smarter-storage",
       ),
       {
         slug: "autonomous-mobile-robot",
         title: "Autonomous Mobile Robot (AMR)",
         summary: "Self-navigating robots that move materials between stations.",
-        href: "/solutions/material-handling/autonomous-mobile-robot",
+        href: "/solutions/automated-equipment/material-handling/autonomous-mobile-robot",
         image: "/images/amr-cover.webp",
         // A shop-floor photograph rather than a machine cut out on white.
         imageFraming: "photo",
@@ -812,13 +817,13 @@ export const SOLUTIONS: Solution[] = [
         "smarter-logistic",
         "SMARTer Logistic",
         "Movement planned and dispatched across the floor as one flow.",
-        "/solutions/material-handling/smarter-logistic",
+        "/solutions/automated-equipment/material-handling/smarter-logistic",
       ),
       placeholderSub(
         "robotic-cart-thouzer",
         "Robotic Cart Thouzer",
         "A follow-and-carry cart for the loads a person would otherwise push.",
-        "/solutions/material-handling/robotic-cart-thouzer",
+        "/solutions/automated-equipment/material-handling/robotic-cart-thouzer",
       ),
       // This was the Material Management System page, which the Automated
       // Equipment sitemap does not list. Rather than keep it beside an empty
@@ -836,7 +841,7 @@ export const SOLUTIONS: Solution[] = [
         slug: "amhs",
         title: "AMHS (Automated Material Handling System)",
         summary: "Storage and tracking of materials across the factory floor.",
-        href: "/solutions/material-handling/amhs",
+        href: "/solutions/automated-equipment/material-handling/amhs",
         image: "/images/mms-cover.webp",
         // A warehouse interior, not a machine on white like the assembly
         // pages — so the hero frames it rather than floating it.
@@ -941,7 +946,7 @@ export const SOLUTIONS: Solution[] = [
     title: "Robotics",
     oneLiner:
       "Robots that work next to your operators rather than behind a fence.",
-    href: "/solutions/robotics",
+    href: "/solutions/automated-equipment/robotics",
     coverImage: "/images/placeholder-cover-robotics.webp",
     benefits: PLACEHOLDER_CATEGORY_BENEFITS,
     subSolutions: [
@@ -949,7 +954,7 @@ export const SOLUTIONS: Solution[] = [
         "cobot",
         "Cobot",
         "A collaborative arm that shares a bench with the person using it.",
-        "/solutions/robotics/cobot",
+        "/solutions/automated-equipment/robotics/cobot",
       ),
     ],
   },
@@ -967,7 +972,7 @@ export const SOLUTIONS: Solution[] = [
     title: "Production & Custom Equipment",
     oneLiner:
       "Machines that build, mark, sort and pack — off the shelf where one fits, built to your print where none does.",
-    href: "/solutions/production-custom-equipment",
+    href: "/solutions/automated-equipment/production-custom-equipment",
     coverImage: "/images/assembly-automation-3.avif",
     benefits: [
       {
@@ -1000,7 +1005,7 @@ export const SOLUTIONS: Solution[] = [
         slug: "automated-packing-equipment",
         title: "Automated Packing Equipment",
         summary: "Product transferring, sealing, and barcode labelling.",
-        href: "/solutions/production-custom-equipment/automated-packing-equipment",
+        href: "/solutions/automated-equipment/production-custom-equipment/automated-packing-equipment",
         image: "/images/automated-packing-equipment-cutout.webp",
         metrics: [
           {
@@ -1095,7 +1100,7 @@ export const SOLUTIONS: Solution[] = [
         slug: "laser-marking-equipment",
         title: "Laser Marking Equipment",
         summary: "1D and 2D laser tracking codes on electronics.",
-        href: "/solutions/production-custom-equipment/laser-marking-equipment",
+        href: "/solutions/automated-equipment/production-custom-equipment/laser-marking-equipment",
         image: "/images/laser-marking-equipment-cutout.webp",
         // NOTE: unlike the packing equipment, these figures are NOT from a
         // spec sheet — the brief gives none for this machine. They are
@@ -1196,7 +1201,7 @@ export const SOLUTIONS: Solution[] = [
         slug: "automated-handler-equipment",
         title: "Automated Handler Equipment",
         summary: "Robotic assembly, tray switching, and quality sorting.",
-        href: "/solutions/production-custom-equipment/automated-handler-equipment",
+        href: "/solutions/automated-equipment/production-custom-equipment/automated-handler-equipment",
         image: "/images/automated-handler-equipment-cutout.webp",
         // NOTE: invented figures, as for the laser marker — the brief gives
         // none for this machine. Plausible for a pick-and-place test handler,
@@ -1295,13 +1300,13 @@ export const SOLUTIONS: Solution[] = [
         "gold-wire-management-system",
         "Gold Wire Management System (GWMS)",
         "Tracks and accounts for bonding wire from store to machine.",
-        "/solutions/production-custom-equipment/gold-wire-management-system",
+        "/solutions/automated-equipment/production-custom-equipment/gold-wire-management-system",
       ),
       placeholderSub(
         "build-to-print",
         "Build-to-Print",
         "Equipment built to your drawing, where nothing off the shelf fits.",
-        "/solutions/production-custom-equipment/build-to-print",
+        "/solutions/automated-equipment/production-custom-equipment/build-to-print",
       ),
     ],
   },
@@ -1311,7 +1316,7 @@ export const SOLUTIONS: Solution[] = [
     title: "Specialised Process Equipment",
     oneLiner:
       "Process equipment for the steps a standard line has no station for.",
-    href: "/solutions/specialised-process-equipment",
+    href: "/solutions/automated-equipment/specialised-process-equipment",
     coverImage: "/images/placeholder-cover-specialised-process-equipment.webp",
     benefits: PLACEHOLDER_CATEGORY_BENEFITS,
     subSolutions: [
@@ -1319,14 +1324,433 @@ export const SOLUTIONS: Solution[] = [
         "vacuum-solutions",
         "Vacuum Solutions",
         "Vacuum handling and process stations for parts that cannot be gripped.",
-        "/solutions/specialised-process-equipment/vacuum-solutions",
+        "/solutions/automated-equipment/specialised-process-equipment/vacuum-solutions",
       ),
     ],
   },
 ];
 
+/* --- Digitalised Solutions -------------------------------------------------
+   The software line, three categories deep, and every page of it a stand-in.
+
+   It arrived as a sitemap and nothing else — sixteen product names under three
+   headings, with no copy for any of them — so it is built out of exactly the
+   same placeholder parts as the newer equipment categories above. See the note
+   on those: the point is that a page waiting on words looks like a page
+   waiting on words, rather than looking finished and being empty.
+
+   The summaries below are the one place this departs from the equipment
+   catalogue, and deliberately. Most of these names are industry-standard terms
+   — a CMMS, an Andon system, OEE monitoring — and a plain definition of one is
+   a fact rather than a claim, so those carry a real sentence. Three are
+   Sophic's own product names (InnoLocker SMARTer, OPENdot, TofI Data Bridge)
+   and nothing in the sitemap says what they do, so they say exactly that.
+   Nothing here invents a capability for a product nobody has described yet.
+-------------------------------------------------------------------------- */
+
+/** Stand-in for a product only Sophic can describe. */
+const UNDESCRIBED = "Sophic's own. Description to be written.";
+
+export const DIGITALISED_CATEGORIES: Solution[] = [
+  {
+    slug: "asset-material-management",
+    title: "Asset & Material Management",
+    oneLiner:
+      "Systems that keep track of what a plant owns and what it consumes — spares, maintenance, stock and the machines themselves.",
+    href: "/solutions/digitalised-solutions/asset-material-management",
+    coverImage: "/images/placeholder-cover-asset-material-management.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+    subSolutions: [
+      placeholderSub(
+        "material-management-system",
+        "Material Management System (MMS)",
+        "Tracks material through the plant, from goods-in to the point it is consumed.",
+        "/solutions/digitalised-solutions/asset-material-management/material-management-system",
+      ),
+      placeholderSub(
+        "computerized-maintenance-management-system",
+        "Computerized Maintenance Management System (CMMS)",
+        "Maintenance schedules, work orders and asset history in one place.",
+        "/solutions/digitalised-solutions/asset-material-management/computerized-maintenance-management-system",
+      ),
+      placeholderSub(
+        "innolocker-smarter",
+        "InnoLocker SMARTer",
+        UNDESCRIBED,
+        "/solutions/digitalised-solutions/asset-material-management/innolocker-smarter",
+      ),
+      placeholderSub(
+        "conditional-monitoring-system",
+        "Conditional Monitoring System",
+        "Watches equipment condition, so a failing machine is caught before it stops the line.",
+        "/solutions/digitalised-solutions/asset-material-management/conditional-monitoring-system",
+      ),
+      placeholderSub(
+        "inventory-management-system",
+        "Inventory Management System (SIMS)",
+        "Stock levels, movements and reorder points across the stores.",
+        "/solutions/digitalised-solutions/asset-material-management/inventory-management-system",
+      ),
+    ],
+  },
+  {
+    slug: "workforce-process-digitalisation",
+    title: "Workforce & Process Digitalisation",
+    oneLiner:
+      "The instructions, checks and paperwork a shift runs on, moved off paper and onto the floor's own screens.",
+    href: "/solutions/digitalised-solutions/workforce-process-digitalisation",
+    coverImage:
+      "/images/placeholder-cover-workforce-process-digitalisation.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+    subSolutions: [
+      placeholderSub(
+        "remote-assistance",
+        "Remote Assistance (RA)",
+        "Puts a remote expert on the line, through the eyes of whoever is standing at it.",
+        "/solutions/digitalised-solutions/workforce-process-digitalisation/remote-assistance",
+      ),
+      placeholderSub(
+        "task-management-system",
+        "Task Management System (TMS)",
+        "Issues, assigns and tracks the jobs a shift has to get through.",
+        "/solutions/digitalised-solutions/workforce-process-digitalisation/task-management-system",
+      ),
+      placeholderSub(
+        "paperless-manufacturing",
+        "Paperless Manufacturing",
+        "Work instructions, checklists and records on screen instead of on paper.",
+        "/solutions/digitalised-solutions/workforce-process-digitalisation/paperless-manufacturing",
+      ),
+      placeholderSub(
+        "safety-technology",
+        "Safety Technology",
+        "Monitoring and alerting for the hazards a working floor carries.",
+        "/solutions/digitalised-solutions/workforce-process-digitalisation/safety-technology",
+      ),
+    ],
+  },
+  {
+    slug: "factory-intelligence-monitoring-connectivity",
+    title: "Factory Intelligence, Monitoring & Connectivity",
+    oneLiner:
+      "Live plant data gathered off the machines, tied together, and put in front of the people who act on it.",
+    href: "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity",
+    coverImage:
+      "/images/placeholder-cover-factory-intelligence-monitoring-connectivity.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+    subSolutions: [
+      placeholderSub(
+        "rfid-iot-solution",
+        "RFID IoT Solution",
+        "Tagged assets and materials, read automatically as they move.",
+        "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/rfid-iot-solution",
+      ),
+      placeholderSub(
+        "oee-monitoring",
+        "Overall Equipment Effectiveness (OEE) Monitoring",
+        "Availability, performance and quality, measured on the machine itself.",
+        "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/oee-monitoring",
+      ),
+      placeholderSub(
+        "4c-center",
+        "Command, Control, Collaborate and Cognitive Center (4C Center)",
+        "One room where the plant's live data is brought together and acted on.",
+        "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/4c-center",
+      ),
+      placeholderSub(
+        "andon-system",
+        "Andon System",
+        "Calls for help from the line, raised where the problem is and escalated until it is answered.",
+        "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/andon-system",
+      ),
+      placeholderSub(
+        "opendot",
+        "OPENdot",
+        UNDESCRIBED,
+        "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/opendot",
+      ),
+      placeholderSub(
+        "tofi-data-bridge",
+        "TofI Data Bridge",
+        UNDESCRIBED,
+        "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/tofi-data-bridge",
+      ),
+      placeholderSub(
+        "wireless-energy-monitoring-system",
+        "Wireless Energy Monitoring System",
+        "Energy drawn per machine and per line, metered without running new cable.",
+        "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/wireless-energy-monitoring-system",
+      ),
+    ],
+  },
+];
+
+/* --- The services lines ----------------------------------------------------
+   Lines 03 and 04, and the two smallest things on the site: one category each,
+   three machines under one and a single one under the other.
+
+   That shape is the sitemap's, not a stage they are passing through, and it is
+   kept rather than flattened. Collapsing a one-category line into its own
+   landing page would make these two read differently from the two above them
+   — a reader who has learned that a line opens onto categories and a category
+   opens onto its work should not find that rule broken on the short ones. It
+   also means a second category arriving under either is a row in an array
+   rather than a page that has to be rebuilt.
+
+   Everything here is a stand-in, on the same terms as Digitalised Solutions
+   above: the sitemap gave names and nothing else.
+-------------------------------------------------------------------------- */
+
+export const PRODUCT_ENGINEERING_CATEGORIES: Solution[] = [
+  {
+    slug: "product-engineering",
+    title: "Product Engineering",
+    oneLiner:
+      "Engineering a product through the stages between a working design and a shipping part.",
+    href: "/solutions/product-engineering-services/product-engineering",
+    coverImage: "/images/placeholder-cover-product-engineering.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+    subSolutions: [
+      placeholderSub(
+        "post-silicon-validation",
+        "Post-Silicon Validation",
+        "Testing real silicon against what the design promised, once it exists to test.",
+        "/solutions/product-engineering-services/product-engineering/post-silicon-validation",
+      ),
+      placeholderSub(
+        "software-engineering",
+        "Software Engineering",
+        "The software a product needs around it, written to the same schedule as the hardware.",
+        "/solutions/product-engineering-services/product-engineering/software-engineering",
+      ),
+      placeholderSub(
+        "new-product-introduction",
+        "New Product Introduction (NPI)",
+        "Taking a new product from a validated design to a line that can build it repeatably.",
+        "/solutions/product-engineering-services/product-engineering/new-product-introduction",
+      ),
+    ],
+  },
+];
+
+export const ENGINEERING_SUPPORT_CATEGORIES: Solution[] = [
+  {
+    slug: "engineering-support",
+    title: "Engineering Support",
+    oneLiner:
+      "Engineers embedded alongside a customer's own, on the equipment already running.",
+    href: "/solutions/engineering-support-services/engineering-support",
+    coverImage: "/images/placeholder-cover-engineering-support.webp",
+    benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+    subSolutions: [
+      placeholderSub(
+        "ic-assembly-test-engineering-support",
+        "IC Assembly / Test Engineering Support",
+        "Engineering support across IC assembly and test, on the customer's own floor.",
+        "/solutions/engineering-support-services/engineering-support/ic-assembly-test-engineering-support",
+      ),
+    ],
+  },
+];
+
+/**
+ * A line of business under /solutions.
+ *
+ * A layer above the catalogue rather than a part of it. Automated Equipment is
+ * the whole of it today and the seven categories above all sit inside that one
+ * line, which is precisely why this is its own list: the day a second line
+ * arrives it is a row here plus a folder under app/solutions/, and nothing in
+ * the equipment tree has to learn about it.
+ */
+export type SolutionLine = {
+  slug: string;
+  title: string;
+  href: Route;
+  /** One sentence. Used on the landing page card and in the header menu. */
+  summary: string;
+  /**
+   * The line-art mark for this line, drawn in the header's Solution menu.
+   *
+   * Carried here rather than mapped from the slug in the menu, so a new line
+   * cannot reach the bar without someone having chosen what it looks like —
+   * a lookup keyed on slug would silently fall back to a default, and four
+   * identical marks is worse than none.
+   */
+  icon: GlyphName;
+  /**
+   * The photograph the line is introduced by: full-bleed behind its own cover,
+   * and again as the panel on its block on /solutions.
+   *
+   * One field for both on purpose. They are the two places a reader meets this
+   * line — one click apart — and a line that arrives on a landing block showing
+   * one picture and opens onto a different one reads as two different things.
+   *
+   * Optional, so a line can exist before its photography does; both readers
+   * fall back to type on their own ground rather than a broken frame.
+   */
+  image?: string;
+  /**
+   * The categories inside the line.
+   *
+   * Carried on the line rather than read from SOLUTIONS at each point of use.
+   * Every reader would otherwise reach for the equipment categories no matter
+   * which line it was drawing, and the second line to be added would silently
+   * inherit the first one's contents.
+   *
+   * Full Solution objects rather than a name and a link, because the mobile
+   * drawer goes one level deeper than the other two readers and needs the
+   * sub-solutions to build its accordion from.
+   */
+  children: Solution[];
+};
+
+/**
+ * The equipment catalogue, as seen from the level above it.
+ *
+ * Exported on its own as well as in the list below because breadcrumbs need
+ * this crumb by name: five components build a trail through it, and the
+ * alternative to importing it is the same string typed five times.
+ */
+export const AUTOMATED_EQUIPMENT: SolutionLine = {
+  slug: "automated-equipment",
+  title: "Automated Equipment",
+  href: "/solutions/automated-equipment",
+  summary:
+    "Vision, assembly, inspection and test, storage and material handling, robotics and custom-built equipment — engineered into your production line.",
+  image: "/images/automated-equipment-cover.jpg",
+  icon: "arm",
+  children: SOLUTIONS,
+};
+
+/**
+ * The software line.
+ *
+ * Exported by name for the same reason AUTOMATED_EQUIPMENT is: its own route
+ * folder names it, and a crumb built from a string typed twice is a crumb that
+ * goes stale.
+ */
+export const DIGITALISED_SOLUTIONS: SolutionLine = {
+  slug: "digitalised-solutions",
+  title: "Digitalised Solutions",
+  href: "/solutions/digitalised-solutions",
+  summary:
+    "Asset and material management, workforce and process digitalisation, factory intelligence and connectivity — the software layer over a working plant.",
+  // The one real photograph on this line; everything under it is still a
+  // stand-in. Supplied as "digitalised hero.jfif" and converted to a plain JPEG
+  // under the name every other referenced image here uses.
+  //
+  // NOTE: the source is 655 x 468, against 1480 x 870 for the equipment line's.
+  // The block on /solutions asks for about 416px of it and is fine; the cover
+  // is full-bleed and will upscale past 2x on a desktop, where it goes soft.
+  // Replace it with a larger original if one exists.
+  image: "/images/digitalised-solutions-cover.jpg",
+  icon: "screen",
+  children: DIGITALISED_CATEGORIES,
+};
+
+export const PRODUCT_ENGINEERING_SERVICES: SolutionLine = {
+  slug: "product-engineering-services",
+  title: "Product Engineering Services",
+  href: "/solutions/product-engineering-services",
+  summary:
+    "Post-silicon validation, software engineering and new product introduction — the engineering between a design that works and a product that ships.",
+  // Supplied as "Product engineering hero.jfif", converted to a plain JPEG
+  // under the name every other referenced image here uses. 1085 x 720, so it
+  // holds up better than the two below it but still upscales on a wide cover.
+  image: "/images/product-engineering-services-cover.jpg",
+  icon: "compass",
+  children: PRODUCT_ENGINEERING_CATEGORIES,
+};
+
+export const ENGINEERING_SUPPORT_SERVICES: SolutionLine = {
+  slug: "engineering-support-services",
+  title: "Engineering Support Services",
+  href: "/solutions/engineering-support-services",
+  summary:
+    "Engineering support for IC assembly and test, working alongside a customer's own team on the equipment already running.",
+  // Supplied as "engineering support.jfif", converted as above.
+  //
+  // NOTE: 739 x 415 — the smallest cover on the site, and the one that will
+  // soften most on a desktop. See the note on DIGITALISED_SOLUTIONS.
+  image: "/images/engineering-support-services-cover.jpg",
+  icon: "wrench",
+  children: ENGINEERING_SUPPORT_CATEGORIES,
+};
+
+/**
+ * Everything directly under /solutions, in the order the landing page lists it.
+ *
+ * Read by that page, the header's Solution menu and the mobile drawer, so none
+ * of the three can drift. The order is the order the sitemap numbers them, and
+ * the landing page draws that number off the position — so this array is what
+ * decides which line is 01 and changing it renumbers the page.
+ */
+export const SOLUTION_LINES: SolutionLine[] = [
+  DIGITALISED_SOLUTIONS,
+  AUTOMATED_EQUIPMENT,
+  PRODUCT_ENGINEERING_SERVICES,
+  ENGINEERING_SUPPORT_SERVICES,
+];
+
+/**
+ * Every category on the site, whichever line it belongs to.
+ *
+ * Derived from the lines rather than written out, so a third line is picked up
+ * by every lookup below without touching any of them.
+ */
+export const ALL_SOLUTIONS: Solution[] = SOLUTION_LINES.flatMap(
+  (line) => line.children,
+);
+
+/* Slugs are unique across the whole site, not merely within the thing that
+   holds them, and both checks run at module scope so a collision fails the
+   build rather than surfacing as a page that quietly shows the wrong content.
+
+   Categories, because getSolution looks one up by slug alone and a second
+   category with the same slug would resolve to the first — including from a
+   route folder that was created for the second.
+
+   Machines, because the contact form uses a bare sub-slug as the value that
+   pre-selects an enquiry (see ENQUIRY_GROUPS in lib/contact), so two machines
+   sharing one would put a reader on the wrong product. Two lines are free to
+   hold a category or a machine with the same *name*; the slug is the identity
+   and has to be its own. */
+{
+  const seenCategory = new Set<string>();
+  const seenMachine = new Set<string>();
+  for (const solution of ALL_SOLUTIONS) {
+    if (seenCategory.has(solution.slug)) {
+      throw new Error(`Two categories share the slug "${solution.slug}"`);
+    }
+    seenCategory.add(solution.slug);
+
+    for (const sub of solution.subSolutions) {
+      if (seenMachine.has(sub.slug)) {
+        throw new Error(`Two machines share the slug "${sub.slug}"`);
+      }
+      seenMachine.add(sub.slug);
+    }
+  }
+}
+
+/**
+ * The line a category belongs to.
+ *
+ * Breadcrumbs and the search index both need it, and both used to reach for
+ * AUTOMATED_EQUIPMENT directly — which was correct exactly as long as there was
+ * one line, and would have put every Digitalised Solutions page under the
+ * equipment line's name on the day the second one arrived.
+ */
+export function lineOf(solution: Solution): SolutionLine {
+  const line = SOLUTION_LINES.find((l) => l.children.includes(solution));
+  if (!line) {
+    throw new Error(`Category "${solution.slug}" belongs to no line`);
+  }
+  return line;
+}
+
 export function getSolution(slug: string): Solution {
-  const solution = SOLUTIONS.find((s) => s.slug === slug);
+  const solution = ALL_SOLUTIONS.find((s) => s.slug === slug);
   if (!solution) throw new Error(`Unknown solution slug: ${slug}`);
   return solution;
 }

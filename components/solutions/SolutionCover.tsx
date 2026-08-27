@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
-import type { Solution } from "@/lib/solutions";
+import { lineOf, type Solution } from "@/lib/solutions";
 import { BenefitIcon } from "./BenefitIcon";
 import { Breadcrumbs } from "./Breadcrumbs";
 
@@ -16,6 +16,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
  */
 export function SolutionCover({ solution }: { solution: Solution }) {
   const { coverImage, benefits } = solution;
+  const line = lineOf(solution);
 
   return (
     // -mt-16 pt-16 cancels the layout's header clearance so the photo runs
@@ -52,7 +53,11 @@ export function SolutionCover({ solution }: { solution: Solution }) {
         <div className="pb-16 pt-6 sm:pb-20 sm:pt-8 lg:pb-24 lg:pt-10">
           <Breadcrumbs
             tone="dark"
-            trail={[{ label: "Home", href: "/" }, { label: solution.title }]}
+            trail={[
+              { label: "Home", href: "/" },
+              { label: line.title, href: line.href },
+              { label: solution.title },
+            ]}
           />
 
           <Reveal className="mt-6">

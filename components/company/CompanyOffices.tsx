@@ -1,9 +1,5 @@
 import Image from "next/image";
-import {
-  PENANG_ISLAND_SITE,
-  officeByAlias,
-  officeMapsUrl,
-} from "@/lib/contact";
+import { officeByAlias, officeMapsUrl } from "@/lib/contact";
 import { Reveal } from "@/components/ui/Reveal";
 
 /**
@@ -22,12 +18,10 @@ import { Reveal } from "@/components/ui/Reveal";
  */
 
 /**
- * Where each link goes is not written here. Two of the three are offices in
- * lib/contact and are asked for their own pin; the third is not in that list
- * because its address is not published, and lib/contact holds it separately —
- * see PENANG_ISLAND_SITE. Either way the URL lives with the addresses rather
- * than in a component, which is what stops these three drifting away from the
- * links the drawing above uses.
+ * Where each link goes is not written here. All three are offices in
+ * lib/contact and are asked for their own pin, so the URL lives with the
+ * addresses rather than in a component — which is what stops these three
+ * drifting away from the links the drawing above uses.
  */
 type OfficePhoto = {
   src: string;
@@ -55,8 +49,8 @@ const PHOTOS: OfficePhoto[] = [
     src: "/images/office-penang-island.png",
     width: 422,
     height: 439,
-    label: PENANG_ISLAND_SITE.name,
-    href: PENANG_ISLAND_SITE.mapsUrl,
+    label: "SPICE Office (Png island)",
+    href: linkTo("SPICE Office"),
   },
   {
     src: "/images/office-sigma.png",

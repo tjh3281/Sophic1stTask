@@ -1,4 +1,4 @@
-import { SOLUTIONS } from "@/lib/solutions";
+import { ALL_SOLUTIONS } from "@/lib/solutions";
 
 /**
  * What the contact form offers, and where it would go.
@@ -91,6 +91,21 @@ export const OFFICES: Office[] = [
     ],
   },
   {
+    name: "Penang Island Branch",
+    alias: "SPICE Office",
+    lines: [
+      "No. 108-B-01-28B, Setia SPICE Canopy,",
+      "Jalan Tun Dr Awang, Bayan Baru,",
+      "11900 Bayan Lepas, Penang.",
+    ],
+    // Supplied and opened: "Sophic Automation Sdn Bhd (Product Engineering
+    // Services) @ SPICE". Kept now that the address is published rather than
+    // dropped for it — this is the office whose listing name is furthest from
+    // its street address, so the query a bare address would build is exactly
+    // the one that lands somewhere else.
+    mapsUrl: "https://www.google.com/maps?cid=3296899467050832034",
+  },
+  {
     name: "KL Branch",
     alias: "Sigma Office",
     lines: [
@@ -120,26 +135,6 @@ export const OFFICES: Office[] = [
     mapsUrl: "https://www.google.com/maps?cid=12965869097820914399",
   },
 ];
-
-/**
- * The Penang island site.
- *
- * Not in OFFICES, and deliberately: that list is the addresses Sophic
- * publishes — the footer prints every one of them on every page — and this
- * site's address is not among them. What exists for it is a Google entry and
- * nothing more, so a link is all this can be.
- *
- * lib/officeMap.ts counts it. Its Penang pin says three sites against the two
- * addresses in the list, with a note saying the third is this one.
- *
- * Supplied and opened: "Sophic Automation Sdn Bhd (Product Engineering
- * Services) @ SPICE". Give this site a published address and it becomes an
- * ordinary entry in OFFICES with a `mapsUrl`, and this constant goes away.
- */
-export const PENANG_ISLAND_SITE = {
-  name: "Png Island Branch",
-  mapsUrl: "https://www.google.com/maps?cid=3296899467050832034",
-};
 
 /**
  * A Google Maps link for one office.
@@ -204,7 +199,7 @@ const OTHER_OPTIONS: EnquiryOption[] = [
  * area they are in before reading the options under it.
  */
 export const ENQUIRY_GROUPS: EnquiryGroup[] = [
-  ...SOLUTIONS.map((solution) => ({
+  ...ALL_SOLUTIONS.map((solution) => ({
     label: solution.title,
     options: solution.subSolutions.map((sub) => ({
       // The sub-solution slug, which is unique across every category, so

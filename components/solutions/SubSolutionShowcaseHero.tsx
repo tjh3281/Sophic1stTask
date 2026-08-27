@@ -1,7 +1,12 @@
 import { Container } from "@/components/ui/Container";
 import { CursorGrid } from "@/components/ui/CursorGrid";
 import { Reveal } from "@/components/ui/Reveal";
-import type { HeroSlide, Solution, SubSolution } from "@/lib/solutions";
+import {
+  lineOf,
+  type HeroSlide,
+  type Solution,
+  type SubSolution,
+} from "@/lib/solutions";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { HeroCarousel } from "./HeroCarousel";
 
@@ -22,6 +27,8 @@ export function SubSolutionShowcaseHero({
   subSolution: SubSolution;
   slides: HeroSlide[];
 }) {
+  const line = lineOf(solution);
+
   return (
     // isolate + overflow-hidden keeps the full-bleed stage inside the hero; the
     // copy sits above it on z-10, where the stage is masked away.
@@ -61,6 +68,7 @@ export function SubSolutionShowcaseHero({
           <Breadcrumbs
             trail={[
               { label: "Home", href: "/" },
+              { label: line.title, href: line.href },
               { label: solution.title, href: solution.href },
               { label: subSolution.title },
             ]}

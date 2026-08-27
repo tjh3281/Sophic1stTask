@@ -2,14 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { COMPANY, ENQUIRY_EMAIL, OFFICES } from "@/lib/contact";
-import { SOLUTIONS } from "@/lib/solutions";
+import { SOLUTION_LINES } from "@/lib/solutions";
 
 /**
  * Site footer: who we are on the left, where we are on the right.
  *
- * Four addresses is a lot of small print, so the shape of this is chosen to
+ * Five addresses is a lot of small print, so the shape of this is chosen to
  * spend as little height on it as possible — the offices run as columns across
- * the page rather than down it, which is what turns four stacked blocks into
+ * the page rather than down it, which is what turns five stacked blocks into
  * one band. Below lg they fall to two columns, and only on a phone do they
  * stack, where there is nothing to be done about it and vertical space is
  * cheap anyway.
@@ -38,10 +38,10 @@ export function Footer() {
           {/* Identity */}
           <div>
             <Image
-              src="/images/sophic-logo-normal.png"
+              src="/images/sophic-logo-dark.png"
               alt="Sophic Digital Solutions"
-              width={686}
-              height={363}
+              width={480}
+              height={267}
               className="h-11 w-auto object-contain object-left"
             />
             <p className="mt-3 text-sm font-bold tracking-tight text-foreground">
@@ -71,7 +71,12 @@ export function Footer() {
             <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
               Address
             </h2>
-            <ul className="mt-4 grid gap-x-8 gap-y-6 sm:grid-cols-2 xl:grid-cols-4">
+            {/* Five across at xl, on a tighter gutter than four needed: the
+                band is the same width and there is one more column in it, so
+                the space between them is what pays for the fifth. Three at lg
+                rather than two, which is what keeps five addresses to two rows
+                instead of three. */}
+            <ul className="mt-4 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-6">
               {OFFICES.map((office) => (
                 <li key={office.alias}>
                   <p className="text-xs font-bold text-foreground">
@@ -111,18 +116,27 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Solution links and the copyright share the last line, so the four
-            routes stay reachable from the foot of any page without costing a
-            row of their own. */}
+        {/* The lines of business and the copyright share the last line, so the
+            four routes stay reachable from the foot of any page without costing
+            a row of their own.
+
+            The lines, not the equipment categories. This listed those, which
+            was right when Automated Equipment was the whole of /solutions and
+            became wrong twice over once it was one line among four: it named
+            seven pages belonging to a single line and said nothing about the
+            other three, and seven titles no longer fitted the row it is
+            supposed to share — it wrapped onto a second line and ran under the
+            copyright. Four line titles are both the accurate list and the
+            shorter one. */}
         <div className="flex flex-col gap-3 border-t border-line py-5 sm:flex-row sm:items-center sm:justify-between">
           <ul className="flex flex-wrap gap-x-5 gap-y-2">
-            {SOLUTIONS.map((solution) => (
-              <li key={solution.slug}>
+            {SOLUTION_LINES.map((line) => (
+              <li key={line.slug}>
                 <Link
-                  href={solution.href}
+                  href={line.href}
                   className="text-xs text-muted transition-colors hover:text-brand"
                 >
-                  {solution.title}
+                  {line.title}
                 </Link>
               </li>
             ))}

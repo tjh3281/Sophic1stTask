@@ -111,6 +111,28 @@ const PATHS: Record<GlyphName, React.ReactNode> = {
       <path d="M16.5 20v-13" />
     </>
   ),
+  // A screen on a stand with a reading on it: the plant seen through software.
+  screen: (
+    <>
+      <rect x="2.5" y="4" width="19" height="12.5" rx="1.8" />
+      <path d="M7 13v-2.5M11 13v-5.5M15 13v-3.5" />
+      <path d="M12 16.5V21" />
+      <path d="M9 21h6" />
+    </>
+  ),
+  // Drafting dividers: a dimension being set rather than measured, which is the
+  // half of engineering that happens before anything is built.
+  compass: (
+    <>
+      <circle cx="12" cy="4" r="1.7" />
+      <path d="m11 5.6-4.5 13.4M13 5.6l4.5 13.4" />
+      <path d="M8.9 12h6.2" />
+    </>
+  ),
+  // Open-ended spanner: hands on equipment that is already running.
+  wrench: (
+    <path d="M14.2 3.4a4.8 4.8 0 0 0-3.4 8.2l-6.6 6.6a1.9 1.9 0 0 0 2.7 2.7l6.6-6.6a4.8 4.8 0 0 0 5.9-5.9l-2.7 2.7-2.8-2.8 2.7-2.7a4.8 4.8 0 0 0-2.4-2.2Z" />
+  ),
   // A closed loop of arrows: the work goes round without a hand in it.
   cycle: (
     <>

@@ -329,6 +329,9 @@ const SITES: Record<string, Point> = {
   "Theta Office": [100.454, 5.365],
   // Kawasan Perindustrian Bukit Minyak, Simpang Ampat.
   "Beta Office": [100.462, 5.318],
+  // Setia SPICE, Bayan Baru — the one Penang site across the channel on the
+  // island, which is what pulls the city's pin west of the two mainland ones.
+  "SPICE Office": [100.286, 5.327],
   // Stellar Suites, Bandar Puteri Puchong.
   "Sigma Office": [101.617, 3.024],
   // Midview City, Sin Ming Lane.
@@ -344,21 +347,18 @@ const SITES: Record<string, Point> = {
  * thing a reader actually wants off a map like this — not which building, but
  * how many places there are and where they are.
  *
- * `sites` is that count, and it is stated rather than derived on purpose.
- * Everywhere else on this page the number of offices is however many addresses
- * lib/contact holds, and for Kuala Lumpur and Singapore it still is. Penang is
- * three against the two addresses the footer prints, on instruction: there is a
- * third Penang site whose address is not in the published list. That site is
- * PENANG_ISLAND_SITE in lib/contact — it has a name and a map pin there, and
- * still no address. Give it an entry in OFFICES and this line should come
- * straight back out.
+ * The count is derived — it is however many of lib/contact's addresses are
+ * filed under the city, and nothing here states it. Penang carried a hand-
+ * written 3 for as long as its island site had a map pin but no published
+ * address, so the list the footer prints and the number this map claimed could
+ * not both be read off the same place. The island site has an address now, so
+ * it is an ordinary office in the list and the override is gone with it.
  */
 const CITIES = [
   {
     key: "penang",
     label: "Penang",
-    aliases: ["Theta Office", "Beta Office"],
-    sites: 3,
+    aliases: ["Theta Office", "Beta Office", "SPICE Office"],
   },
   { key: "kuala-lumpur", label: "Kuala Lumpur", aliases: ["Sigma Office"] },
   { key: "singapore", label: "Singapore", aliases: ["Alpha Office"] },
@@ -366,7 +366,6 @@ const CITIES = [
   key: string;
   label: string;
   aliases: readonly string[];
-  sites?: number;
 }[];
 
 /* --- Timing ----------------------------------------------------------------
@@ -406,8 +405,7 @@ export type MapNode = {
   y: number;
   /** The addresses lib/contact publishes for this city. */
   offices: Office[];
-  /** How many offices are here, which is `offices.length` unless a city says
-   *  otherwise — see the note on CITIES. */
+  /** How many offices are here — see the note on CITIES. */
   sites: number;
   /** True where one of this city's offices is the headquarters. */
   headquarters: boolean;
@@ -443,7 +441,7 @@ export const MAP_NODES: MapNode[] = CITIES.map((city, index) => {
     label: city.label,
     ...project(lon, lat),
     offices,
-    sites: "sites" in city ? city.sites : offices.length,
+    sites: offices.length,
     headquarters: offices.some((office) => /headquarter/i.test(office.name)),
     at: seconds(FIRST_PIN + index * LEG),
   };

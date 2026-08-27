@@ -124,11 +124,15 @@ export function Hero() {
           {/* The wrapper carries the glow: .btn-brand has already spent its own
               ::before on the hover face. */}
           <span className="float-glow">
-            {/* Off to the solutions overview rather than a same-page jump.
-                The page does now continue below — the awards section is under
-                this one — but that is not what this button offers, and a
-                button whose label says one thing and whose destination is the
-                next thing down the page is worse than a longer journey. */}
+            {/* Off to /solutions rather than a same-page jump. The page does
+                now continue below — the awards section is under this one — but
+                that is not what this button offers, and a button whose label
+                says one thing and whose destination is the next thing down the
+                page is worse than a longer journey.
+
+                Left pointing at /solutions, not at the equipment catalogue one
+                level inside it, so the button and the header item of the same
+                name arrive at the same place. */}
             <Link
               href="/solutions"
               className="btn-brand group inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-sm font-semibold text-white transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:transform-none"

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getSolution, getSubSolution } from "@/lib/solutions";
+import { getSolution, getSubSolution, lineOf } from "@/lib/solutions";
 import { CapabilitySection } from "./CapabilitySection";
 import { ContactCta } from "./ContactCta";
 import { FunctionList } from "./FunctionList";
@@ -20,6 +20,7 @@ import { TechnicalMetrics } from "./TechnicalMetrics";
  */
 export function SolutionOverviewPage({ slug }: { slug: string }) {
   const solution = getSolution(slug);
+  const line = lineOf(solution);
   const hasCover = Boolean(solution.coverImage);
 
   return (
@@ -28,7 +29,11 @@ export function SolutionOverviewPage({ slug }: { slug: string }) {
         <SolutionCover solution={solution} />
       ) : (
         <PageHeader
-          trail={[{ label: "Home", href: "/" }, { label: solution.title }]}
+          trail={[
+            { label: "Home", href: "/" },
+            { label: line.title, href: line.href },
+            { label: solution.title },
+          ]}
           eyebrow="Solution"
           title={solution.title}
           lead={solution.oneLiner}
@@ -48,6 +53,7 @@ export function SubSolutionPage({
   subSlug: string;
 }) {
   const { solution, subSolution } = getSubSolution(solutionSlug, subSlug);
+  const line = lineOf(solution);
 
   return (
     <>
@@ -63,6 +69,7 @@ export function SubSolutionPage({
         <PageHeader
           trail={[
             { label: "Home", href: "/" },
+            { label: line.title, href: line.href },
             { label: solution.title, href: solution.href },
             { label: subSolution.title },
           ]}

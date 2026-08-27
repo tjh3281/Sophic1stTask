@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
-import type { Solution, SubSolution } from "@/lib/solutions";
+import { lineOf, type Solution, type SubSolution } from "@/lib/solutions";
 import { Breadcrumbs } from "./Breadcrumbs";
 
 /**
@@ -25,6 +25,7 @@ export function SubSolutionHero({
 }) {
   const { image, title, summary } = subSolution;
   const isPhoto = subSolution.imageFraming === "photo";
+  const line = lineOf(solution);
 
   return (
     <section className="relative isolate overflow-hidden border-b border-line bg-surface">
@@ -57,6 +58,7 @@ export function SubSolutionHero({
             <Breadcrumbs
               trail={[
                 { label: "Home", href: "/" },
+                { label: line.title, href: line.href },
                 { label: solution.title, href: solution.href },
                 { label: title },
               ]}

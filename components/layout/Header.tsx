@@ -8,12 +8,13 @@ import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
 import { useCoverOverlay } from "@/lib/coverOverlay";
 import { HEADER_NAV, isCurrentSection } from "@/lib/nav";
-import { SOLUTIONS } from "@/lib/solutions";
+import { ALL_SOLUTIONS, SOLUTION_LINES } from "@/lib/solutions";
 import { useScrolled } from "@/lib/useScrolled";
 import { MobileNav } from "./MobileNav";
 import { NavButton } from "./NavButton";
 import { SearchDialog } from "./SearchDialog";
 import { SearchTrigger } from "./SearchTrigger";
+import { SolutionMenu } from "./SolutionMenu";
 
 /**
  * Pages whose cover runs underneath the header.
@@ -29,7 +30,12 @@ import { SearchTrigger } from "./SearchTrigger";
  * busiest and a cover's artwork is often at its lightest.
  */
 const COVER_ROUTES = new Set<string>([
-  ...SOLUTIONS.filter((s) => s.coverImage).map((s) => s.href),
+  // Every category with a cover, on either line — not just the equipment one.
+  ...ALL_SOLUTIONS.filter((s) => s.coverImage).map((s) => s.href),
+  // And the two line covers above them, which are the same treatment one level
+  // up. See SolutionLineCover: both photographs are light, and both are why
+  // that component's top scrim is the heaviest on the site.
+  ...SOLUTION_LINES.filter((l) => l.image).map((l) => l.href),
   "/",
   // /careers is deliberately absent. Its cover is a dot map on a near-white
   // panel rather than a photograph, and white nav links over that would be
@@ -61,33 +67,25 @@ const COVER_PREFIXES = ["/careers/openings/", "/community/"];
  * The logo, in the two states the bar has: on its own solid background, and
  * over a cover it has gone transparent for.
  *
- * Two pairs, because the home page did not move. Everywhere else wears Sophic's
- * current logo — black script on the solid bar, and the white-lettered cut of
- * the same artwork over a cover. Same drawing, same globe, so the mark does not
- * appear to change as the bar solidifies on scroll; only the lettering does,
- * which is what it is for.
+ * One pair, for every page: the current logo, navy script on the solid bar and
+ * the white-lettered cut of the same artwork over a cover. Same drawing, same
+ * globe, so the mark does not appear to change as the bar solidifies on scroll;
+ * only the lettering does, which is what it is for.
  *
- * The white one is derived rather than uploaded. The file that arrived was
- * flattened onto opaque black with no alpha channel at all, which over a
- * photograph is a black rectangle in the corner — so its alpha was recovered
- * from the fact that it had been composited over black, and the result trimmed
- * to the artwork. See public/images/sophic-logo-normal(white wording).png for
- * the original.
+ * There were two pairs. The home page kept this artwork while every other page
+ * wore the flatter cut in public/images/sophic-logo-normal*.png — a different
+ * drawing, brighter globe and no aerial above it — and moving between the two
+ * changed Sophic's mark halfway through the site. This is the current logo, so
+ * it is now the one on every page and the split is gone. Nothing references the
+ * normal files any more; they are still in public/images.
  *
- * Dimensions are each file's own. The box is object-contain regardless, so they
- * only decide which widths Next generates — but asking for 686 of a 480px file
- * is asking for an upscale.
+ * Dimensions are the files' own. The box is object-contain regardless, so they
+ * only decide which widths Next generates.
  */
-const MARKS = {
-  home: [
-    { src: "/images/sophic-logo-dark.png", w: 480, h: 267 },
-    { src: "/images/sophic-logo-light.png", w: 480, h: 267 },
-  ],
-  rest: [
-    { src: "/images/sophic-logo-normal.png", w: 686, h: 363 },
-    { src: "/images/sophic-logo-normal-white.png", w: 1565, h: 856 },
-  ],
-} as const;
+const MARKS = [
+  { src: "/images/sophic-logo-dark.png", w: 480, h: 267 },
+  { src: "/images/sophic-logo-light.png", w: 480, h: 267 },
+] as const;
 
 export function Header() {
   const pathname = usePathname();
@@ -160,11 +158,9 @@ export function Header() {
     COVER_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   const overlay = (hasCover || asked) && !scrolled && !menuOpen;
 
-  // Always a pair: the mark for the solid bar, and the mark for a cover the bar
-  // is transparent over. Which pair depends only on whether this is the home
-  // page — see MARKS.
-  const [solidMark, coverMark] =
-    pathname === "/" ? MARKS.home : MARKS.rest;
+  // A pair: the mark for the solid bar, and the mark for a cover the bar is
+  // transparent over — see MARKS.
+  const [solidMark, coverMark] = MARKS;
 
   return (
     <header
@@ -220,17 +216,27 @@ export function Header() {
                     </li>
                   )}
                   <li>
-                    {/* Every item on the bar is the same thing now, including
-                        Solution. It used to open a mega menu on hover, which
-                        meant the one nav item that had somewhere to go was the
-                        one you could not simply click. */}
-                    <NavButton
-                      label={item.label}
-                      href={item.href}
-                      cta={item.cta}
-                      overlay={overlay}
-                      current={isCurrentSection(item, pathname)}
-                    />
+                    {/* Solution is the one item with a menu, because it is the
+                        one item whose page is a signpost rather than a
+                        destination — see SolutionMenu. It stays a real link
+                        either way: the old mega menu's mistake was swallowing
+                        the click, not having a panel. */}
+                    {item.hasMenu ? (
+                      <SolutionMenu
+                        label={item.label}
+                        href={item.href}
+                        overlay={overlay}
+                        current={isCurrentSection(item, pathname)}
+                      />
+                    ) : (
+                      <NavButton
+                        label={item.label}
+                        href={item.href}
+                        cta={item.cta}
+                        overlay={overlay}
+                        current={isCurrentSection(item, pathname)}
+                      />
+                    )}
                   </li>
                 </Fragment>
               ))}

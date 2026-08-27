@@ -10,11 +10,13 @@ import type { Route } from "next";
 export type HeaderNavItem = {
   label: string;
   /**
-   * Expands into the category list inside the mobile drawer.
+   * The item opens into what sits beneath it: a dropdown on the bar, and an
+   * accordion inside the mobile drawer.
    *
-   * Only the drawer reads this. On the bar the item is an ordinary link like
-   * every other one: it used to open a mega menu on hover, which put a panel
-   * between the reader and a page they were already pointing at.
+   * The item stays a real link in both. An earlier mega menu took the click
+   * for itself, which made the one item with somewhere to go the one item you
+   * could not simply go to; this flag adds a panel and changes nothing about
+   * the link. See components/layout/SolutionMenu.
    */
   hasMenu?: boolean;
   /** Rendered as the filled call-to-action at the end of the bar. */

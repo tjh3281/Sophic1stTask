@@ -1,5 +1,25 @@
 import type { NextConfig } from "next";
 
+/**
+ * The seven equipment categories, as they were spelled when they sat directly
+ * under /solutions.
+ *
+ * Written out rather than derived from lib/solutions.ts on purpose. This list
+ * is a record of URLs that once existed, not of categories that currently do —
+ * so it has to keep saying "robotics" even on the day the Robotics category is
+ * renamed or dropped, which is exactly when a derived list would stop saying it
+ * and quietly break every link ever written to the old address.
+ */
+const MOVED_CATEGORIES = [
+  "automation-assembly",
+  "inspection-testing",
+  "material-handling",
+  "production-custom-equipment",
+  "robotics",
+  "specialised-process-equipment",
+  "vision-automation",
+];
+
 const nextConfig: NextConfig = {
   async redirects() {
     return [
@@ -12,18 +32,62 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
 
-      /* --- The Automated Equipment rename ---------------------------------
-         Three of the solution categories changed their names, and two of them
-         had to change their URLs with them: "Assembly Automation" is now a
-         machine inside Automation & Assembly, and "Inspection & Testing" is now
-         the category that used to be called ICT & FCT. Leaving the old slugs in
-         place would have meant /solutions/assembly-automation serving a page
-         called something else while a different page answered to that name.
+      /* --- Machines that moved on their own ---------------------------------
+         Everything in this group is a single path rather than a wildcard, and
+         every one of them has to be listed before the category rules further
+         down. Next takes the first rule that matches and stops, so a specific
+         path placed after the wildcard covering its category is a rule that can
+         never fire.
 
-         So the folders moved, and these carry the old URLs to the new ones.
-         Every page under each of them moved as one piece, which is why the two
-         category rules are wildcards: :path* matches the category on its own
-         and every machine beneath it, so nothing needs listing twice.
+         The first two are the same destination reached from two different
+         eras of the same URL. Automated Functional Test Equipment was folded
+         into the ICT & FCT page, and the category holding it was called
+         ict-fct before it was called inspection-testing — so both spellings
+         are carried, each in one hop rather than chained through the category
+         rules, which would land them on a machine slug that no longer exists.
+      --------------------------------------------------------------------- */
+      {
+        source: "/solutions/ict-fct/automated-functional-test-equipment",
+        destination:
+          "/solutions/automated-equipment/inspection-testing/ict-fct",
+        permanent: true,
+      },
+      {
+        source: "/solutions/inspection-testing/automated-functional-test-equipment",
+        destination:
+          "/solutions/automated-equipment/inspection-testing/ict-fct",
+        permanent: true,
+      },
+      {
+        // Machine Vision left Inspection & Testing with the category that was
+        // renamed to Vision & Automation. /solutions/inspection-testing is a
+        // real category again under new management, which is why this is one
+        // path and not a wildcard — a wildcard here would swallow the three
+        // machines that legitimately live there now.
+        source: "/solutions/inspection-testing/machine-vision",
+        destination:
+          "/solutions/automated-equipment/vision-automation/machine-vision",
+        permanent: true,
+      },
+      {
+        // Material Management System was folded into the AMHS page, which is
+        // the name the sitemap uses for the same thing.
+        source: "/solutions/material-handling/material-management-system",
+        destination: "/solutions/automated-equipment/material-handling/amhs",
+        permanent: true,
+      },
+
+      /* --- Categories that were renamed ------------------------------------
+         Two of the seven changed their slugs as well as their names, and both
+         had to: "Assembly Automation" became a machine inside Automation &
+         Assembly, and "Inspection & Testing" became the category that used to
+         be called ICT & FCT. Leaving the old slugs in place would have meant
+         /solutions/assembly-automation serving a page called something else
+         while a different page answered to that name.
+
+         Wildcards, because each category moved as one piece — :path* matches
+         the category on its own and every machine beneath it, so nothing needs
+         listing twice.
 
          Automated Storage & Material Handling is deliberately absent. It was
          renamed too, but nothing else on the site claims "material handling",
@@ -31,48 +95,36 @@ const nextConfig: NextConfig = {
       --------------------------------------------------------------------- */
       {
         source: "/solutions/assembly-automation/:path*",
-        destination: "/solutions/production-custom-equipment/:path*",
+        destination:
+          "/solutions/automated-equipment/production-custom-equipment/:path*",
         permanent: true,
       },
       {
         source: "/solutions/ict-fct/:path*",
-        destination: "/solutions/inspection-testing/:path*",
-        permanent: true,
-      },
-      {
-        // The one machine that moved on its own: Machine Vision went with the
-        // category renamed to Vision & Automation, and /solutions/inspection-
-        // testing is now a real page again under new management — so this is a
-        // single path rather than a wildcard, which would swallow the three
-        // machines that legitimately live there now.
-        source: "/solutions/inspection-testing/machine-vision",
-        destination: "/solutions/vision-automation/machine-vision",
+        destination:
+          "/solutions/automated-equipment/inspection-testing/:path*",
         permanent: true,
       },
 
-      /* --- Two pages folded into their sitemap names ------------------------
-         Material Management System and Automated Functional Test Equipment are
-         not in the sitemap, and each sat beside a stub describing the same
-         thing under the name the sitemap does use. So the content moved across
-         and the two old pages went. These carry their URLs to where the words
-         now live, which is the whole point of a merge rather than a delete —
-         the page a reader bookmarked still answers, under its new name.
+      /* --- The Automated Equipment nesting ----------------------------------
+         Automated Equipment used to be /solutions itself. It is now one line of
+         business under a Solutions page that lists them, so the whole catalogue
+         dropped a level: every category and every machine gained
+         /automated-equipment in front of it.
 
-         The ICT & FCT one takes two hops from the oldest form of that URL:
-         /solutions/ict-fct/automated-functional-test-equipment lands on the
-         category rule above first, and on this one second. Browsers follow
-         both; it is only worth knowing if you are reading a redirect log.
+         These come last because they are the broadest rules here. Each one is
+         the identity move for a category — same slug, one segment deeper — so
+         anything above that needed to reach a *different* category had to have
+         already fired.
+
+         Nothing loops. Every destination begins /solutions/automated-equipment,
+         and no source in this file matches that prefix.
       --------------------------------------------------------------------- */
-      {
-        source: "/solutions/material-handling/material-management-system",
-        destination: "/solutions/material-handling/amhs",
+      ...MOVED_CATEGORIES.map((slug) => ({
+        source: `/solutions/${slug}/:path*`,
+        destination: `/solutions/automated-equipment/${slug}/:path*`,
         permanent: true,
-      },
-      {
-        source: "/solutions/inspection-testing/automated-functional-test-equipment",
-        destination: "/solutions/inspection-testing/ict-fct",
-        permanent: true,
-      },
+      })),
     ];
   },
 };
