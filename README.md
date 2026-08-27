@@ -254,6 +254,13 @@ Most content edits are in `lib/`, not in the pages:
 | `lib/careers.ts`   | Job openings                                              |
 | `lib/partners.ts`  | The partner network                                       |
 
+`lib/partners.ts` has one catch worth knowing before you add or remove a
+partner. The partners page draws them as a completed jigsaw, and a completed
+jigsaw has no spare pieces: the three board layouts in `lib/partnerPuzzle.ts`
+are pictures of the board, one letter per cell, and the letters for each group
+have to number exactly the partners in it. Change the list without changing the
+maps and the build stops with a message naming the group and both counts.
+
 `lib/solutions.ts` is the single source for the solutions tree — the header
 menu, the footer, breadcrumbs, the site search and the contact form's product
 list all read from it. Adding a product there makes it appear in all of them;

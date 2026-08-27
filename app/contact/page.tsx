@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ContactBoard } from "@/components/contact/ContactBoard";
-import { ContactOpener } from "@/components/contact/ContactOpener";
+import { ContactHero } from "@/components/contact/ContactHero";
 import { Container } from "@/components/ui/Container";
 import "./contact.css";
 
@@ -38,11 +38,12 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      {/* Ten seconds over the whole window, holding the page still, ending on a
-          circuit board — which is what the section below already is, so the way
-          out is a cross-fade between two pictures of the same thing. It takes
-          itself down; nothing here has to make room for it. See ContactOpener. */}
-      <ContactOpener />
+      {/* Half a screen: hello in the four languages you would be greeted in
+          walking into the Penang office, one at a time, on a loop. The section
+          below starts in the other half, so the page opens on the greeting and
+          the form at once rather than on a cover to be got past. See
+          ContactHero. */}
+      <ContactHero />
 
       <section className="contact-page bg-surface py-14 sm:py-20">
         <Container>

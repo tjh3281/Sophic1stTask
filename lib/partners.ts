@@ -131,11 +131,11 @@ export const PARTNER_WITH_SOPHIC = {
 /* --- The partner network ------------------------------------------------- */
 
 export type PartnerLogo = {
-  /** The company, as it is written. Also the alt text, and the tile's face
+  /** The company, as it is written. Also the alt text, and the piece's face
    *  when there is no logo file yet. */
   name: string;
   /**
-   * The company's own site. Absent leaves the tile inert rather than guessing.
+   * The company's own site. Absent leaves the piece inert rather than guessing.
    *
    * Every one of these was checked by fetching it and confirming the page
    * names the company — a 200 proves nothing on its own, since parked and
@@ -144,12 +144,12 @@ export type PartnerLogo = {
    */
   href?: string;
   /**
-   * Path under /images. Absent means the tile falls back to the name.
+   * Path under /images. Absent means the piece falls back to the name.
    *
    * No dimensions here, deliberately. Every file is written to one canvas —
    * PARTNER_LOGO_BOX below — with its own artwork trimmed to its ink and fitted
-   * inside, so the tile renders exactly the same box whichever logo is in it.
-   * A per-logo size is the thing that makes a wall of these look uneven, and
+   * inside, so a piece renders exactly the same box whichever logo is in it.
+   * A per-logo size is the thing that makes a board of these look uneven, and
    * leaving the field out means it cannot come back by accident.
    */
   logo?: string;
@@ -158,49 +158,48 @@ export type PartnerLogo = {
 /**
  * The canvas every logo is normalised onto.
  *
- * Its proportion is the tile's, not an average of the logos'. A hexagon's
- * straight-sided middle is the only part of it that is full width, and with
- * this tile's padding that usable box works out near 1.9:1 — so a canvas cut
- * to the same shape lands every mark as large as the tile can hold. An earlier
- * 2.4:1 canvas left a band of empty space above and below each logo and made
- * the squarer marks, the Intel badge worst of all, render a third smaller than
- * they needed to.
+ * One canvas for all twenty-six, which is what lets the puzzle size them with a
+ * single rule instead of a table of exceptions — the artwork was trimmed to its
+ * own ink and fitted inside this before it reached the repository, so no mark is
+ * optically larger than its neighbours.
+ *
+ * Its proportion is a little under 1.75:1. That was cut for the hexagon tiles
+ * this network used to be drawn as, whose usable middle was about that shape,
+ * and it is still the right call for a square puzzle cell: a socket bites into
+ * the middle of an edge, so the clear box on a piece is square and the binding
+ * limit on a wide mark is its width either way. A canvas much wider than this
+ * would leave a band of empty space above and below every logo, which is what
+ * an earlier 2.4:1 one did.
  */
 export const PARTNER_LOGO_BOX = { width: 480, height: 280 };
 
 export type PartnerGroup = {
   slug: string;
   label: string;
-  /** The honeycomb, one array per row. */
-  rows: PartnerLogo[][];
   /**
-   * Where each row starts, in half-tiles, for the groups that lie on their
-   * side. One entry per row; omit the field entirely and the rows are simply
-   * centred.
+   * The partners, in the order the brief gives them, kept in the brief's own
+   * lines.
    *
-   * Centred rows are always symmetric about the vertical axis, so a group can
-   * only come to a point at the top or the bottom — which is all the pyramid
-   * below Sophic needs. A group that points *sideways* has to place its rows
-   * itself.
-   *
-   * The one rule these have to keep: consecutive rows must differ by an odd
-   * number. Pointy-top hexagons tessellate by rows offset half a tile, so two
-   * rows an even number apart sit directly above one another and overlap.
+   * Nothing lays them out in rows any more: the puzzle board in
+   * lib/partnerPuzzle flattens this and places each partner by its position in
+   * the flattened list. The nesting stays because it is the only record of how
+   * the brief broke the groups up, and going back to a source document to
+   * recover a line break is worse than carrying one extra pair of brackets.
    */
-  shifts?: number[];
+  rows: PartnerLogo[][];
 };
 
 /**
  * The partners, in the three groups the brief supplies, in the order given.
  *
- * All twenty-six have a logo. The name-only tile the type still allows is kept
+ * All twenty-six have a logo. The name-only piece the type still allows is kept
  * for the next partner who arrives before their artwork does — it renders the
- * company written out, on a tile tinted a shade off white, which is a normal
- * way to list a partner and cannot be mistaken for their mark.
+ * company written out, which is a normal way to list a partner and cannot be
+ * mistaken for their mark.
  *
  * Every logo is normalised onto PARTNER_LOGO_BOX before it reaches this file —
- * trimmed to its own ink, then fitted into one canvas — so no tile is
- * optically larger than its neighbours and none of them carry a size.
+ * trimmed to its own ink, then fitted into one canvas — so no mark is optically
+ * larger than its neighbours and none of them carry a size.
  *
  * Twenty-two of the twenty-six link to the company's own site. Each was checked
  * by fetching it and confirming the page names the company, because a 200 on
@@ -221,7 +220,7 @@ export type PartnerGroup = {
  *              in a group of IoT device makers.
  *
  * A wrong link on a partner page sends a reader to a stranger under the
- * partner's name, which is worse than a tile that does nothing.
+ * partner's name, which is worse than a piece that does nothing.
  */
 export const PARTNER_NETWORK = {
   /** Never rendered visibly. The groups carry the headings a reader sees; this
@@ -231,16 +230,16 @@ export const PARTNER_NETWORK = {
   centre: {
     name: "Sophic Automation",
     /**
-     * The current mark, in its white-lettered cut for the navy tile.
+     * The current mark, in its white-lettered cut for the navy piece.
      *
-     * The same drawing the header wears, which is the point: this hexagon sits
-     * under the bar, and a tile carrying a different cut of Sophic's own logo
-     * is the one mark on the site that can disagree with the one above it. The
-     * repository still holds a second, flatter drawing in
+     * The same drawing the header wears, which is the point: the centre piece
+     * sits under the bar, and a piece carrying a different cut of Sophic's own
+     * logo is the one mark on the site that can disagree with the one above it.
+     * The repository still holds a second, flatter drawing in
      * public/images/sophic-logo-normal*.png; nothing wears it. See the note on
      * MARKS in components/layout/Header.tsx.
      */
-    logo: "/images/sophic-logo-light.png",
+    logo: "/images/sophic-mark-light.png",
     width: 480,
     height: 267,
   },
@@ -248,16 +247,6 @@ export const PARTNER_NETWORK = {
     {
       slug: "things-of-internet",
       label: "Things of Internet",
-      // A block five wide and three deep, hanging under Sophic's own tile.
-      // Fourteen is 5 + 4 + 5, and the middle row being the short one is what
-      // makes it tessellate: consecutive rows differ by one, so centring them
-      // staggers them by exactly half a tile.
-      //
-      // It was a 2 + 3 + 4 + 5 pyramid, which is the same fourteen partners a
-      // row deeper and two tiles narrower. The whole map has to stand inside one
-      // screen, and height is the scarce measure here rather than width — this
-      // shape spends a quarter less of it and the tiles come out larger for it.
-      // The order is untouched; only where the rows break has moved.
       rows: [
         [
           { name: "ADVFIT", logo: "/images/logo-advfit-color.webp", href: "https://www.advfit.com/" },
@@ -288,9 +277,6 @@ export const PARTNER_NETWORK = {
     {
       slug: "ot2it-cloud-and-apps",
       label: "OT2IT, Cloud and Apps",
-      // The same pyramid on its side, apex pointing back at Sophic: the middle
-      // row reaches a tile and a half further left than the two around it, and
-      // the group is pushed up against Sophic so that reach lands on it.
       rows: [
         [{ name: "Dell Technologies", logo: "/images/logo-dell-color.webp", href: "https://www.dell.com/" }],
         [
@@ -299,14 +285,10 @@ export const PARTNER_NETWORK = {
         ],
         [{ name: "Siemens", logo: "/images/logo-siemens-color.webp", href: "https://www.siemens.com/" }],
       ],
-      shifts: [3, 0, 3],
     },
     {
       slug: "ecosystem-liaisons",
       label: "Ecosystem Liaisons",
-      // Lying down the other way, apex pointing right at Sophic. Eight is
-      // 2 + 4 + 2, and the middle row is set half a tile left of the other two
-      // so its extra length is spent entirely on the side facing Sophic.
       rows: [
         [
           // The gold "Intel Partner — Gold, IoT Solutions" badge, which is what
@@ -332,11 +314,6 @@ export const PARTNER_NETWORK = {
           { name: "MSIA", logo: "/images/logo-msia-color.webp", href: "https://msia.org.my/" },
         ],
       ],
-      // Normalised so the smallest is zero. Shifts are the row's left edge, so
-      // a set that never reaches zero leaves a strip of empty box down the
-      // group's left side — width the layout pays for and the reader only sees
-      // as a gap.
-      shifts: [1, 0, 1],
     },
   ] satisfies PartnerGroup[],
 };

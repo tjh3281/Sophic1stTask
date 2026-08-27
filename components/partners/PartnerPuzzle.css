@@ -1,0 +1,471 @@
+/* --- The partner puzzle ---------------------------------------------------
+   One completed jigsaw: Sophic's piece in the middle and the twenty-six
+   partners filling every remaining cell.
+
+   The board is a plain grid of cells and everything on it is placed in cell
+   units, so there is exactly one measurement in the whole layout — the board's
+   width — and every piece, mark, tab and label is a fraction of it. Change the
+   board's size and nothing else has to move.
+
+   Three boards, one set of elements. Each piece carries its column, row, span,
+   mark width and clip path for all three as custom properties suffixed -n, -m
+   and -w; the media queries below choose a set. That is why the file reads as
+   three near-identical blocks near the bottom, and it is the alternative to
+   putting three copies of twenty-six logos in the document.
+
+   The cell arithmetic leans on one property of percentages: a percentage in
+   `left` or `width` resolves against the containing block's width, and one in
+   `top` or `height` against its height. So --cell-w is only ever used
+   horizontally and --cell-h only ever vertically, and between them they carry
+   the whole layout.
+-------------------------------------------------------------------------- */
+
+.partner-puzzle {
+  /* A very pale wash rather than flat white: it separates the board from the
+     footer under it without drawing a line, and gives the white pieces
+     something to be lighter than. */
+  background:
+    radial-gradient(
+      70% 55% at 50% 0%,
+      rgb(41 168 184 / 0.07) 0%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
+  --mint: #29a8b8;
+  padding-block: 3.5rem 4rem;
+  /* Every piece's *box* is its cell plus an overhang wide enough to hold a tab,
+     so the pieces along the left and right edges have empty box hanging past
+     the board — up to a third of a cell of it, which on a wide screen is more
+     than the frame's own margin. No ink is ever out there, because the board's
+     outside edges are flat, but overflow is measured in boxes rather than ink
+     and the page would gain a horizontal scrollbar over nothing.
+
+     `clip` rather than `hidden`: it clips without making this a scroll
+     container, so nothing inside can be scrolled to and the section still
+     participates in the page's own scrolling normally. */
+  overflow-x: clip;
+}
+
+@media (min-width: 64rem) {
+  .partner-puzzle {
+    padding-block: 4.5rem 5rem;
+  }
+}
+
+/* Wider than the 96rem the rest of the site caps at would be too much, but the
+   usual text measure is too little: this is a diagram, and every rem of it is a
+   rem on every logo. 96rem is the site's own widest container, which is as far
+   as a section can go here without looking like it belongs to another page. */
+.partner-puzzle__frame {
+  width: min(100% - 2rem, 96rem);
+  margin-inline: auto;
+}
+
+@media (min-width: 64rem) {
+  .partner-puzzle__frame {
+    width: min(100% - 3rem, 96rem);
+  }
+}
+
+/* A definitions block, not a picture. Zero-sized rather than display:none —
+   a clip path inside a `display: none` subtree is not guaranteed to resolve,
+   and the whole board hangs off these references. */
+.partner-puzzle__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Holds the gutters the three names hang in. They are positioned against the
+   board's own edges, so this padding is only reserving the room; changing it
+   moves nothing, it just stops the names colliding with what is above and
+   below the section. */
+.partner-puzzle__stage {
+  padding-block: 4.25rem 3.5rem;
+}
+
+@media (min-width: 48rem) {
+  .partner-puzzle__stage {
+    padding-block: 3.5rem 3.25rem;
+  }
+}
+
+.partner-puzzle__board {
+  /* Narrow by default; the two blocks at the bottom of this file take over from
+     48rem and 64rem. */
+  --cols: 5;
+  --rows: 7;
+  --cell-w: calc(100% / var(--cols));
+  --cell-h: calc(100% / var(--rows));
+  position: relative;
+  width: 100%;
+  margin-inline: auto;
+  aspect-ratio: var(--cols) / var(--rows);
+}
+
+/* --- A piece ---------------------------------------------------------------
+   Two elements, and it has to be two.
+
+   The link is the box: it carries the placement and the drop shadow. The face
+   inside it is what gets clipped to the jigsaw outline. They cannot be one
+   element, because a filter applies *before* clipping — a shadow drawn on the
+   clipped face would be cut away along with the piece's own tabs, leaving the
+   board flat.
+
+   The link is also taken out of hit-testing and the face put back into it. The
+   boxes overlap by design: a tab reaches into its neighbour's box, so every
+   piece's rectangle covers part of four others. Hit-testing reads rectangles,
+   not pixels, so with the links live the topmost rectangle over any point wins
+   and roughly a third of the clicks land on the wrong partner. A clip path
+   *does* cut hit-testing, so leaving the clipped face as the only target makes
+   the hit area the piece's real shape. The anchor still fires — the click
+   lands on its own child and bubbles — and focus never went through
+   pointer-events in the first place.
+-------------------------------------------------------------------------- */
+
+.partner-puzzle__piece {
+  position: absolute;
+  left: calc((var(--col) - var(--over)) * var(--cell-w));
+  top: calc((var(--row) - var(--over)) * var(--cell-h));
+  width: calc((var(--pw) + var(--over) * 2) * var(--cell-w));
+  height: calc((var(--ph) + var(--over) * 2) * var(--cell-h));
+  pointer-events: none;
+  /* Two shadows doing two jobs. The tight one is the seam: pieces sit flush, so
+     it only ever shows as a hairline where one meets the next, which is what
+     makes twenty-seven shapes read as twenty-seven pieces rather than one
+     printed sheet. The soft one is the whole puzzle's lift off the page, and it
+     is only really visible around the outside of the board. */
+  filter: drop-shadow(0 1px 0 rgb(15 23 42 / 0.1))
+    drop-shadow(0 3px 5px rgb(15 23 42 / 0.13));
+  /* Where a piece waits before the board assembles. Also where it stays if the
+     observer never fires, which is why the layout's noscript block names this
+     rule. */
+  opacity: 0;
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 240ms ease-out;
+}
+
+/* Sophic's is the one piece over the others rather than under them, so its own
+   shadow shows and its neighbours' do not fall across the middle of the board.
+   The component already renders it last, which among positioned siblings means
+   the same thing; this is the half of it that survives the markup being
+   reordered. Which of the two is on top is a question about shadows only — the
+   ink cannot collide either way, because a tab and the socket it drops into are
+   the same curve and the two shapes share an edge and nothing else. */
+.partner-puzzle__piece[data-sophic] {
+  z-index: 2;
+}
+
+.partner-puzzle__face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  clip-path: var(--clip);
+  /* Card, with the group's colour washed in from the rim.
+     Radial rather than linear, and that is the whole of it: the middle of every
+     piece — where the mark sits — stays white, and the colour is spent on the
+     edges, which is exactly where one piece meets the next. A single piece
+     reads as white card; a whole region of them reads as one colour. A flat
+     fill strong enough to group twenty-six pieces would have been far too
+     strong to put a logo on, and a top-to-bottom one banded every row. */
+  background: radial-gradient(
+    118% 118% at 50% 42%,
+    #fff 36%,
+    color-mix(in srgb, var(--tint) 26%, #fff) 100%
+  );
+}
+
+.partner-puzzle__face[data-sophic] {
+  background: linear-gradient(150deg, #14406c 0%, #071c33 74%);
+}
+
+/* On the face rather than on the link, because the face is what the pointer is
+   actually over — the link is out of hit-testing, and a cursor set on it would
+   never be consulted. */
+a.partner-puzzle__piece .partner-puzzle__face {
+  cursor: pointer;
+}
+
+/* Every logo file is the same canvas, so this is one rule rather than a table
+   of per-logo exceptions — the artwork was trimmed to its ink and fitted to that
+   canvas before it got here. The width itself is worked out in
+   lib/partnerPuzzle, because it depends on how deep a socket bites into a piece
+   and only that file knows. */
+.partner-puzzle__mark {
+  width: var(--mark);
+  height: auto;
+  object-fit: contain;
+}
+
+.partner-puzzle__name {
+  max-width: 74%;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  letter-spacing: 0.01em;
+  color: #33465c;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 64rem) {
+  .partner-puzzle__name {
+    font-size: 0.75rem;
+  }
+}
+
+/* Only the ones that go somewhere lift, so the hover is telling the truth about
+   which pieces are clickable. A piece lifting out of a finished puzzle is the
+   one gesture this layout has that the old wall of tiles did not — it is the
+   thing you do to a jigsaw. */
+a.partner-puzzle__piece:hover {
+  z-index: 5;
+  transform: scale(1.07);
+  filter: drop-shadow(0 12px 18px rgb(15 23 42 / 0.24))
+    drop-shadow(0 2px 3px rgb(15 23 42 / 0.12));
+}
+
+/* Drawn as shadows rather than an outline. An outline on the link would be a
+   rectangle around a jigsaw piece, and one on the face inside would be cut away
+   by the clip that makes the shape — so focus is a halo that follows the same
+   silhouette the resting shadow already traces. */
+a.partner-puzzle__piece:focus-visible {
+  outline: none;
+  z-index: 6;
+  transform: scale(1.07);
+  filter: drop-shadow(0 0 1px #0b3a63) drop-shadow(0 0 3px var(--mint))
+    drop-shadow(0 0 9px rgb(41 168 184 / 0.65))
+    drop-shadow(0 10px 16px rgb(15 23 42 / 0.2));
+}
+
+/* --- The assembly ----------------------------------------------------------
+   Sophic lands, then the three groups fill in one after another — Things of
+   Internet, then OT2IT, then Ecosystem Liaisons, in the order lib/partners
+   lists them. Group by group rather than cell by cell on purpose: the section
+   exists to say that these twenty-six fall into three kinds, and a board that
+   fills one region at a time says it before a single name has been read.
+
+   Each piece starts displaced away from the middle of the board, by an amount
+   proportional to how far out it ends up, and slides in. The far corners
+   therefore travel furthest and the pieces beside Sophic barely move, which is
+   what makes it read as a puzzle closing rather than a grid fading up.
+
+   `scale`, `translate` and `rotate` rather than the one `transform` that could
+   express all three, and it is not a style choice: the hover lift uses
+   `transform`, an animation's fill beats a plain declaration, and `both` here
+   would leave every piece unable to lift for the rest of the session. The four
+   are separate properties and compose, so the entrance can own three of them
+   and hand `transform` back untouched.
+-------------------------------------------------------------------------- */
+
+.partner-puzzle__piece {
+  --from-centre-x: calc(var(--col) + var(--pw) / 2 - var(--cols) / 2);
+  --from-centre-y: calc(var(--row) + var(--ph) / 2 - var(--rows) / 2);
+}
+
+@keyframes partner-puzzle-drop {
+  from {
+    opacity: 0;
+    translate: calc(var(--from-centre-x) * 30px)
+      calc(var(--from-centre-y) * 30px);
+    scale: 0.88;
+    rotate: calc(var(--from-centre-x) * 2deg);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+/* 700ms is long for an entrance — several times what a control answering a
+   click may take. It is deliberate and it is what this is: nobody pressed
+   anything, twenty-seven of these run as one movement, and the reader is being
+   shown a diagram rather than given feedback. */
+.partner-puzzle .reveal[data-visible="true"] .partner-puzzle__piece {
+  animation: partner-puzzle-drop 700ms var(--delay, 0ms) var(--ease-out-quint)
+    both;
+}
+
+/* Reveal wraps the board, but only to say when it has arrived — the pieces run
+   their own entrance off the attribute it writes. Its own fade is dropped here
+   so the two do not play over each other, and the layer hint with it: a
+   standing `will-change: opacity` makes the element a backdrop root, which is
+   the note in globals.css. */
+.partner-puzzle .reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+  will-change: auto;
+}
+
+/* --- The three names -------------------------------------------------------
+   Each hangs off the edge of the board along its own run of columns, with a
+   rule that width underneath it. The rule is the pointing: it covers exactly
+   the columns that group owns, and it is drawn in the same value as the wash on
+   the pieces themselves, so a name and a region are tied by colour and by
+   adjacency at once.
+
+   No leader lines, and none needed — unlike a diagram with three rings, every
+   name here is already touching its own pieces on all three boards.
+-------------------------------------------------------------------------- */
+
+.partner-puzzle__label {
+  position: absolute;
+  left: calc(var(--from) * var(--cell-w));
+  width: calc(var(--span) * var(--cell-w));
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+  color: var(--tint);
+}
+
+@media (min-width: 64rem) {
+  .partner-puzzle__label {
+    font-size: 0.875rem;
+  }
+}
+
+.partner-puzzle__label::after {
+  content: "";
+  display: block;
+  height: 2px;
+  /* Held back from the ends of its own run so two rules meeting on the same
+     edge — Ecosystem Liaisons and OT2IT do, on every board — read as two
+     rules rather than as one line that changes colour halfway. */
+  margin-inline: 0.35rem;
+  border-radius: 999px;
+  background: var(--tint);
+  opacity: 0.85;
+}
+
+.partner-puzzle__label[data-side="top"] {
+  bottom: 100%;
+  padding-bottom: 0.6rem;
+}
+
+.partner-puzzle__label[data-side="top"]::after {
+  margin-top: 0.4rem;
+}
+
+/* Reversed so the rule sits between the name and the board on this edge too —
+   the rule always touches the pieces and the name always faces away from them.
+   ::after is a flex item here, and column-reverse puts the last item first. */
+.partner-puzzle__label[data-side="bottom"] {
+  top: 100%;
+  padding-top: 0.6rem;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.partner-puzzle__label[data-side="bottom"]::after {
+  margin-bottom: 0.4rem;
+}
+
+/* --- Choosing a board ------------------------------------------------------
+   The only thing these three blocks do is pick which of each piece's three sets
+   of coordinates is live. Narrow is the default above; medium and wide are
+   here.
+-------------------------------------------------------------------------- */
+
+.partner-puzzle__piece {
+  --col: var(--col-n);
+  --row: var(--row-n);
+  --pw: var(--pw-n);
+  --ph: var(--ph-n);
+  --mark: var(--mark-n);
+  --clip: var(--clip-n);
+}
+
+.partner-puzzle__label {
+  --from: var(--from-n);
+  --span: var(--span-n);
+}
+
+@media (min-width: 48rem) {
+  .partner-puzzle__board {
+    --cols: 7;
+    --rows: 5;
+  }
+
+  .partner-puzzle__piece {
+    --col: var(--col-m);
+    --row: var(--row-m);
+    --pw: var(--pw-m);
+    --ph: var(--ph-m);
+    --mark: var(--mark-m);
+    --clip: var(--clip-m);
+  }
+
+  .partner-puzzle__label {
+    --from: var(--from-m);
+    --span: var(--span-m);
+  }
+}
+
+@media (min-width: 64rem) {
+  .partner-puzzle__board {
+    --cols: 9;
+    --rows: 4;
+    /* Never so tall that the whole board cannot be seen at once. 16rem is the
+       section's own padding plus the two label gutters, so what is left is
+       genuinely the board; past that it is capped by height and centred, which
+       is the only time it is narrower than its frame.
+
+       Only here. The wide board is 2.25:1 and can easily outgrow a laptop; the
+       two smaller boards are as tall as they are wide or taller, and capping
+       *those* by height would take room away from the logos on exactly the
+       screens with least of it to spare. */
+    max-width: calc((100svh - 16rem) * var(--cols) / var(--rows));
+  }
+
+  .partner-puzzle__piece {
+    --col: var(--col-w);
+    --row: var(--row-w);
+    --pw: var(--pw-w);
+    --ph: var(--ph-w);
+    --mark: var(--mark-w);
+    --clip: var(--clip-w);
+  }
+
+  .partner-puzzle__label {
+    --from: var(--from-w);
+    --span: var(--span-w);
+  }
+}
+
+/* --- Standing still --------------------------------------------------------
+   The board arrives assembled and nothing lifts. A completed puzzle holding
+   still is still a completed puzzle — the arrangement is the part that carries
+   the meaning, and none of it is in the motion.
+-------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-puzzle__piece,
+  a.partner-puzzle__piece:hover,
+  a.partner-puzzle__piece:focus-visible {
+    transform: none;
+    transition: none;
+  }
+
+  /* Both selector shapes: the bare one alone loses on specificity to the rule
+     that starts the assembly, and the board would still build itself for a
+     reader who asked it not to. */
+  .partner-puzzle__piece,
+  .partner-puzzle .reveal[data-visible="true"] .partner-puzzle__piece {
+    animation: none;
+    opacity: 1;
+    scale: none;
+    translate: none;
+    rotate: none;
+  }
+}

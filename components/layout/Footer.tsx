@@ -38,7 +38,7 @@ export function Footer() {
           {/* Identity */}
           <div>
             <Image
-              src="/images/sophic-logo-dark.png"
+              src="/images/sophic-mark-dark.png"
               alt="Sophic Digital Solutions"
               width={480}
               height={267}

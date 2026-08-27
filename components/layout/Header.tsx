@@ -43,6 +43,7 @@ const COVER_ROUTES = new Set<string>([
   "/careers/openings",
   "/community",
   "/company",
+  "/contact",
   "/partners",
 ]);
 
@@ -67,10 +68,25 @@ const COVER_PREFIXES = ["/careers/openings/", "/community/"];
  * The logo, in the two states the bar has: on its own solid background, and
  * over a cover it has gone transparent for.
  *
- * One pair, for every page: the current logo, navy script on the solid bar and
+ * One pair, for every page: the current logo, black script on the solid bar and
  * the white-lettered cut of the same artwork over a cover. Same drawing, same
  * globe, so the mark does not appear to change as the bar solidifies on scroll;
  * only the lettering does, which is what it is for.
+ *
+ * Both files are the "DESIGN 2" artwork — the anniversary cut, with the small
+ * "th" over the globe — trimmed to its ink and fitted onto one canvas. The two
+ * were normalised on the *same* crop rather than each on its own: the white
+ * cut's S is a hairline outline that reads 38px narrower at source, and left to
+ * itself it would land the mark a per cent off the black one and make the swap
+ * on scroll look like a nudge.
+ *
+ * They are named sophic-mark-* rather than sophic-logo-*, and the rename is the
+ * point rather than tidying. This artwork first went in by overwriting the old
+ * files in place, which changes the bytes and not the URL — and /_next/image
+ * caches on the URL, so every browser and CDN that had already fetched the old
+ * mark went on serving it. A new name is a new URL, which is the only version
+ * of "the logo changed" that a cache can see. Replace this artwork the same
+ * way: new file, new name, never in place.
  *
  * There were two pairs. The home page kept this artwork while every other page
  * wore the flatter cut in public/images/sophic-logo-normal*.png — a different
@@ -79,12 +95,14 @@ const COVER_PREFIXES = ["/careers/openings/", "/community/"];
  * it is now the one on every page and the split is gone. Nothing references the
  * normal files any more; they are still in public/images.
  *
- * Dimensions are the files' own. The box is object-contain regardless, so they
- * only decide which widths Next generates.
+ * Dimensions are the mark's proportion, not the files' pixel size — the PNGs
+ * are this tripled, so Next has real pixels to build the 2x entry of the srcset
+ * from. The box is object-contain regardless, so these only decide which widths
+ * are generated and what aspect the box is reserved at.
  */
 const MARKS = [
-  { src: "/images/sophic-logo-dark.png", w: 480, h: 267 },
-  { src: "/images/sophic-logo-light.png", w: 480, h: 267 },
+  { src: "/images/sophic-mark-dark.png", w: 480, h: 267 },
+  { src: "/images/sophic-mark-light.png", w: 480, h: 267 },
 ] as const;
 
 export function Header() {
@@ -148,11 +166,16 @@ export function Header() {
   // never while the drawer is open — a see-through bar above a solid drawer
   // reads as a glitch.
   //
-  // Two ways to have a cover, and the second is not a property of the route.
-  // A still cover is the same picture the whole time it is on screen, so the
-  // path is enough to know the bar is safe over it. The contact page's cover is
-  // ten seconds of film that ends on a near-white board, and nothing about the
-  // path says when that happens — so it asks, and stops asking when it lands.
+  // Two ways to have a cover. The first is the route: a cover that is the same
+  // picture the whole time it is on screen is safe to put a transparent bar
+  // over, and the path is enough to know that.
+  //
+  // The second is a cover asking for the bar while it needs it, for the case
+  // the path cannot answer — a cover that changes under the bar, so whether it
+  // is dark enough is a question about *when* rather than about *where*. The
+  // contact page used to be exactly that, a film ending on a near-white board;
+  // it is now a plain dark band and is in the set above like everything else.
+  // Nothing asks at the moment. See lib/coverOverlay.
   const hasCover =
     COVER_ROUTES.has(pathname) ||
     COVER_PREFIXES.some((prefix) => pathname.startsWith(prefix));

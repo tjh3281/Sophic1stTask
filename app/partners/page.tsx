@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { PartnerNetwork } from "@/components/partners/PartnerNetwork";
 import { PartnerPillars } from "@/components/partners/PartnerPillars";
+import { PartnerPuzzle } from "@/components/partners/PartnerPuzzle";
 import { PartnersCover } from "@/components/partners/PartnersCover";
 import { PARTNERS_HERO } from "@/lib/partners";
 import "./partners.css";
@@ -42,7 +42,7 @@ export default function PartnersPage() {
           margin exists to close the strip of bare page a dark section leaves
           above the near-white footer; this section is pale itself, so the
           footer's own margin is doing the job it was written for. */}
-      <PartnerNetwork />
+      <PartnerPuzzle />
     </>
   );
 }

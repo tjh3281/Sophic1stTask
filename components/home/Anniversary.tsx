@@ -15,10 +15,10 @@ import "./Anniversary.css";
  * so, the middle two are the body, and the last line is a slogan, not a
  * paragraph. Nothing is added, removed or reordered.
  */
-const LEDE = "For 20 years, Sophic Automation has been powered by its people.";
+const LEDE = "For 20 years, Sophic Automation has been powered by its people and you.";
 
 const BODY = [
-  "Their ideas, expertise, and dedication have driven innovation, built lasting partnerships, and transformed challenges into opportunities. Every milestone we have achieved reflects the passion and commitment of the individuals who make Sophic Automation what it is today.",
+  "Their ideas, expertise, and dedication have driven innovation, built lasting partnerships, and transformed challenges into opportunities. Every milestone we have achieved reflects the passion and commitment of the individuals who make Sophic Automation what it is today, these include our customers & partners.",
   "As we celebrate our 20th anniversary, we honor the people who shaped our journey and continue to inspire the future of automation.",
 ];
 
@@ -132,7 +132,7 @@ export function Anniversary() {
                 logo, which exists for exactly this ground. */}
             <Reveal variant="settle" delay={BEAT.logo}>
               <Image
-                src="/images/sophic-logo-light.png"
+                src="/images/sophic-mark-light.png"
                 alt=""
                 width={480}
                 height={267}

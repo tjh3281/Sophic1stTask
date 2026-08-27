@@ -1,0 +1,114 @@
+/* --- The contact page's hero ----------------------------------------------
+   Half a screen of dark, carrying one greeting at a time. The form starts in
+   the other half, which is the whole shape of the decision: the page opens on
+   both at once rather than on a cover the reader has to get past.
+
+   Everything here is type on a colour. There is nothing to load, which is why
+   a band this size costs the page nothing — the film it replaces was 26MB and
+   the first thing a reader saw of it was a still frame while it buffered.
+-------------------------------------------------------------------------- */
+
+.contact-hero {
+  /* Dark from edge to edge, which is what lets the bar go transparent over it —
+     see COVER_ROUTES in components/layout/Header.tsx. A vignette rather than a
+     flat field, centred on the word: the greeting is the only thing in the
+     band, and an even plate behind it reads as a missing image rather than as
+     a ground. */
+  background: radial-gradient(
+    130% 120% at 50% 48%,
+    #103356 0%,
+    #0a1c33 46%,
+    #050b16 100%
+  );
+  color: #fff;
+}
+
+/* --- The greetings ---------------------------------------------------------
+   All four stacked in one grid cell, one visible at a time. Stacked rather than
+   swapped, because the two halves of the change have to happen at once: the
+   word leaving and the word arriving are the same movement seen twice, and a
+   component that renders only the current one has nothing to move out.
+-------------------------------------------------------------------------- */
+
+.contact-hero__stage {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  /* The one type size the four are built from. Sized off the window rather than
+     the root, so the hero is the same fraction of the band on a laptop as on a
+     monitor — and capped, because past about this the word stops being a
+     greeting and starts being a headline. Each greeting multiplies it by its
+     own --size; see GREETINGS in ContactHero.tsx for why the four are not set
+     at one size. */
+  --type: clamp(2.5rem, 9vw, 5.5rem);
+}
+
+.contact-hero__word {
+  grid-area: 1 / 1;
+
+  font-family:
+    var(--font-sans),
+    /* Han and Tamil, which the Latin face has no glyphs for. Listed after it
+       rather than instead of it: font fallback is per glyph, so the Latin
+       greetings still set in the site's own face and only 你好 and வணக்கம்
+       reach past it. Each script gets the system faces most likely to be
+       installed, then Noto as the catch-all. */
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    "Nirmala UI", Latha, "Noto Sans Tamil",
+    Arial, Helvetica, sans-serif;
+  font-size: calc(var(--type) * var(--size, 1));
+  font-weight: 800;
+  /* Not 1. Tamil hangs marks above and below its line, and a title set solid
+     clips them — which on வணக்கம் takes off the part that makes it a word. */
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-align: center;
+  text-wrap: balance;
+
+  transition:
+    opacity 420ms var(--ease-gentle),
+    transform 620ms var(--ease-out-quint);
+}
+
+/* Latin tracking is a Latin decision. Han is drawn on an em square and Tamil
+   joins across its clusters; pulling either of them together is at best odd and
+   at worst illegible. */
+.contact-hero__word[lang="zh"],
+.contact-hero__word[lang="ta"] {
+  letter-spacing: 0;
+}
+
+/* Three states, and the middle one is the only one on screen. The two ends are
+   the same offset in opposite directions, so the sequence reads as a single
+   column of words moving upward past a window rather than as four cards taking
+   turns fading. In `em`, so a word travels a distance proportional to its own
+   size and the four moves look alike however differently they are set. */
+.contact-hero__word[data-state="waiting"] {
+  opacity: 0;
+  transform: translateY(0.4em) scale(0.96);
+}
+
+.contact-hero__word[data-state="now"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.contact-hero__word[data-state="gone"] {
+  opacity: 0;
+  transform: translateY(-0.4em) scale(1.03);
+}
+
+/* --- Standing still --------------------------------------------------------
+   The greeting still changes — that is content, and a reader who asked for less
+   motion did not ask to be shown one of four languages. What goes is the
+   movement: the words cross-fade in place instead of travelling.
+-------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-hero__word,
+  .contact-hero__word[data-state="waiting"],
+  .contact-hero__word[data-state="gone"] {
+    transform: none;
+    transition: opacity 200ms linear;
+  }
+}
