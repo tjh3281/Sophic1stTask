@@ -9,21 +9,30 @@ import "./Awards.css";
  *
  * Named for what it is rather than for how recent it is — the files it has
  * replaced were called "latest", "new" and "last final", and a fourth adjective
- * would not have helped anyone find it. A revised certificate overwrites this
- * path.
+ * would not have helped anyone find it.
+ *
+ * The number on the end is not a fifth adjective. A revision has to arrive as a
+ * new file under a new name, because next/image caches on the URL: written over
+ * the old path it is the same URL carrying different bytes, and every browser
+ * and CDN that already had the previous certificate goes on serving it. So the
+ * next revision is v3, and nothing is ever overwritten in place.
  *
  * Cropped from the supplied artwork, which arrives as the document floating in
  * the middle of a 1414x2000 transparent sheet: the size below is the opaque box
  * read off its alpha channel — 998x1413 at (220, 459) — flattened onto white,
  * since the section it sits in is white and the ring and shadow the component
- * draws want a real edge to sit against rather than a soft one.
+ * draws want a real edge to sit against rather than a soft one. v2 measures to
+ * the same box as v1, so the dimensions here are unchanged.
+ *
+ * v2 is the same document as v1 with the wordmark at its foot redrawn to the
+ * current cut — the same change the header and the footer carry.
  */
 const CERTIFICATE = {
-  // WebP rather than PNG: the same crop is 146KB here against 1.24MB as a PNG,
-  // and this is a document — flat paper, fine type — which is the case that
-  // survives it. Delivery goes through next/image either way, so what this
-  // decides is what the repository carries.
-  src: "/images/sophic-20th-anniversary-certificate.webp",
+  // WebP rather than PNG: this crop is 133KB here against 1.4MB as the PNG it
+  // was supplied as, and this is a document — flat paper, fine type — which is
+  // the case that survives it. Delivery goes through next/image either way, so
+  // what this decides is what the repository carries.
+  src: "/images/sophic-20th-anniversary-certificate-v2.webp",
   width: 998,
   height: 1413,
 };
