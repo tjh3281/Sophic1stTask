@@ -282,3 +282,218 @@ of width. A smaller file will look soft when stretched.
 New images are untracked until you `git add` them — a page that works locally
 but shows a broken image once live is almost always an image that was never
 committed.
+
+---
+
+## 8. Filling in the placeholders
+
+Parts of the site are deliberately unfinished. Where the real wording and
+photography have not arrived yet, the pages are built from obvious stand-ins —
+pale blue blueprint images, and text reading `Technical Metric 1`, `Function 2`,
+`Benefit 3`. That is on purpose: the page is laid out exactly as a finished one,
+and which pages are still waiting is obvious at a glance instead of something
+you have to know.
+
+**Everything in this section is meant to be deleted.** Replacing a stand-in with
+real content means removing the stand-in, not adding alongside it.
+
+### What is still a placeholder
+
+Counts as of writing — see *Checking what is left* below to recount at any time.
+
+| What                                    | How many | Where                   |
+| --------------------------------------- | -------- | ----------------------- |
+| Product pages with no real content       | 30 of 37 | `lib/solutions.ts`      |
+| Category "Why …?" benefit cards          | 8 of 12  | `lib/solutions.ts`      |
+| Category cover photos                    | 8 of 12  | `public/images/`        |
+| Product photos                           | 30       | `public/images/`        |
+| Products with no description written     | 3        | `lib/solutions.ts`      |
+
+The three with no description are Sophic's own products, where the source
+material gave a name and nothing else:
+
+- InnoLocker SMARTer
+- OPENdot
+- TofI Data Bridge
+
+They read *"Sophic's own. Description to be written."* on the site. Nothing was
+invented for them, so these need someone who knows the product.
+
+### Finishing one product page
+
+Open `lib/solutions.ts` and search for the product name. An unfinished one is a
+single `placeholderSub(...)` call — four arguments: slug, title, summary, and
+the page's URL:
+
+```ts
+placeholderSub(
+  "andon-system",
+  "Andon System",
+  "Calls for help from the line, raised where the problem is and escalated until it is answered.",
+  "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/andon-system",
+),
+```
+
+**To fix only the one-line summary** — the sentence under the title, also used on
+cards and in the header — edit the third argument in place. That is the smallest
+useful improvement and takes seconds.
+
+**To finish the whole page**, replace the call with a full entry. Keep `slug`,
+`title` and `href` exactly as they were — `href` must keep matching the folder
+under `app/solutions/…` or the build fails:
+
+```ts
+{
+  slug: "andon-system",
+  title: "Andon System",
+  summary: "One line, as above.",
+  href: "/solutions/digitalised-solutions/factory-intelligence-monitoring-connectivity/andon-system",
+
+  image: "/images/andon-system.webp",
+  imageFraming: "photo",
+
+  metrics: [
+    { label: "Response Time", values: [30], suffix: "s" },
+    { label: "Stations Supported", values: [50, 200], separator: "–" },
+  ],
+
+  functions: [
+    {
+      icon: "chart",
+      title: "What it does",
+      description: "One sentence describing this capability.",
+    },
+  ],
+
+  benefits: [
+    {
+      icon: "gauge",
+      title: "Why it is worth having",
+      image: "/images/andon-benefit-1.webp",
+      points: ["First point.", "Second point."],
+    },
+  ],
+}
+```
+
+Every field except the first four is optional, **and leaving one out removes its
+section from the page rather than breaking it**. So you can add real metrics
+today and real benefits next month; a page with two of the three simply shows
+two.
+
+Field notes:
+
+- **`imageFraming`** — `"photo"` for a full-frame scene, which gets cropped and
+  framed. `"cutout"` (the default, so just omit it) for a machine photographed
+  on white, which gets floated on the page. Using `"cutout"` for a scene leaves
+  it letterboxed with a shadow around a hard rectangle.
+- **`metrics`** — `values` is one number, or two for a range with a `separator`.
+  `prefix` is for a tolerance sign, `suffix` for the unit, `decimals` for how
+  many places to hold. They animate counting up from zero, which is why they are
+  numbers and not text. **Only put real figures here.** An invented spec is the
+  one thing on these pages a customer could act on.
+- **`functions` / `benefits` icons** — pick any name from the `GlyphName` list
+  near the top of `lib/solutions.ts`: `package`, `barcode`, `tune`, `gauge`,
+  `tag`, `cycle`, `laser`, `durable`, `arm`, `trays`, `sort`, `lens`, `chart`,
+  `screen`, `compass`, `wrench`. They are line drawings, not tied to any one
+  meaning, so choose whichever reads best.
+- **`benefits[].image`** — each benefit card carries its own photo. Point it at a
+  real one; leaving the shared `placeholder-benefit-1.webp` in place is what
+  makes a half-finished page look finished.
+
+For a model of a completed entry, look at **`laser-marking-equipment`** or
+**`machine-vision`** in the same file. Seven products are already finished this
+way.
+
+### Finishing a category
+
+A category with stand-in benefit cards has this line:
+
+```ts
+benefits: PLACEHOLDER_CATEGORY_BENEFITS,
+```
+
+Replace it with three or four real cards. These render over the cover photo, so
+keep them short:
+
+```ts
+benefits: [
+  {
+    icon: "target",
+    title: "Short claim",
+    description: "One sentence backing it up.",
+  },
+],
+```
+
+The `icon` here is a different set from the one above — the animated
+`BenefitIconName` list, also in `lib/solutions.ts`: `rocket`, `verified`,
+`handshake`, `shield`, `target`, `connection`, `settings`, `customer`, `speed`,
+`protection`, `savings`, `document`, `user`, `money-bag`.
+
+Each of those needs two files in `public/images/` — `<name>.webp` and
+`<name>-still.webp`. If you use a name whose artwork does not exist yet, add it
+to `PENDING_ICONS` in `components/solutions/BenefitIcon.tsx` so it draws a
+neutral shape instead of a broken image, and remove it from that list once the
+files arrive.
+
+### Replacing a placeholder image
+
+The blueprint plates are the files named `placeholder-…` in `public/images/`.
+There are two kinds:
+
+- `placeholder-cover-<category>.webp` — the full-width photo behind a category
+  page's title
+- `placeholder-<product>.webp` — a product's own photo
+
+You can either **point the entry at a new filename** (preferred — see
+§7 for naming) or **overwrite the placeholder file** keeping its name, which
+needs no code change at all.
+
+Covers run the full width of the screen, so give them **1600 px or more**.
+Product photos are shown much smaller; around 1200 px is plenty.
+
+Once nothing references a `placeholder-…` file any more, delete it.
+
+### Checking what is left
+
+From the project folder:
+
+```bash
+git grep -c "placeholderSub(" lib/solutions.ts
+```
+
+That prints how many unfinished products remain — **subtract one**, because the
+function's own definition is counted too. Today it prints `31`, so 30 products
+are unfinished. Similarly:
+
+```bash
+git grep -c "PLACEHOLDER_CATEGORY_BENEFITS" lib/solutions.ts   # prints 9  -> 8 categories
+git grep -c "UNDESCRIBED," lib/solutions.ts                     # prints 3  -> 3 products
+```
+
+The first two count their own definition line as well, so subtract one from
+each. The third does not, because the trailing comma only appears where the
+constant is used.
+
+Once the first two are down to `1` and the third to `0`, nothing on the site is
+a stand-in any more — at which point the placeholder constants at the top of
+`lib/solutions.ts` and the leftover `placeholder-*.webp` files can all be
+deleted.
+
+### Publishing what you filled in
+
+Same flow as §4. Check it builds, commit, then push to both branches:
+
+```bash
+npm run build                      # confirm it compiles
+git add -A
+git commit -m "Add real content for the Andon System page"
+git push origin main               # save to GitHub
+git push origin main:netlify       # publish to the live site
+```
+
+Two things this catches that a glance at the browser will not: a `href` that no
+longer matches its folder, and a new image you forgot to `git add`. Run
+`npm run build` before you push and both show up as errors instead of as a
+broken page on the live site.
